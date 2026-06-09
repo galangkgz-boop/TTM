@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import "./App.css";
+import { dummyProducts } from "./db/dummyProducts";
+import { formatRupiah } from "./lib/format";
 
 const menus = [
   { id: "dashboard", label: "Dashboard" },
@@ -66,38 +68,226 @@ function App() {
   );
 }
 
+function CashierPage() {
+  const [search, setSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("Semua");
+  const [cart, setCart] = useState([]);
+
+  const activeProducts = useMemo(() => {
+    return dummyProducts
+      .filter((product) => product.active)
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, []);
+
+  const categories = useMemo(() => {
+    const uniqueCategories = activeProducts.map((product) => product.category);
+    return ["Semua", ...new Set(uniqueCategories)];
+  }, [activeProducts]);
+
+  const filteredProducts = useMemo(() => {
+    const keyword = search.trim().toLowerCase();
+
+    return activeProducts.filter((product) => {
+      const matchCategory =
+        selectedCategory === "Semua" || product.category === selectedCategory;
+
+      const matchSearch =
+        product.name.toLowerCase().includes(keyword) ||
+        product.category.toLowerCase().includes(keyword);
+
+      return matchCategory && matchSearch;
+    });
+  }, [activeProducts, search, selectedCategory]);
+
+  const cartTotal = useMemo(() => {
+    return cart.reduce((total, item) => total + item.price * item.qty, 0);
+  }, [cart]);
+
+  function addToCart(product) {
+    setCart((currentCart) => {
+      const existingItem = currentCart.find((item) => item.id === product.id);
+
+      if (existingItem) {
+        return currentCart.map((item) =>
+          item.id === product.id ? { ...item, qty: item.qty + 1 } : item
+        );
+      }
+
+      return [
+        ...currentCart,
+        {
+          id: product.id,
+          name: product.name,
+          category: product.category,
+          price: product.price,
+          cost: product.cost,
+          unit: product.unit,
+          qty: 1,
+        },
+      ];
+    });
+  }
+
+  function increaseQty(productId) {
+    setCart((currentCart) =>
+      currentCart.map((item) =>
+        item.id === productId ? { ...item, qty: item.qty + 1 } : item
+      )
+    );
+  }
+
+  function decreaseQty(productId) {
+    setCart((currentCart) =>
+      currentCart
+        .map((item) =>
+          item.id === productId ? { ...item, qty: item.qty - 1 } : item
+        )
+        .filter((item) => item.qty > 0)
+    );
+  }
+
+  function clearCart() {
+    setCart([]);
+  }
+
+  return (
+    <div>
+      <div className="cashier-header">
+        <div>
+          <h3>Kasir</h3>
+          <p className="muted">
+            Pilih produk, masukkan ke keranjang, lalu cek total belanja.
+          </p>
+        </div>
+
+        <div className="cashier-total-box">
+          <span>Total</span>
+          <strong>{formatRupiah(cartTotal)}</strong>
+        </div>
+      </div>
+
+      <div className="cashier-layout">
+        <div className="product-area">
+          <div className="product-toolbar">
+            <input
+              type="search"
+              placeholder="Cari produk..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </div>
+
+          <div className="category-tabs">
+            {categories.map((category) => (
+              <button
+                key={category}
+                type="button"
+                className={
+                  selectedCategory === category
+                    ? "category-tab active"
+                    : "category-tab"
+                }
+                onClick={() => setSelectedCategory(category)}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+
+          <div className="product-grid">
+            {filteredProducts.map((product) => (
+              <button
+                key={product.id}
+                type="button"
+                className="product-card"
+                onClick={() => addToCart(product)}
+              >
+                <div>
+                  <h4>{product.name}</h4>
+                  <p>{product.category}</p>
+                </div>
+
+                <div className="product-card-footer">
+                  <strong>{formatRupiah(product.price)}</strong>
+                  <span>Stok {product.stock}</span>
+                </div>
+              </button>
+            ))}
+
+            {filteredProducts.length === 0 ? (
+              <div className="empty-state">
+                Produk tidak ditemukan.
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="cart-area">
+          <div className="cart-header">
+            <div>
+              <h4>Keranjang</h4>
+              <p>{cart.length} jenis produk</p>
+            </div>
+
+            {cart.length > 0 ? (
+              <button type="button" className="clear-button" onClick={clearCart}>
+                Kosongkan
+              </button>
+            ) : null}
+          </div>
+
+          <div className="cart-list">
+            {cart.map((item) => (
+              <div key={item.id} className="cart-item">
+                <div>
+                  <h5>{item.name}</h5>
+                  <p>
+                    {formatRupiah(item.price)} / {item.unit}
+                  </p>
+                </div>
+
+                <div className="qty-control">
+                  <button type="button" onClick={() => decreaseQty(item.id)}>
+                    -
+                  </button>
+                  <span>{item.qty}</span>
+                  <button type="button" onClick={() => increaseQty(item.id)}>
+                    +
+                  </button>
+                </div>
+
+                <strong>{formatRupiah(item.price * item.qty)}</strong>
+              </div>
+            ))}
+
+            {cart.length === 0 ? (
+              <div className="empty-cart">
+                Keranjang masih kosong.
+              </div>
+            ) : null}
+          </div>
+
+          <div className="cart-summary">
+            <div>
+              <span>Total Belanja</span>
+              <strong>{formatRupiah(cartTotal)}</strong>
+            </div>
+
+            <button type="button" className="pay-button" disabled={cart.length === 0}>
+              Bayar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function DashboardPage() {
   return (
     <div className="empty-page">
       <h3>Dashboard</h3>
       <p>Ringkasan omzet, profit, transaksi, dan produk terlaris nanti muncul di sini.</p>
-    </div>
-  );
-}
-
-function CashierPage() {
-  return (
-    <div>
-      <h3>Kasir</h3>
-      <p className="muted">
-        Ini halaman utama yang nanti dipakai untuk transaksi toko.
-      </p>
-
-      <div className="cashier-layout">
-        <div className="product-area">
-          <h4>Daftar Produk</h4>
-          <p>
-            Search produk, kategori, dan grid produk akan kita buat di tahap berikutnya.
-          </p>
-        </div>
-
-        <div className="cart-area">
-          <h4>Keranjang</h4>
-          <p>
-            Item belanja, total, bayar, dan kembalian akan muncul di sini.
-          </p>
-        </div>
-      </div>
     </div>
   );
 }
