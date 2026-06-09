@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { dummyProducts } from "./db/dummyProducts";
+import { dummyStockBatches } from "./db/dummyStockBatches";
 import { formatRupiah } from "./lib/format";
 
 const menus = [
@@ -14,6 +15,7 @@ const menus = [
 ];
 
 const TRANSACTIONS_STORAGE_KEY = "ttm_pos_transactions";
+const STOCK_BATCHES_STORAGE_KEY = "ttm_pos_stock_batches";
 
 function createTransactionCode(existingTransactions) {
   const now = new Date();
@@ -35,8 +37,119 @@ function createTransactionCode(existingTransactions) {
   return prefix + sequence;
 }
 
+function getProductStockFromBatches(productId, stockBatches) {
+  return stockBatches
+    .filter((batch) => batch.productId === productId)
+    .reduce((total, batch) => total + Number(batch.qtyRemaining || 0), 0);
+}
+
+function processFifoSale(cartItems, stockBatches) {
+  const updatedBatches = stockBatches.map((batch) => ({ ...batch }));
+  const fifoResultItems = [];
+
+  for (const cartItem of cartItems) {
+    let remainingQtyToSell = Number(cartItem.qty || 0);
+
+    const productBatches = updatedBatches
+      .filter(
+        (batch) =>
+          batch.productId === cartItem.id &&
+          Number(batch.qtyRemaining || 0) > 0
+      )
+      .sort((a, b) => {
+        const dateA = new Date(a.purchaseDate).getTime();
+        const dateB = new Date(b.purchaseDate).getTime();
+
+        if (dateA !== dateB) {
+          return dateA - dateB;
+        }
+
+        return Number(a.id) - Number(b.id);
+      });
+
+    const totalAvailableStock = productBatches.reduce(
+      (total, batch) => total + Number(batch.qtyRemaining || 0),
+      0
+    );
+
+    if (totalAvailableStock < remainingQtyToSell) {
+      return {
+        success: false,
+        message:
+          "Stok produk " +
+          cartItem.name +
+          " tidak cukup. Stok tersedia " +
+          totalAvailableStock +
+          ", diminta " +
+          remainingQtyToSell +
+          ".",
+      };
+    }
+
+    const usedBatches = [];
+
+    for (const batch of productBatches) {
+      if (remainingQtyToSell <= 0) {
+        break;
+      }
+
+      const availableQty = Number(batch.qtyRemaining || 0);
+      const takenQty = Math.min(availableQty, remainingQtyToSell);
+      const cost = Number(batch.cost || 0);
+
+      batch.qtyRemaining = availableQty - takenQty;
+      remainingQtyToSell = remainingQtyToSell - takenQty;
+
+      usedBatches.push({
+        batchId: batch.id,
+        batchCode: batch.batchCode,
+        purchaseDate: batch.purchaseDate,
+        qty: takenQty,
+        cost: cost,
+        totalCost: takenQty * cost,
+      });
+    }
+
+    const totalCost = usedBatches.reduce(
+      (total, batch) => total + batch.totalCost,
+      0
+    );
+
+    const subtotal = Number(cartItem.price || 0) * Number(cartItem.qty || 0);
+
+    fifoResultItems.push({
+      ...cartItem,
+      subtotal: subtotal,
+      fifoBatches: usedBatches,
+      totalCost: totalCost,
+      profit: subtotal - totalCost,
+    });
+  }
+
+  return {
+    success: true,
+    updatedBatches: updatedBatches,
+    items: fifoResultItems,
+  };
+}
+
 function App() {
   const [activePage, setActivePage] = useState("cashier");
+  const [products, setProducts] = useState(dummyProducts);
+  const [stockBatches, setStockBatches] = useState(() => {
+  const savedStockBatches = localStorage.getItem(STOCK_BATCHES_STORAGE_KEY);
+
+  if (!savedStockBatches) {
+    return dummyStockBatches;
+  }
+
+  try {
+    return JSON.parse(savedStockBatches);
+  } catch {
+    return dummyStockBatches;
+  }
+});
+
   const [transactions, setTransactions] = useState(() => {
     const savedTransactions = localStorage.getItem(TRANSACTIONS_STORAGE_KEY);
 
@@ -61,25 +174,56 @@ function App() {
     );
   }, [transactions]);
 
-  function addTransaction(transaction) {
-    setTransactions((currentTransactions) => [
-      transaction,
-      ...currentTransactions,
-    ]);
+  useEffect(() => {
+  localStorage.setItem(
+    STOCK_BATCHES_STORAGE_KEY,
+    JSON.stringify(stockBatches)
+  );
+}, [stockBatches]);
+
+  function addTransaction(transaction, updatedBatches) {
+  setTransactions((currentTransactions) => [
+    transaction,
+    ...currentTransactions,
+  ]);
+
+  if (updatedBatches) {
+    setStockBatches(updatedBatches);
   }
+}
+
+  function reduceProductStock(cartItems) {
+  setProducts((currentProducts) =>
+    currentProducts.map((product) => {
+      const soldItem = cartItems.find((item) => item.id === product.id);
+
+      if (!soldItem) {
+        return product;
+      }
+
+      return {
+        ...product,
+        stock: Math.max(Number(product.stock || 0) - Number(soldItem.qty || 0), 0),
+      };
+    })
+  );
+}
 
   function clearTransactions() {
-    const confirmClear = window.confirm(
-      "Hapus semua riwayat transaksi sementara"
-    );
+  const confirmClear = window.confirm(
+    "Hapus semua riwayat transaksi sementara dan reset stok FIFO?"
+  );
 
-    if (confirmClear === false) {
-      return;
-    }
-
-    setTransactions([]);
-    localStorage.removeItem(TRANSACTIONS_STORAGE_KEY);
+  if (confirmClear === false) {
+    return;
   }
+
+  setTransactions([]);
+  setStockBatches(dummyStockBatches);
+
+  localStorage.removeItem(TRANSACTIONS_STORAGE_KEY);
+  localStorage.removeItem(STOCK_BATCHES_STORAGE_KEY);
+}
 
   return (
     <div className="app-shell">
@@ -120,6 +264,8 @@ function App() {
           {activePage === "dashboard" ? <DashboardPage /> : null}
           {activePage === "cashier" ? ( 
             <CashierPage 
+            products={products}
+            stockBatches={stockBatches}
             transactions={transactions}
             onAddTransaction={addTransaction} 
           /> 
@@ -140,7 +286,7 @@ function App() {
   );
 }
 
-function CashierPage({ transactions, onAddTransaction }) {
+function CashierPage({ products, stockBatches, transactions, onAddTransaction }) {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [cart, setCart] = useState([]);
@@ -149,10 +295,14 @@ function CashierPage({ transactions, onAddTransaction }) {
   const [discountAmount, setDiscountAmount] = useState("");
 
   const activeProducts = useMemo(() => {
-    return dummyProducts
-      .filter((product) => product.active)
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, []);
+  return products
+    .filter((product) => product.active)
+    .map((product) => ({
+      ...product,
+      stock: getProductStockFromBatches(product.id, stockBatches),
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}, [products, stockBatches]);
 
   const categories = useMemo(() => {
     const uniqueCategories = activeProducts.map((product) => product.category);
@@ -252,55 +402,72 @@ function closePaymentModal() {
 }
 
 function finishTransaction() {
-  if (!isPaymentValid) return;
+  console.log("Klik Selesaikan Transaksi");
+  console.log("cart:", cart);
+  console.log("stockBatches:", stockBatches);
+  console.log("isPaymentValid:", isPaymentValid);
+  console.log("cartTotal:", cartTotal);
+  console.log("numericCashReceived:", numericCashReceived);
+
+  if (!isPaymentValid) {
+    alert("Pembayaran belum valid. Cek uang diterima atau diskon.");
+    return;
+  }
+
+  const fifoResult = processFifoSale(cart, stockBatches);
+
+  console.log("fifoResult:", fifoResult);
+
+  if (!fifoResult.success) {
+    alert(fifoResult.message);
+    return;
+  }
 
   const now = new Date();
   const transactionId = "TRX-" + now.getTime();
   const transactionCode = createTransactionCode(transactions);
 
+  const totalProfitBeforeDiscount = fifoResult.items.reduce(
+    (total, item) => total + item.profit,
+    0
+  );
+
   const transaction = {
     id: transactionId,
     code: transactionCode,
     date: now.toISOString(),
-    items: cart.map((item) => ({
-      ...item,
-      subtotal: item.price * item.qty,
-      profit: (item.price - item.cost) * item.qty,
-    })),
+    items: fifoResult.items,
     subtotal: cartSubtotal,
     discount: safeDiscountAmount,
     total: cartTotal,
     cashReceived: numericCashReceived,
     change: changeAmount,
     paymentMethod: "Cash",
-    profit: cart.reduce(
-      (total, item) => total + (item.price - item.cost) * item.qty,
-      0
-    ),
+    profit: totalProfitBeforeDiscount - safeDiscountAmount,
   };
 
-  onAddTransaction(transaction);
+  onAddTransaction(transaction, fifoResult.updatedBatches);
 
   alert(
-  "Transaksi berhasil!\n" +
-    "Kode: " +
-    transaction.code +
-    "\n" +
-    "Subtotal: " +
-    formatRupiah(transaction.subtotal) +
-    "\n" +
-    "Diskon: " +
-    formatRupiah(transaction.discount) +
-    "\n" +
-    "Total: " +
-    formatRupiah(transaction.total) +
-    "\n" +
-    "Bayar: " +
-    formatRupiah(transaction.cashReceived) +
-    "\n" +
-    "Kembalian: " +
-    formatRupiah(transaction.change)
-);
+    "Transaksi berhasil!\n" +
+      "Kode: " +
+      transaction.code +
+      "\n" +
+      "Subtotal: " +
+      formatRupiah(transaction.subtotal) +
+      "\n" +
+      "Diskon: " +
+      formatRupiah(transaction.discount) +
+      "\n" +
+      "Total: " +
+      formatRupiah(transaction.total) +
+      "\n" +
+      "Bayar: " +
+      formatRupiah(transaction.cashReceived) +
+      "\n" +
+      "Kembalian: " +
+      formatRupiah(transaction.change)
+  );
 
   setCart([]);
   setCashReceived("");
@@ -738,9 +905,28 @@ function TransactionDetailModal({ transaction, onClose }) {
             <div key={transaction.id + "-detail-" + item.id} className="detail-item">
               <div>
                 <strong>{item.name}</strong>
+
                 <span>
                   {item.qty} x {formatRupiah(item.price)}
                 </span>
+
+                <span>
+                  Modal FIFO: {formatRupiah(item.totalCost)}
+                </span>
+
+                <span>
+                  Profit: {formatRupiah(item.profit)}
+                </span>
+
+                {item.fifoBatches ? (
+                  <div className="fifo-batch-list">
+                    {item.fifoBatches.map((batch) => (
+                      <span key={item.id + "-batch-" + batch.batchId}>
+                        {batch.batchCode} - {batch.qty} pcs x {formatRupiah(batch.cost)}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
               </div>
 
               <strong>{formatRupiah(item.subtotal)}</strong>
