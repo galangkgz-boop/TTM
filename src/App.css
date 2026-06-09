@@ -516,3 +516,17 @@
     flex-direction: column;
   }
 }
+
+.danger-button {
+  border: 0;
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: #fee2e2;
+  color: #991b1b;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.danger-button:hover {
+  background: #fecaca;
+}

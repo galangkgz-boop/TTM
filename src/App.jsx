@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { dummyProducts } from "./db/dummyProducts";
 import { formatRupiah } from "./lib/format";
@@ -13,18 +13,52 @@ const menus = [
   { id: "settings", label: "Pengaturan" },
 ];
 
+const TRANSACTIONS_STORAGE_KEY = "ttm_pos_transactions";
+
 function App() {
   const [activePage, setActivePage] = useState("cashier");
-  const [transactions, setTransactions] = useState([]);
+  const [transactions, setTransactions] = useState(() => {
+    const savedTransactions = localStorage.getItem(TRANSACTIONS_STORAGE_KEY);
+
+    if (!savedTransactions) { 
+      return []; 
+    }
+
+    try {
+      return JSON.parse(savedTransactions);
+    } catch {
+      return [];
+    }
+  });
 
   const activeMenu = menus.find((menu) => menu.id === activePage);
   const pageTitle = activeMenu ? activeMenu.label : "Kasir";
+
+  useEffect(() => {
+    localStorage.setItem(
+      TRANSACTIONS_STORAGE_KEY, 
+      JSON.stringify(transactions)
+    );
+  }, [transactions]);
 
   function addTransaction(transaction) {
     setTransactions((currentTransactions) => [
       transaction,
       ...currentTransactions,
     ]);
+  }
+
+  function clearTransactions() {
+    const confirmClear = window.confirm(
+      "Hapus semua riwayat transaksi sementara"
+    );
+
+    if (confirmClear === false) {
+      return;
+    }
+
+    setTransactions([]);
+    localStorage.removeItem(TRANSACTIONS_STORAGE_KEY);
   }
 
   return (
@@ -67,7 +101,12 @@ function App() {
           {activePage === "cashier" ? ( <CashierPage onAddTransaction={addTransaction} /> ) : null}
           {activePage === "products" ? <ProductsPage /> : null}
           {activePage === "inventory" ? <InventoryPage /> : null}
-          {activePage === "transactions" ? ( <TransactionsPage transactions={transactions} /> ) : null}
+          {activePage === "transactions" ? ( 
+            <TransactionsPage 
+            transactions={transactions}
+            onClearTransactions={clearTransactions} 
+            /> 
+          ) : null}
           {activePage === "reports" ? <ReportsPage /> : null}
           {activePage === "settings" ? <SettingsPage /> : null}
         </section>
@@ -453,7 +492,7 @@ function InventoryPage() {
   );
 }
 
-function TransactionsPage({ transactions }) {
+function TransactionsPage({ transactions, onClearTransactions }) {
   const totalOmzet = transactions.reduce(
     (total, transaction) => total + transaction.total,
     0
@@ -470,9 +509,19 @@ function TransactionsPage({ transactions }) {
         <div>
           <h3>Riwayat Transaksi</h3>
           <p className="muted">
-            Transaksi yang selesai dari kasir akan muncul di sini sementara.
+            Transaksi sementara tersimpan di browser selama tahap development.
           </p>
         </div>
+
+        {transactions.length > 0 ? (
+          <button 
+            type="button" 
+            className="danger-button" 
+            onClick={onClearTransactions}
+          >
+            Hapus Riwayat
+          </button>
+        ) : null}
       </div>
 
       <div className="history-summary">
