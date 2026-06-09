@@ -15,9 +15,17 @@ const menus = [
 
 function App() {
   const [activePage, setActivePage] = useState("cashier");
+  const [transactions, setTransactions] = useState([]);
 
   const activeMenu = menus.find((menu) => menu.id === activePage);
   const pageTitle = activeMenu ? activeMenu.label : "Kasir";
+
+  function addTransaction(transaction) {
+    setTransactions((currentTransactions) => [
+      transaction,
+      ...currentTransactions,
+    ]);
+  }
 
   return (
     <div className="app-shell">
@@ -56,10 +64,10 @@ function App() {
 
         <section className="page-card">
           {activePage === "dashboard" ? <DashboardPage /> : null}
-          {activePage === "cashier" ? <CashierPage /> : null}
+          {activePage === "cashier" ? ( <CashierPage onAddTransaction={addTransaction} /> ) : null}
           {activePage === "products" ? <ProductsPage /> : null}
           {activePage === "inventory" ? <InventoryPage /> : null}
-          {activePage === "transactions" ? <TransactionsPage /> : null}
+          {activePage === "transactions" ? ( <TransactionsPage transactions={transactions} /> ) : null}
           {activePage === "reports" ? <ReportsPage /> : null}
           {activePage === "settings" ? <SettingsPage /> : null}
         </section>
@@ -68,7 +76,7 @@ function App() {
   );
 }
 
-function CashierPage() {
+function CashierPage({ onAddTransaction }) {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [cart, setCart] = useState([]);
@@ -171,10 +179,45 @@ function closePaymentModal() {
 function finishTransaction() {
   if (!isPaymentValid) return;
 
+  const now = new Date();
+  const transactionId = "TRX-" + now.getTime();
+
+  const transaction = {
+    id: transactionId,
+    code: "TRX-" + String(now.getTime()).slice(-6),
+    date: now.toISOString(),
+    items: cart.map((item) => ({
+      ...item,
+      subtotal: item.price * item.qty,
+      profit: (item.price - item.cost) * item.qty,
+    })),
+    subtotal: cartTotal,
+    discount: 0,
+    total: cartTotal,
+    cashReceived: numericCashReceived,
+    change: changeAmount,
+    paymentMethod: "Cash",
+    profit: cart.reduce(
+      (total, item) => total + (item.price - item.cost) * item.qty,
+      0
+    ),
+  };
+
+  onAddTransaction(transaction);
+
   alert(
-    `Transaksi berhasil!\nTotal: ${formatRupiah(cartTotal)}\nBayar: ${formatRupiah(
-      numericCashReceived
-    )}\nKembalian: ${formatRupiah(changeAmount)}`
+    "Transaksi berhasil!\n" +
+      "Kode: " +
+      transaction.code +
+      "\n" +
+      "Total: " +
+      formatRupiah(transaction.total) +
+      "\n" +
+      "Bayar: " +
+      formatRupiah(transaction.cashReceived) +
+      "\n" +
+      "Kembalian: " +
+      formatRupiah(transaction.change)
   );
 
   setCart([]);
@@ -410,11 +453,98 @@ function InventoryPage() {
   );
 }
 
-function TransactionsPage() {
+function TransactionsPage({ transactions }) {
+  const totalOmzet = transactions.reduce(
+    (total, transaction) => total + transaction.total,
+    0
+  );
+
+  const totalProfit = transactions.reduce(
+    (total, transaction) => total + transaction.profit,
+    0
+  );
+
   return (
-    <div className="empty-page">
-      <h3>Riwayat</h3>
-      <p>Semua transaksi, detail transaksi, dan cetak ulang struk.</p>
+    <div>
+      <div className="history-header">
+        <div>
+          <h3>Riwayat Transaksi</h3>
+          <p className="muted">
+            Transaksi yang selesai dari kasir akan muncul di sini sementara.
+          </p>
+        </div>
+      </div>
+
+      <div className="history-summary">
+        <div>
+          <span>Total Transaksi</span>
+          <strong>{transactions.length}</strong>
+        </div>
+
+        <div>
+          <span>Total Omzet</span>
+          <strong>{formatRupiah(totalOmzet)}</strong>
+        </div>
+
+        <div>
+          <span>Total Profit</span>
+          <strong>{formatRupiah(totalProfit)}</strong>
+        </div>
+      </div>
+
+      <div className="transaction-list">
+        {transactions.map((transaction) => (
+          <div key={transaction.id} className="transaction-card">
+            <div className="transaction-card-header">
+              <div>
+                <h4>{transaction.code}</h4>
+                <p>
+                  {new Date(transaction.date).toLocaleString("id-ID", {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  })}
+                </p>
+              </div>
+
+              <strong>{formatRupiah(transaction.total)}</strong>
+            </div>
+
+            <div className="transaction-items">
+              {transaction.items.map((item) => (
+                <div key={transaction.id + "-" + item.id}>
+                  <span>
+                    {item.name} x {item.qty}
+                  </span>
+                  <strong>{formatRupiah(item.subtotal)}</strong>
+                </div>
+              ))}
+            </div>
+
+            <div className="transaction-payment">
+              <div>
+                <span>Bayar</span>
+                <strong>{formatRupiah(transaction.cashReceived)}</strong>
+              </div>
+
+              <div>
+                <span>Kembalian</span>
+                <strong>{formatRupiah(transaction.change)}</strong>
+              </div>
+
+              <div>
+                <span>Profit</span>
+                <strong>{formatRupiah(transaction.profit)}</strong>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {transactions.length === 0 ? (
+          <div className="empty-state">
+            Belum ada transaksi. Coba lakukan transaksi dari halaman Kasir.
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }
