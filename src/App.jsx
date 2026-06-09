@@ -493,6 +493,8 @@ function InventoryPage() {
 }
 
 function TransactionsPage({ transactions, onClearTransactions }) {
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+
   const totalOmzet = transactions.reduce(
     (total, transaction) => total + transaction.total,
     0
@@ -555,7 +557,17 @@ function TransactionsPage({ transactions, onClearTransactions }) {
                 </p>
               </div>
 
-              <strong>{formatRupiah(transaction.total)}</strong>
+              <div className="transaction-header-actions">
+                <strong>{formatRupiah(transaction.total)}</strong>
+
+                <button
+                  type="button"
+                  className="detail-button"
+                  onClick={() => setSelectedTransaction(transaction)}
+                >
+                  Detail
+                </button>
+              </div>
             </div>
 
             <div className="transaction-items">
@@ -593,6 +605,104 @@ function TransactionsPage({ transactions, onClearTransactions }) {
             Belum ada transaksi. Coba lakukan transaksi dari halaman Kasir.
           </div>
         ) : null}
+      </div>
+
+      {selectedTransaction ? (
+        <TransactionDetailModal
+          transaction={selectedTransaction}
+          onClose={() => setSelectedTransaction(null)}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function TransactionDetailModal({ transaction, onClose }) {
+  return (
+    <div className="modal-backdrop">
+      <div className="transaction-detail-modal">
+        <div className="modal-header">
+          <div>
+            <h3>Detail Transaksi</h3>
+            <p>{transaction.code}</p>
+          </div>
+
+          <button type="button" className="modal-close" onClick={onClose}>
+            ×
+          </button>
+        </div>
+
+        <div className="detail-info-grid">
+          <div>
+            <span>Tanggal</span>
+            <strong>
+              {new Date(transaction.date).toLocaleString("id-ID", {
+                dateStyle: "medium",
+                timeStyle: "short",
+              })}
+            </strong>
+          </div>
+
+          <div>
+            <span>Metode Bayar</span>
+            <strong>{transaction.paymentMethod}</strong>
+          </div>
+        </div>
+
+        <div className="detail-item-list">
+          <h4>Item Transaksi</h4>
+
+          {transaction.items.map((item) => (
+            <div key={transaction.id + "-detail-" + item.id} className="detail-item">
+              <div>
+                <strong>{item.name}</strong>
+                <span>
+                  {item.qty} x {formatRupiah(item.price)}
+                </span>
+              </div>
+
+              <strong>{formatRupiah(item.subtotal)}</strong>
+            </div>
+          ))}
+        </div>
+
+        <div className="detail-total-list">
+          <div>
+            <span>Subtotal</span>
+            <strong>{formatRupiah(transaction.subtotal)}</strong>
+          </div>
+
+          <div>
+            <span>Diskon</span>
+            <strong>{formatRupiah(transaction.discount)}</strong>
+          </div>
+
+          <div>
+            <span>Total</span>
+            <strong>{formatRupiah(transaction.total)}</strong>
+          </div>
+
+          <div>
+            <span>Uang Diterima</span>
+            <strong>{formatRupiah(transaction.cashReceived)}</strong>
+          </div>
+
+          <div>
+            <span>Kembalian</span>
+            <strong>{formatRupiah(transaction.change)}</strong>
+          </div>
+
+          <div>
+            <span>Profit</span>
+            <strong>{formatRupiah(transaction.profit)}</strong>
+          </div>
+        </div>
+
+        <div className="detail-actions">
+          <button type="button" className="secondary-button" onClick={onClose}>
+            Tutup
+          </button>
+        </div>
       </div>
     </div>
   );
