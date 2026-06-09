@@ -15,6 +15,26 @@ const menus = [
 
 const TRANSACTIONS_STORAGE_KEY = "ttm_pos_transactions";
 
+function createTransactionCode(existingTransactions) {
+  const now = new Date();
+
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+
+  const dateCode = String(year) + month + day;
+  const prefix = "TRX-" + dateCode + "-";
+
+  const todayTransactions = existingTransactions.filter((transaction) =>
+    transaction.code.startsWith(prefix)
+  );
+
+  const nextNumber = todayTransactions.length + 1;
+  const sequence = String(nextNumber).padStart(4, "0");
+
+  return prefix + sequence;
+}
+
 function App() {
   const [activePage, setActivePage] = useState("cashier");
   const [transactions, setTransactions] = useState(() => {
@@ -98,7 +118,12 @@ function App() {
 
         <section className="page-card">
           {activePage === "dashboard" ? <DashboardPage /> : null}
-          {activePage === "cashier" ? ( <CashierPage onAddTransaction={addTransaction} /> ) : null}
+          {activePage === "cashier" ? ( 
+            <CashierPage 
+            transactions={transactions}
+            onAddTransaction={addTransaction} 
+          /> 
+          ) : null}
           {activePage === "products" ? <ProductsPage /> : null}
           {activePage === "inventory" ? <InventoryPage /> : null}
           {activePage === "transactions" ? ( 
@@ -115,7 +140,7 @@ function App() {
   );
 }
 
-function CashierPage({ onAddTransaction }) {
+function CashierPage({ transactions, onAddTransaction }) {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [cart, setCart] = useState([]);
@@ -231,10 +256,11 @@ function finishTransaction() {
 
   const now = new Date();
   const transactionId = "TRX-" + now.getTime();
+  const transactionCode = createTransactionCode(transactions);
 
   const transaction = {
     id: transactionId,
-    code: "TRX-" + String(now.getTime()).slice(-6),
+    code: transactionCode,
     date: now.toISOString(),
     items: cart.map((item) => ({
       ...item,
