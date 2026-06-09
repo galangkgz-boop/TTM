@@ -121,6 +121,7 @@ function CashierPage({ onAddTransaction }) {
   const [cart, setCart] = useState([]);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [cashReceived, setCashReceived] = useState("");
+  const [discountAmount, setDiscountAmount] = useState("");
 
   const activeProducts = useMemo(() => {
     return dummyProducts
@@ -148,13 +149,21 @@ function CashierPage({ onAddTransaction }) {
     });
   }, [activeProducts, search, selectedCategory]);
 
-  const cartTotal = useMemo(() => {
+  const cartSubtotal = useMemo(() => {
     return cart.reduce((total, item) => total + item.price * item.qty, 0);
   }, [cart]);
 
+  const numericDiscountAmount = Number(discountAmount || 0);
+  const isDiscountTooLarge = numericDiscountAmount > cartSubtotal;
+  const safeDiscountAmount = isDiscountTooLarge ? 0 : numericDiscountAmount;
+  const cartTotal = Math.max(cartSubtotal - safeDiscountAmount, 0);
+
   const numericCashReceived = Number(cashReceived || 0);
   const changeAmount = numericCashReceived - cartTotal;
-  const isPaymentValid = cart.length > 0 && numericCashReceived >= cartTotal;
+  const isPaymentValid =
+    cart.length > 0 &&
+    !isDiscountTooLarge &&
+    numericCashReceived >= cartTotal;
 
   function addToCart(product) {
     setCart((currentCart) => {
@@ -201,10 +210,12 @@ function CashierPage({ onAddTransaction }) {
 
   function clearCart() {
     setCart([]);
+    setDiscountAmount("");
   }
 
   function openPaymentModal() {
   if (cart.length === 0) return;
+  if (isDiscountTooLarge) return;
 
   setCashReceived(String(cartTotal));
   setIsPaymentOpen(true);
@@ -230,8 +241,8 @@ function finishTransaction() {
       subtotal: item.price * item.qty,
       profit: (item.price - item.cost) * item.qty,
     })),
-    subtotal: cartTotal,
-    discount: 0,
+    subtotal: cartSubtotal,
+    discount: safeDiscountAmount,
     total: cartTotal,
     cashReceived: numericCashReceived,
     change: changeAmount,
@@ -245,22 +256,29 @@ function finishTransaction() {
   onAddTransaction(transaction);
 
   alert(
-    "Transaksi berhasil!\n" +
-      "Kode: " +
-      transaction.code +
-      "\n" +
-      "Total: " +
-      formatRupiah(transaction.total) +
-      "\n" +
-      "Bayar: " +
-      formatRupiah(transaction.cashReceived) +
-      "\n" +
-      "Kembalian: " +
-      formatRupiah(transaction.change)
-  );
+  "Transaksi berhasil!\n" +
+    "Kode: " +
+    transaction.code +
+    "\n" +
+    "Subtotal: " +
+    formatRupiah(transaction.subtotal) +
+    "\n" +
+    "Diskon: " +
+    formatRupiah(transaction.discount) +
+    "\n" +
+    "Total: " +
+    formatRupiah(transaction.total) +
+    "\n" +
+    "Bayar: " +
+    formatRupiah(transaction.cashReceived) +
+    "\n" +
+    "Kembalian: " +
+    formatRupiah(transaction.change)
+);
 
   setCart([]);
   setCashReceived("");
+  setDiscountAmount("");
   setIsPaymentOpen(false);
 }
 
@@ -275,7 +293,7 @@ function finishTransaction() {
         </div>
 
         <div className="cashier-total-box">
-          <span>Total</span>
+          <span>Total Setelah Diskon</span>
           <strong>{formatRupiah(cartTotal)}</strong>
         </div>
       </div>
@@ -382,15 +400,43 @@ function finishTransaction() {
           </div>
 
           <div className="cart-summary">
+            <label className="discount-field">
+              Diskon Rupiah
+              <input
+                type="number"
+                min="0"
+                value={discountAmount}
+                onChange={(event) => setDiscountAmount(event.target.value)}
+                placeholder="0"
+                disabled={cart.length === 0}
+              />
+            </label>
+
+            <div>
+              <span>Subtotal</span>
+              <strong>{formatRupiah(cartSubtotal)}</strong>
+            </div>
+
+            <div>
+              <span>Diskon</span>
+              <strong>{formatRupiah(safeDiscountAmount)}</strong>
+            </div>
+
             <div>
               <span>Total Belanja</span>
               <strong>{formatRupiah(cartTotal)}</strong>
             </div>
 
+            {isDiscountTooLarge ? (
+              <p className="discount-warning">
+                Diskon tidak boleh lebih besar dari subtotal. Silakan periksa kembali.
+              </p>
+            ) : null}
+
             <button
               type="button"
               className="pay-button"
-              disabled={cart.length === 0}
+              disabled={cart.length === 0 || isDiscountTooLarge}
               onClick={openPaymentModal}
             >
               Bayar
@@ -414,35 +460,45 @@ function finishTransaction() {
             </div>
 
             <div className="payment-summary">
-              <div>
-                <span>Total Belanja</span>
-                <strong>{formatRupiah(cartTotal)}</strong>
-              </div>
+  <div>
+    <span>Subtotal</span>
+    <strong>{formatRupiah(cartSubtotal)}</strong>
+  </div>
 
-              <label>
-                Uang Diterima
-                <input
-                  type="number"
-                  min="0"
-                  value={cashReceived}
-                  onChange={(event) => setCashReceived(event.target.value)}
-                  autoFocus
-                />
-              </label>
+  <div>
+    <span>Diskon</span>
+    <strong>{formatRupiah(safeDiscountAmount)}</strong>
+  </div>
 
-              <div>
-                <span>Kembalian</span>
-                <strong className={changeAmount < 0 ? "danger-text" : ""}>
-                  {formatRupiah(changeAmount)}
-                </strong>
-              </div>
+  <div>
+    <span>Total Belanja</span>
+    <strong>{formatRupiah(cartTotal)}</strong>
+  </div>
 
-              {changeAmount < 0 ? (
-                <p className="payment-warning">
-                  Uang diterima masih kurang {formatRupiah(Math.abs(changeAmount))}.
-                </p>
-              ) : null}
-            </div>
+  <label>
+    Uang Diterima
+    <input
+      type="number"
+      min="0"
+      value={cashReceived}
+      onChange={(event) => setCashReceived(event.target.value)}
+      autoFocus
+    />
+  </label>
+
+  <div>
+    <span>Kembalian</span>
+    <strong className={changeAmount < 0 ? "danger-text" : ""}>
+      {formatRupiah(changeAmount)}
+    </strong>
+  </div>
+
+  {changeAmount < 0 ? (
+    <p className="payment-warning">
+      Uang diterima masih kurang {formatRupiah(Math.abs(changeAmount))}.
+    </p>
+  ) : null}
+</div>
 
             <div className="payment-actions">
               <button type="button" className="secondary-button" onClick={closePaymentModal}>
