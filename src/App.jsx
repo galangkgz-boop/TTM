@@ -72,6 +72,8 @@ function CashierPage() {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [cart, setCart] = useState([]);
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [cashReceived, setCashReceived] = useState("");
 
   const activeProducts = useMemo(() => {
     return dummyProducts
@@ -102,6 +104,10 @@ function CashierPage() {
   const cartTotal = useMemo(() => {
     return cart.reduce((total, item) => total + item.price * item.qty, 0);
   }, [cart]);
+
+  const numericCashReceived = Number(cashReceived || 0);
+  const changeAmount = numericCashReceived - cartTotal;
+  const isPaymentValid = cart.length > 0 && numericCashReceived >= cartTotal;
 
   function addToCart(product) {
     setCart((currentCart) => {
@@ -149,6 +155,32 @@ function CashierPage() {
   function clearCart() {
     setCart([]);
   }
+
+  function openPaymentModal() {
+  if (cart.length === 0) return;
+
+  setCashReceived(String(cartTotal));
+  setIsPaymentOpen(true);
+}
+
+function closePaymentModal() {
+  setIsPaymentOpen(false);
+  setCashReceived("");
+}
+
+function finishTransaction() {
+  if (!isPaymentValid) return;
+
+  alert(
+    `Transaksi berhasil!\nTotal: ${formatRupiah(cartTotal)}\nBayar: ${formatRupiah(
+      numericCashReceived
+    )}\nKembalian: ${formatRupiah(changeAmount)}`
+  );
+
+  setCart([]);
+  setCashReceived("");
+  setIsPaymentOpen(false);
+}
 
   return (
     <div>
@@ -273,12 +305,80 @@ function CashierPage() {
               <strong>{formatRupiah(cartTotal)}</strong>
             </div>
 
-            <button type="button" className="pay-button" disabled={cart.length === 0}>
+            <button
+              type="button"
+              className="pay-button"
+              disabled={cart.length === 0}
+              onClick={openPaymentModal}
+            >
               Bayar
             </button>
           </div>
         </div>
       </div>
+
+      {isPaymentOpen ? (
+        <div className="modal-backdrop">
+          <div className="payment-modal">
+            <div className="modal-header">
+              <div>
+                <h3>Pembayaran</h3>
+                <p>Masukkan uang yang diterima dari pembeli.</p>
+              </div>
+
+              <button type="button" className="modal-close" onClick={closePaymentModal}>
+                ×
+              </button>
+            </div>
+
+            <div className="payment-summary">
+              <div>
+                <span>Total Belanja</span>
+                <strong>{formatRupiah(cartTotal)}</strong>
+              </div>
+
+              <label>
+                Uang Diterima
+                <input
+                  type="number"
+                  min="0"
+                  value={cashReceived}
+                  onChange={(event) => setCashReceived(event.target.value)}
+                  autoFocus
+                />
+              </label>
+
+              <div>
+                <span>Kembalian</span>
+                <strong className={changeAmount < 0 ? "danger-text" : ""}>
+                  {formatRupiah(changeAmount)}
+                </strong>
+              </div>
+
+              {changeAmount < 0 ? (
+                <p className="payment-warning">
+                  Uang diterima masih kurang {formatRupiah(Math.abs(changeAmount))}.
+                </p>
+              ) : null}
+            </div>
+
+            <div className="payment-actions">
+              <button type="button" className="secondary-button" onClick={closePaymentModal}>
+                Batal
+              </button>
+
+              <button
+                type="button"
+                className="finish-button"
+                disabled={!isPaymentValid}
+                onClick={finishTransaction}
+              >
+                Selesaikan Transaksi
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
