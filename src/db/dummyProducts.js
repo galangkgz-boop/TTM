@@ -81,22 +81,12 @@ export const dummyProducts = [
   },
   {
     id: 9,
-    name: "Es Wawan 1 pcs",
+    name: "Es Wawan",
     category: "Es Wawan",
     price: 1000,
     cost: 700,
     stock: 120,
     unit: "pcs",
-    active: true,
-  },
-  {
-    id: 10,
-    name: "Es Wawan Paket 10 pcs",
-    category: "Es Wawan",
-    price: 9000,
-    cost: 7000,
-    stock: 20,
-    unit: "paket",
     active: true,
   },
 ];

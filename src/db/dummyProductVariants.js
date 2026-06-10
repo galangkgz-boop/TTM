@@ -20,7 +20,7 @@ export const dummyProductVariants = [
     productId: 9,
     name: "1 pcs",
     qtyMultiplier: 1,
-    price: 1000,
+    price: 2000,
     active: true,
   },
   {
@@ -28,7 +28,7 @@ export const dummyProductVariants = [
     productId: 9,
     name: "Paket 10 pcs",
     qtyMultiplier: 10,
-    price: 9000,
+    price: 13000,
     active: true,
   },
 ];
