@@ -172,6 +172,32 @@ function createStockBatchCode(existingBatches) {
   return prefix + sequence;
 }
 
+function escapeCsvValue(value) {
+  const stringValue = String(value ?? "");
+  const escapedValue = stringValue.replace(/"/g, '""');
+
+  return '"' + escapedValue + '"';
+}
+
+function downloadCsvFile(filename, rows) {
+  const csvContent = rows
+    .map((row) => row.map(escapeCsvValue).join(","))
+    .join("\n");
+
+  const blob = new Blob([csvContent], {
+    type: "text/csv;charset=utf-8;",
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
+  link.click();
+
+  URL.revokeObjectURL(url);
+}
+
 function App() {
   const [activePage, setActivePage] = useState("cashier");
 
@@ -2208,6 +2234,69 @@ function TransactionsPage({ transactions, settings, onClearTransactions }) {
     0
   );
 
+  function exportTransactionsCsv() {
+  if (transactions.length === 0) {
+    alert("Belum ada transaksi untuk diexport.");
+    return;
+  }
+
+  const rows = [
+    [
+      "Kode Transaksi",
+      "Tanggal",
+      "Metode Bayar",
+      "Nama Item",
+      "Qty Jual",
+      "Qty FIFO Keluar",
+      "Harga",
+      "Subtotal Item",
+      "Modal FIFO Item",
+      "Profit Item",
+      "Subtotal Transaksi",
+      "Diskon",
+      "Total",
+      "Uang Diterima",
+      "Kembalian",
+      "Profit Transaksi",
+    ],
+  ];
+
+  transactions.forEach((transaction) => {
+    transaction.items.forEach((item) => {
+      rows.push([
+        transaction.code,
+        new Date(transaction.date).toLocaleString("id-ID"),
+        transaction.paymentMethod,
+        item.name,
+        item.qty,
+        item.fifoQty || item.qty,
+        item.price,
+        item.subtotal,
+        item.totalCost || 0,
+        item.profit || 0,
+        transaction.subtotal || 0,
+        transaction.discount || 0,
+        transaction.total || 0,
+        transaction.cashReceived || 0,
+        transaction.change || 0,
+        transaction.profit || 0,
+      ]);
+    });
+  });
+
+  const now = new Date();
+  const filename =
+    "transaksi-ttm-" +
+    now.getFullYear() +
+    "-" +
+    String(now.getMonth() + 1).padStart(2, "0") +
+    "-" +
+    String(now.getDate()).padStart(2, "0") +
+    ".csv";
+
+  downloadCsvFile(filename, rows);
+}
+
   return (
     <div>
       <div className="history-header">
@@ -2219,14 +2308,24 @@ function TransactionsPage({ transactions, settings, onClearTransactions }) {
         </div>
 
         {transactions.length > 0 ? (
-          <button 
-            type="button" 
-            className="danger-button" 
-            onClick={onClearTransactions}
-          >
-            Hapus Riwayat
-          </button>
-        ) : null}
+  <div className="transaction-header-actions">
+    <button
+      type="button"
+      className="secondary-button"
+      onClick={exportTransactionsCsv}
+    >
+      Export CSV
+    </button>
+
+    <button
+      type="button"
+      className="danger-button"
+      onClick={onClearTransactions}
+    >
+      Hapus Riwayat
+    </button>
+  </div>
+) : null}
       </div>
 
       <div className="history-summary">
