@@ -516,6 +516,7 @@ function activateProductVariant(variantId) {
           {activePage === "transactions" ? ( 
             <TransactionsPage 
               transactions={transactions}
+              settings={settings}
               onClearTransactions={clearTransactions} 
             /> 
           ) : null}
@@ -2203,7 +2204,7 @@ function submitStockBatch(event) {
   );
 }
 
-function TransactionsPage({ transactions, onClearTransactions }) {
+function TransactionsPage({ transactions, settings, onClearTransactions }) {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
 
   const totalOmzet = transactions.reduce(
@@ -2325,6 +2326,7 @@ function TransactionsPage({ transactions, onClearTransactions }) {
       {selectedTransaction ? (
         <TransactionDetailModal
           transaction={selectedTransaction}
+          settings={settings}
           onClose={() => setSelectedTransaction(null)}
         />
       ) : null}
@@ -2332,7 +2334,9 @@ function TransactionsPage({ transactions, onClearTransactions }) {
   );
 }
 
-function TransactionDetailModal({ transaction, onClose }) {
+function TransactionDetailModal({ transaction, settings, onClose }) {
+  const [isReceiptOpen, setIsReceiptOpen] = useState(false);
+
   return (
     <div className="modal-backdrop">
       <div className="transaction-detail-modal">
@@ -2445,11 +2449,143 @@ function TransactionDetailModal({ transaction, onClose }) {
         </div>
 
         <div className="detail-actions">
-          <button type="button" className="secondary-button" onClick={onClose}>
-            Tutup
-          </button>
+  <button
+    type="button"
+    className="secondary-button"
+    onClick={() => setIsReceiptOpen(true)}
+  >
+    Lihat Struk
+  </button>
+
+  <button type="button" className="finish-button" onClick={onClose}>
+    Tutup
+  </button>
+</div>
+      </div>
+
+      {isReceiptOpen ? (
+  <div className="modal-backdrop">
+    <div className="receipt-modal">
+      <div className="modal-header">
+        <div>
+          <h3>Preview Struk</h3>
+          <p>{transaction.code}</p>
+        </div>
+
+        <button
+          type="button"
+          className="modal-close"
+          onClick={() => setIsReceiptOpen(false)}
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="receipt-paper">
+        <div className="receipt-store">
+          <h4>{settings.storeName}</h4>
+
+          {settings.address ? <p>{settings.address}</p> : null}
+          {settings.phone ? <p>WA: {settings.phone}</p> : null}
+        </div>
+
+        <div className="receipt-line" />
+
+        <div className="receipt-meta">
+          <div>
+            <span>No</span>
+            <strong>{transaction.code}</strong>
+          </div>
+
+          <div>
+            <span>Tgl</span>
+            <strong>
+              {new Date(transaction.date).toLocaleString("id-ID", {
+                dateStyle: "short",
+                timeStyle: "short",
+              })}
+            </strong>
+          </div>
+
+          <div>
+            <span>Bayar</span>
+            <strong>{transaction.paymentMethod}</strong>
+          </div>
+        </div>
+
+        <div className="receipt-line" />
+
+        <div className="receipt-items">
+          {transaction.items.map((item) => (
+            <div key={item.cartItemId || item.id} className="receipt-item">
+              <div>
+                <strong>{item.name}</strong>
+                <span>
+                  {item.qty} x {formatRupiah(item.price)}
+                </span>
+              </div>
+
+              <strong>{formatRupiah(item.subtotal)}</strong>
+            </div>
+          ))}
+        </div>
+
+        <div className="receipt-line" />
+
+        <div className="receipt-total">
+          <div>
+            <span>Subtotal</span>
+            <strong>{formatRupiah(transaction.subtotal || 0)}</strong>
+          </div>
+
+          <div>
+            <span>Diskon</span>
+            <strong>{formatRupiah(transaction.discount || 0)}</strong>
+          </div>
+
+          <div className="receipt-grand-total">
+            <span>Total</span>
+            <strong>{formatRupiah(transaction.total || 0)}</strong>
+          </div>
+
+          <div>
+            <span>Tunai</span>
+            <strong>{formatRupiah(transaction.cashReceived || 0)}</strong>
+          </div>
+
+          <div>
+            <span>Kembali</span>
+            <strong>{formatRupiah(transaction.change || 0)}</strong>
+          </div>
+        </div>
+
+        <div className="receipt-line" />
+
+        <div className="receipt-note">
+          <p>{settings.receiptNote}</p>
         </div>
       </div>
+
+      <div className="receipt-actions">
+        <button
+          type="button"
+          className="secondary-button"
+          onClick={() => setIsReceiptOpen(false)}
+        >
+          Tutup
+        </button>
+
+        <button
+          type="button"
+          className="finish-button"
+          onClick={() => window.print()}
+        >
+          Print Browser
+        </button>
+      </div>
+    </div>
+  </div>
+) : null}
     </div>
   );
 }
