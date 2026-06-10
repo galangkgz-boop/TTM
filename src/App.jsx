@@ -402,21 +402,12 @@ function closePaymentModal() {
 }
 
 function finishTransaction() {
-  console.log("Klik Selesaikan Transaksi");
-  console.log("cart:", cart);
-  console.log("stockBatches:", stockBatches);
-  console.log("isPaymentValid:", isPaymentValid);
-  console.log("cartTotal:", cartTotal);
-  console.log("numericCashReceived:", numericCashReceived);
-
   if (!isPaymentValid) {
     alert("Pembayaran belum valid. Cek uang diterima atau diskon.");
     return;
   }
 
   const fifoResult = processFifoSale(cart, stockBatches);
-
-  console.log("fifoResult:", fifoResult);
 
   if (!fifoResult.success) {
     alert(fifoResult.message);
