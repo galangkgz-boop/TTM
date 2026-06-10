@@ -1999,13 +1999,17 @@ function TransactionsPage({ transactions, onClearTransactions }) {
 
             <div className="transaction-items">
               {transaction.items.map((item) => (
-                <div key={transaction.id + "-" + item.id}>
-                  <span>
-                    {item.name} x {item.qty}
-                  </span>
-                  <strong>{formatRupiah(item.subtotal)}</strong>
-                </div>
-              ))}
+  <li key={item.cartItemId || item.id}>
+    <span>
+      {item.name} x {item.qty}
+      {Number(item.qtyMultiplier || 1) > 1
+        ? " (" + Number(item.fifoQty || 0) + " " + item.unit + " keluar)"
+        : ""}
+    </span>
+
+    <strong>{formatRupiah(item.subtotal)}</strong>
+  </li>
+))}
             </div>
 
             <div className="transaction-payment">
@@ -2080,36 +2084,48 @@ function TransactionDetailModal({ transaction, onClose }) {
           <h4>Item Transaksi</h4>
 
           {transaction.items.map((item) => (
-            <div key={transaction.id + "-detail-" + item.id} className="detail-item">
-              <div>
-                <strong>{item.name}</strong>
+  <div key={item.cartItemId || item.id} className="detail-item">
+    <div>
+      <strong>{item.name}</strong>
 
-                <span>
-                  {item.qty} x {formatRupiah(item.price)}
-                </span>
+      {item.variantName ? (
+        <p>
+          Produk utama: {item.productName}
+        </p>
+      ) : null}
 
-                <span>
-                  Modal FIFO: {formatRupiah(item.totalCost)}
-                </span>
+      <p>
+        Qty jual: {item.qty} x {formatRupiah(item.price)}
+      </p>
 
-                <span>
-                  Profit: {formatRupiah(item.profit)}
-                </span>
+      <p>
+        Qty FIFO keluar: {Number(item.fifoQty || item.qty)} {item.unit}
+      </p>
 
-                {item.fifoBatches ? (
-                  <div className="fifo-batch-list">
-                    {item.fifoBatches.map((batch) => (
-                      <span key={item.id + "-batch-" + batch.batchId}>
-                        {batch.batchCode} - {batch.qty} pcs x {formatRupiah(batch.cost)}
-                      </span>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
+      <p>
+        Modal FIFO: {formatRupiah(item.totalCost || 0)}
+      </p>
 
-              <strong>{formatRupiah(item.subtotal)}</strong>
-            </div>
+      <p>
+        Profit item: {formatRupiah(item.profit || 0)}
+      </p>
+
+      {item.fifoBatches && item.fifoBatches.length > 0 ? (
+        <div className="fifo-batch-list">
+          <span>Batch FIFO:</span>
+
+          {item.fifoBatches.map((batch) => (
+            <small key={batch.batchId}>
+              {batch.batchCode} - {batch.qty} {item.unit} x {formatRupiah(batch.cost)}
+            </small>
           ))}
+        </div>
+      ) : null}
+    </div>
+
+    <strong>{formatRupiah(item.subtotal)}</strong>
+  </div>
+))}
         </div>
 
         <div className="detail-total-list">
