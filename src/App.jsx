@@ -270,14 +270,22 @@ function App() {
             onAddTransaction={addTransaction} 
           /> 
           ) : null}
+
           {activePage === "products" ? <ProductsPage /> : null}
-          {activePage === "inventory" ? <InventoryPage /> : null}
+          {activePage === "inventory" ? (
+            <InventoryPage
+            products={products}
+            stockBatches={stockBatches}
+          /> 
+          ) : null}
+
           {activePage === "transactions" ? ( 
             <TransactionsPage 
             transactions={transactions}
             onClearTransactions={clearTransactions} 
             /> 
           ) : null}
+
           {activePage === "reports" ? <ReportsPage /> : null}
           {activePage === "settings" ? <SettingsPage /> : null}
         </section>
@@ -723,11 +731,206 @@ function ProductsPage() {
   );
 }
 
-function InventoryPage() {
+function InventoryPage({ products, stockBatches }) {
+  const activeProducts = products.filter((product) => product.active);
+
+  const productStockSummary = activeProducts
+    .map((product) => {
+      const productBatches = stockBatches.filter(
+        (batch) => batch.productId === product.id
+      );
+
+      const totalStock = productBatches.reduce(
+        (total, batch) => total + Number(batch.qtyRemaining || 0),
+        0
+      );
+
+      const totalStockValue = productBatches.reduce(
+        (total, batch) =>
+          total + Number(batch.qtyRemaining || 0) * Number(batch.cost || 0),
+        0
+      );
+
+      return {
+        id: product.id,
+        name: product.name,
+        category: product.category,
+        totalStock: totalStock,
+        totalStockValue: totalStockValue,
+        batchCount: productBatches.length,
+      };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  const sortedBatches = stockBatches
+    .map((batch) => {
+      const product = products.find((item) => item.id === batch.productId);
+
+      return {
+        ...batch,
+        productName: product ? product.name : "Produk tidak ditemukan",
+        productCategory: product ? product.category : "-",
+      };
+    })
+    .sort((a, b) => {
+      const productCompare = a.productName.localeCompare(b.productName);
+
+      if (productCompare !== 0) {
+        return productCompare;
+      }
+
+      const dateA = new Date(a.purchaseDate).getTime();
+      const dateB = new Date(b.purchaseDate).getTime();
+
+      if (dateA !== dateB) {
+        return dateA - dateB;
+      }
+
+      return Number(a.id) - Number(b.id);
+    });
+
+  const totalAllStock = productStockSummary.reduce(
+    (total, product) => total + product.totalStock,
+    0
+  );
+
+  const totalInventoryValue = productStockSummary.reduce(
+    (total, product) => total + product.totalStockValue,
+    0
+  );
+
+  const activeBatchCount = stockBatches.filter(
+    (batch) => Number(batch.qtyRemaining || 0) > 0
+  ).length;
+
   return (
-    <div className="empty-page">
-      <h3>Stok</h3>
-      <p>Manajemen stok sederhana dan FIFO nanti kita susun di sini.</p>
+    <div>
+      <div className="inventory-header">
+        <div>
+          <h3>Stok FIFO</h3>
+          <p className="muted">
+            Semua stok produk dihitung dari batch FIFO yang masih memiliki qty sisa.
+          </p>
+        </div>
+      </div>
+
+      <div className="inventory-summary">
+        <div>
+          <span>Total Produk Aktif</span>
+          <strong>{activeProducts.length}</strong>
+        </div>
+
+        <div>
+          <span>Total Qty Stok</span>
+          <strong>{totalAllStock}</strong>
+        </div>
+
+        <div>
+          <span>Batch Aktif</span>
+          <strong>{activeBatchCount}</strong>
+        </div>
+
+        <div>
+          <span>Nilai Stok FIFO</span>
+          <strong>{formatRupiah(totalInventoryValue)}</strong>
+        </div>
+      </div>
+
+      <div className="inventory-section">
+        <div className="section-title">
+          <h4>Ringkasan Stok per Produk</h4>
+          <p>Total stok dihitung dari seluruh batch produk tersebut.</p>
+        </div>
+
+        <div className="inventory-table-wrap">
+          <table className="inventory-table">
+            <thead>
+              <tr>
+                <th>Produk</th>
+                <th>Kategori</th>
+                <th>Jumlah Batch</th>
+                <th>Total Stok</th>
+                <th>Nilai Stok</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {productStockSummary.map((product) => (
+                <tr key={product.id}>
+                  <td>{product.name}</td>
+                  <td>{product.category}</td>
+                  <td>{product.batchCount}</td>
+                  <td>
+                    <strong>{product.totalStock}</strong>
+                  </td>
+                  <td>{formatRupiah(product.totalStockValue)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="inventory-section">
+        <div className="section-title">
+          <h4>Daftar Batch FIFO</h4>
+          <p>Batch paling lama akan dipakai lebih dulu saat transaksi.</p>
+        </div>
+
+        <div className="inventory-table-wrap">
+          <table className="inventory-table">
+            <thead>
+              <tr>
+                <th>Produk</th>
+                <th>Kode Batch</th>
+                <th>Tanggal Masuk</th>
+                <th>Modal</th>
+                <th>Qty Awal</th>
+                <th>Qty Sisa</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {sortedBatches.map((batch) => {
+                const qtyRemaining = Number(batch.qtyRemaining || 0);
+                const isEmpty = qtyRemaining <= 0;
+
+                return (
+                  <tr key={batch.id} className={isEmpty ? "empty-batch-row" : ""}>
+                    <td>
+                      <strong>{batch.productName}</strong>
+                      <span>{batch.productCategory}</span>
+                    </td>
+                    <td>{batch.batchCode}</td>
+                    <td>
+                      {new Date(batch.purchaseDate).toLocaleDateString("id-ID", {
+                        dateStyle: "medium",
+                      })}
+                    </td>
+                    <td>{formatRupiah(batch.cost)}</td>
+                    <td>{batch.qtyInitial}</td>
+                    <td>
+                      <strong>{batch.qtyRemaining}</strong>
+                    </td>
+                    <td>
+                      <span className={isEmpty ? "batch-status empty" : "batch-status active"}>
+                        {isEmpty ? "Habis" : "Aktif"}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {sortedBatches.length === 0 ? (
+          <div className="empty-state">
+            Belum ada batch stok.
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }
