@@ -16,6 +16,7 @@ const menus = [
 
 const TRANSACTIONS_STORAGE_KEY = "ttm_pos_transactions";
 const STOCK_BATCHES_STORAGE_KEY = "ttm_pos_stock_batches";
+const PRODUCTS_STORAGE_KEY = "ttm_pos_products";
 
 function createTransactionCode(existingTransactions) {
   const now = new Date();
@@ -155,7 +156,21 @@ function createStockBatchCode(existingBatches) {
 
 function App() {
   const [activePage, setActivePage] = useState("cashier");
-  const [products, setProducts] = useState(dummyProducts);
+
+  const [products, setProducts] = useState(() => {
+  const savedProducts = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+
+  if (!savedProducts) {
+    return dummyProducts;
+  }
+
+  try {
+    return JSON.parse(savedProducts);
+  } catch {
+    return dummyProducts;
+  }
+});
+
   const [stockBatches, setStockBatches] = useState(() => {
   const savedStockBatches = localStorage.getItem(STOCK_BATCHES_STORAGE_KEY);
 
@@ -200,6 +215,13 @@ function App() {
     JSON.stringify(stockBatches)
   );
 }, [stockBatches]);
+
+useEffect(() => {
+  localStorage.setItem(
+    PRODUCTS_STORAGE_KEY,
+    JSON.stringify(products)
+  );
+}, [products]);
 
   function addTransaction(transaction, updatedBatches) {
   setTransactions((currentTransactions) => [
@@ -252,6 +274,55 @@ function App() {
   localStorage.removeItem(STOCK_BATCHES_STORAGE_KEY);
 }
 
+function addProduct(newProduct) {
+  setProducts((currentProducts) => [
+    ...currentProducts,
+    newProduct,
+  ]);
+}
+
+function updateProduct(updatedProduct) {
+  setProducts((currentProducts) =>
+    currentProducts.map((product) =>
+      product.id === updatedProduct.id ? updatedProduct : product
+    )
+  );
+}
+
+function deactivateProduct(productId) {
+  const confirmDeactivate = window.confirm(
+    "Nonaktifkan produk ini? Produk tidak akan muncul di kasir."
+  );
+
+  if (confirmDeactivate === false) {
+    return;
+  }
+
+  setProducts((currentProducts) =>
+    currentProducts.map((product) =>
+      product.id === productId
+        ? {
+            ...product,
+            active: false,
+          }
+        : product
+    )
+  );
+}
+
+function activateProduct(productId) {
+  setProducts((currentProducts) =>
+    currentProducts.map((product) =>
+      product.id === productId
+        ? {
+            ...product,
+            active: true,
+          }
+        : product
+    )
+  );
+}
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -298,7 +369,16 @@ function App() {
           /> 
           ) : null}
 
-          {activePage === "products" ? <ProductsPage /> : null}
+          {activePage === "products" ? (
+            <ProductsPage
+            products={products}
+            onAddProduct={addProduct}
+            onUpdateProduct={updateProduct}
+            onDeactivateProduct={deactivateProduct}
+            onActivateProduct={activateProduct}
+          />
+          ) : null}
+
           {activePage === "inventory" ? (
             <InventoryPage
             products={products}
@@ -353,8 +433,8 @@ function CashierPage({ products, stockBatches, transactions, onAddTransaction })
         selectedCategory === "Semua" || product.category === selectedCategory;
 
       const matchSearch =
-        product.name.toLowerCase().includes(keyword) ||
-        product.category.toLowerCase().includes(keyword);
+        product.name.toUpperCase().includes(keyword) ||
+        product.category.toUpperCase().includes(keyword);
 
       return matchCategory && matchSearch;
     });
@@ -750,11 +830,286 @@ function DashboardPage() {
   );
 }
 
-function ProductsPage() {
+function ProductsPage({
+  products,
+  onAddProduct,
+  onUpdateProduct,
+  onDeactivateProduct,
+  onActivateProduct
+}) {
+  const [isProductFormOpen, setIsProductFormOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [productName, setProductName] = useState("");
+  const [productCategory, setProductCategory] = useState("");
+  const [productPrice, setProductPrice] = useState("");
+  const [productUnit, setProductUnit] = useState("pcs");
+
+  const sortedProducts = [...products].sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
+
+  const activeProductCount = products.filter((product) => product.active).length;
+  const inactiveProductCount = products.length - activeProductCount;
+
+  function resetProductForm() {
+    setEditingProduct(null);
+    setProductName("");
+    setProductCategory("");
+    setProductPrice("");
+    setProductUnit("pcs");
+  }
+
+  function openAddProductForm() {
+    resetProductForm();
+    setIsProductFormOpen(true);
+  }
+
+  function openEditProductForm(product) {
+    setEditingProduct(product);
+    setProductName(product.name);
+    setProductCategory(product.category);
+    setProductPrice(String(product.price));
+    setProductUnit(product.unit);
+    setIsProductFormOpen(true);
+  }
+
+  function closeProductForm() {
+    setIsProductFormOpen(false);
+    resetProductForm();
+  }
+
+  function submitProductForm(event) {
+    event.preventDefault();
+
+    const name = productName.trim();
+    const category = productCategory.trim();
+    const price = Number(productPrice || 0);
+    const unit = productUnit.trim();
+
+    if (!name) {
+      alert("Nama produk wajib diisi.");
+      return;
+    }
+
+    if (!category) {
+      alert("Kategori produk wajib diisi.");
+      return;
+    }
+
+    if (price <= 0) {
+      alert("Harga jual harus lebih dari 0.");
+      return;
+    }
+
+    if (!unit) {
+      alert("Satuan wajib diisi.");
+      return;
+    }
+
+    if (editingProduct) {
+      const updatedProduct = {
+        ...editingProduct,
+        name: name,
+        category: category,
+        price: price,
+        unit: unit,
+      };
+
+      onUpdateProduct(updatedProduct);
+      alert("Produk berhasil diperbarui.");
+      closeProductForm();
+      return;
+    }
+
+    const newProduct = {
+      id: Date.now(),
+      name: name,
+      category: category,
+      price: price,
+      cost: 0,
+      stock: 0,
+      unit: unit,
+      active: true,
+    };
+
+    onAddProduct(newProduct);
+    alert("Produk berhasil ditambahkan.");
+    closeProductForm();
+  }
+
   return (
-    <div className="empty-page">
-      <h3>Produk</h3>
-      <p>Tambah, edit, hapus, kategori, harga jual, harga modal, dan varian produk.</p>
+    <div>
+      <div className="products-header">
+        <div>
+          <h3>Produk</h3>
+          <p className="muted">
+            Kelola data produk. Stok tetap dikelola dari batch FIFO di menu Stok.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          className="primary-action-button"
+          onClick={openAddProductForm}
+        >
+          Tambah Produk
+        </button>
+      </div>
+
+      <div className="products-summary">
+        <div>
+          <span>Total Produk</span>
+          <strong>{products.length}</strong>
+        </div>
+
+        <div>
+          <span>Produk Aktif</span>
+          <strong>{activeProductCount}</strong>
+        </div>
+
+        <div>
+          <span>Produk Nonaktif</span>
+          <strong>{inactiveProductCount}</strong>
+        </div>
+      </div>
+
+      <div className="products-table-wrap">
+        <table className="products-table">
+          <thead>
+            <tr>
+              <th>Produk</th>
+              <th>Kategori</th>
+              <th>Harga Jual</th>
+              <th>Satuan</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {sortedProducts.map((product) => (
+              <tr key={product.id} className={product.active ? "" : "inactive-product-row"}>
+                <td>
+                  <strong>{product.name}</strong>
+                </td>
+                <td>{product.category}</td>
+                <td>{formatRupiah(product.price)}</td>
+                <td>{product.unit}</td>
+                <td>
+                  <span className={product.active ? "product-status active" : "product-status inactive"}>
+                    {product.active ? "Aktif" : "Nonaktif"}
+                  </span>
+                </td>
+                <td>
+  <div className="table-actions">
+    <button
+      type="button"
+      className="small-edit-button"
+      onClick={() => openEditProductForm(product)}
+    >
+      Edit
+    </button>
+
+    {product.active ? (
+      <button
+        type="button"
+        className="small-danger-button"
+        onClick={() => onDeactivateProduct(product.id)}
+      >
+        Nonaktifkan
+      </button>
+    ) : (
+      <button
+        type="button"
+        className="small-activate-button"
+        onClick={() => onActivateProduct(product.id)}
+      >
+        Aktifkan
+      </button>
+    )}
+  </div>
+</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {products.length === 0 ? (
+          <div className="empty-state">
+            Belum ada produk.
+          </div>
+        ) : null}
+      </div>
+
+      {isProductFormOpen ? (
+        <div className="modal-backdrop">
+          <div className="product-modal">
+            <div className="modal-header">
+              <div>
+                <h3>{editingProduct ? "Edit Produk" : "Tambah Produk"}</h3>
+                <p>Isi data produk. Batch stok ditambahkan dari menu Stok.</p>
+              </div>
+
+              <button type="button" className="modal-close" onClick={closeProductForm}>
+                ×
+              </button>
+            </div>
+
+            <form className="product-form" onSubmit={submitProductForm}>
+              <label>
+                Nama Produk
+                <input
+                  type="text"
+                  value={productName}
+                  onChange={(event) => setProductName(event.target.value)}
+                  placeholder="Contoh: Sosis Champ 375gr"
+                />
+              </label>
+
+              <label>
+                Kategori
+                <input
+                  type="text"
+                  value={productCategory}
+                  onChange={(event) => setProductCategory(event.target.value)}
+                  placeholder="Contoh: Sosis"
+                />
+              </label>
+
+              <label>
+                Harga Jual
+                <input
+                  type="number"
+                  min="1"
+                  value={productPrice}
+                  onChange={(event) => setProductPrice(event.target.value)}
+                  placeholder="Contoh: 24500"
+                />
+              </label>
+
+              <label>
+                Satuan
+                <input
+                  type="text"
+                  value={productUnit}
+                  onChange={(event) => setProductUnit(event.target.value)}
+                  placeholder="pcs, pack, ball"
+                />
+              </label>
+
+              <div className="product-form-actions">
+                <button type="button" className="secondary-button" onClick={closeProductForm}>
+                  Batal
+                </button>
+
+                <button type="submit" className="finish-button">
+                  {editingProduct ? "Simpan Perubahan" : "Simpan Produk"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
