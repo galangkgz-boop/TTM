@@ -2470,10 +2470,10 @@ function ReceiptModal({ transaction, settings, onClose }) {
     <div className="modal-backdrop">
       <div className="receipt-modal">
         <div className="modal-header">
-          <div>
-            <h3>Preview Struk</h3>
-            <p>{transaction.code}</p>
-          </div>
+  <div>
+    <h3>Transaksi Berhasil</h3>
+    <p>{transaction.code} • cetak atau lewati struk</p>
+  </div>
 
           <button type="button" className="modal-close" onClick={onClose}>
             ×
@@ -2566,18 +2566,18 @@ function ReceiptModal({ transaction, settings, onClose }) {
         </div>
 
         <div className="receipt-actions">
-          <button type="button" className="secondary-button" onClick={onClose}>
-            Tutup
-          </button>
+  <button type="button" className="secondary-button" onClick={onClose}>
+    Lewati Struk
+  </button>
 
-          <button
-            type="button"
-            className="finish-button"
-            onClick={() => window.print()}
-          >
-            Print Browser
-          </button>
-        </div>
+  <button
+    type="button"
+    className="finish-button"
+    onClick={() => window.print()}
+  >
+    Cetak Struk
+  </button>
+</div>
       </div>
     </div>
   );
