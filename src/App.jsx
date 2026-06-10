@@ -479,7 +479,9 @@ function activateProductVariant(variantId) {
             /> 
           ) : null}
 
-          {activePage === "reports" ? <ReportsPage /> : null}
+          {activePage === "reports" ? (
+  <ReportsPage transactions={transactions} />
+) : null}
           {activePage === "settings" ? <SettingsPage /> : null}
         </section>
       </main>
@@ -2170,11 +2172,224 @@ function TransactionDetailModal({ transaction, onClose }) {
   );
 }
 
-function ReportsPage() {
+function ReportsPage({ transactions }) {
+  const totalRevenue = transactions.reduce(
+    (total, transaction) => total + Number(transaction.total || 0),
+    0
+  );
+
+  const totalSubtotal = transactions.reduce(
+    (total, transaction) => total + Number(transaction.subtotal || 0),
+    0
+  );
+
+  const totalDiscount = transactions.reduce(
+    (total, transaction) => total + Number(transaction.discount || 0),
+    0
+  );
+
+  const totalProfit = transactions.reduce(
+    (total, transaction) => total + Number(transaction.profit || 0),
+    0
+  );
+
+  const totalItemsSold = transactions.reduce((total, transaction) => {
+    const transactionQty = transaction.items.reduce(
+      (itemTotal, item) => itemTotal + Number(item.qty || 0),
+      0
+    );
+
+    return total + transactionQty;
+  }, 0);
+
+  const totalFifoQtySold = transactions.reduce((total, transaction) => {
+    const transactionFifoQty = transaction.items.reduce(
+      (itemTotal, item) =>
+        itemTotal + Number(item.fifoQty || item.qty || 0),
+      0
+    );
+
+    return total + transactionFifoQty;
+  }, 0);
+
+  const productSalesMap = {};
+
+  transactions.forEach((transaction) => {
+    transaction.items.forEach((item) => {
+      const key = item.name;
+
+      if (!productSalesMap[key]) {
+        productSalesMap[key] = {
+          name: item.name,
+          qty: 0,
+          fifoQty: 0,
+          revenue: 0,
+          profit: 0,
+        };
+      }
+
+      productSalesMap[key].qty =
+        productSalesMap[key].qty + Number(item.qty || 0);
+
+      productSalesMap[key].fifoQty =
+        productSalesMap[key].fifoQty + Number(item.fifoQty || item.qty || 0);
+
+      productSalesMap[key].revenue =
+        productSalesMap[key].revenue + Number(item.subtotal || 0);
+
+      productSalesMap[key].profit =
+        productSalesMap[key].profit + Number(item.profit || 0);
+    });
+  });
+
+  const topProducts = Object.values(productSalesMap)
+    .sort((a, b) => b.qty - a.qty)
+    .slice(0, 10);
+
+  const averageTransactionValue =
+    transactions.length > 0 ? totalRevenue / transactions.length : 0;
+
   return (
-    <div className="empty-page">
-      <h3>Laporan</h3>
-      <p>Laporan harian, mingguan, bulanan, tahunan, omzet, profit, dan produk terjual.</p>
+    <div>
+      <div className="reports-header">
+        <div>
+          <h3>Laporan</h3>
+          <p className="muted">
+            Ringkasan transaksi lokal berdasarkan riwayat penjualan dan modal FIFO.
+          </p>
+        </div>
+      </div>
+
+      <div className="reports-summary">
+        <div>
+          <span>Total Omzet</span>
+          <strong>{formatRupiah(totalRevenue)}</strong>
+        </div>
+
+        <div>
+          <span>Total Profit FIFO</span>
+          <strong>{formatRupiah(totalProfit)}</strong>
+        </div>
+
+        <div>
+          <span>Total Diskon</span>
+          <strong>{formatRupiah(totalDiscount)}</strong>
+        </div>
+
+        <div>
+          <span>Jumlah Transaksi</span>
+          <strong>{transactions.length}</strong>
+        </div>
+
+        <div>
+          <span>Subtotal Sebelum Diskon</span>
+          <strong>{formatRupiah(totalSubtotal)}</strong>
+        </div>
+
+        <div>
+          <span>Rata-rata Transaksi</span>
+          <strong>{formatRupiah(averageTransactionValue)}</strong>
+        </div>
+
+        <div>
+          <span>Qty Jual</span>
+          <strong>{totalItemsSold}</strong>
+        </div>
+
+        <div>
+          <span>Qty FIFO Keluar</span>
+          <strong>{totalFifoQtySold}</strong>
+        </div>
+      </div>
+
+      <div className="reports-section">
+        <div className="section-title">
+          <h4>Produk / Varian Terlaris</h4>
+          <p>Diurutkan berdasarkan qty jual. Qty FIFO menunjukkan stok asli yang keluar.</p>
+        </div>
+
+        <div className="reports-table-wrap">
+          <table className="reports-table">
+            <thead>
+              <tr>
+                <th>Produk / Varian</th>
+                <th>Qty Jual</th>
+                <th>Qty FIFO Keluar</th>
+                <th>Omzet</th>
+                <th>Profit FIFO</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {topProducts.map((product) => (
+                <tr key={product.name}>
+                  <td>
+                    <strong>{product.name}</strong>
+                  </td>
+                  <td>{product.qty}</td>
+                  <td>{product.fifoQty}</td>
+                  <td>{formatRupiah(product.revenue)}</td>
+                  <td>{formatRupiah(product.profit)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {topProducts.length === 0 ? (
+            <div className="empty-state">
+              Belum ada data transaksi.
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="reports-section">
+        <div className="section-title">
+          <h4>Transaksi Terbaru</h4>
+          <p>Ringkasan transaksi terakhir dari riwayat penjualan.</p>
+        </div>
+
+        <div className="reports-table-wrap">
+          <table className="reports-table">
+            <thead>
+              <tr>
+                <th>Kode</th>
+                <th>Tanggal</th>
+                <th>Item</th>
+                <th>Diskon</th>
+                <th>Total</th>
+                <th>Profit</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {transactions.slice(0, 10).map((transaction) => (
+                <tr key={transaction.id}>
+                  <td>
+                    <strong>{transaction.code}</strong>
+                  </td>
+                  <td>
+                    {new Date(transaction.date).toLocaleString("id-ID", {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}
+                  </td>
+                  <td>{transaction.items.length}</td>
+                  <td>{formatRupiah(transaction.discount || 0)}</td>
+                  <td>{formatRupiah(transaction.total || 0)}</td>
+                  <td>{formatRupiah(transaction.profit || 0)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {transactions.length === 0 ? (
+            <div className="empty-state">
+              Belum ada transaksi.
+            </div>
+          ) : null}
+        </div>
+      </div>
     </div>
   );
 }
