@@ -346,6 +346,55 @@ function activateProduct(productId) {
   );
 }
 
+function addProductVariant(newVariant) {
+  setProductVariants((currentVariants) => [
+    ...currentVariants,
+    newVariant,
+  ]);
+}
+
+function updateProductVariant(updatedVariant) {
+  setProductVariants((currentVariants) =>
+    currentVariants.map((variant) =>
+      variant.id === updatedVariant.id ? updatedVariant : variant
+    )
+  );
+}
+
+function deactivateProductVariant(variantId) {
+  const confirmDeactivate = window.confirm(
+    "Nonaktifkan varian ini? Varian tidak akan muncul di kasir."
+  );
+
+  if (confirmDeactivate === false) {
+    return;
+  }
+
+  setProductVariants((currentVariants) =>
+    currentVariants.map((variant) =>
+      variant.id === variantId
+        ? {
+            ...variant,
+            active: false,
+          }
+        : variant
+    )
+  );
+}
+
+function activateProductVariant(variantId) {
+  setProductVariants((currentVariants) =>
+    currentVariants.map((variant) =>
+      variant.id === variantId
+        ? {
+            ...variant,
+            active: true,
+          }
+        : variant
+    )
+  );
+}
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -394,13 +443,17 @@ function activateProduct(productId) {
 
           {activePage === "products" ? (
             <ProductsPage
-            products={products}
-            productVariants={productVariants}
-            onAddProduct={addProduct}
-            onUpdateProduct={updateProduct}
-            onDeactivateProduct={deactivateProduct}
-            onActivateProduct={activateProduct}
-          />
+  products={products}
+  productVariants={productVariants}
+  onAddProduct={addProduct}
+  onUpdateProduct={updateProduct}
+  onDeactivateProduct={deactivateProduct}
+  onActivateProduct={activateProduct}
+  onAddProductVariant={addProductVariant}
+  onUpdateProductVariant={updateProductVariant}
+  onDeactivateProductVariant={deactivateProductVariant}
+  onActivateProductVariant={activateProductVariant}
+/>
           ) : null}
 
           {activePage === "inventory" ? (
@@ -860,7 +913,11 @@ function ProductsPage({
   onAddProduct,
   onUpdateProduct,
   onDeactivateProduct,
-  onActivateProduct
+  onActivateProduct,
+  onAddProductVariant,
+  onUpdateProductVariant,
+  onDeactivateProductVariant,
+  onActivateProductVariant,
 }) {
   const [isProductFormOpen, setIsProductFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -868,6 +925,11 @@ function ProductsPage({
   const [productCategory, setProductCategory] = useState("");
   const [productPrice, setProductPrice] = useState("");
   const [productUnit, setProductUnit] = useState("pcs");
+  const [selectedVariantProduct, setSelectedVariantProduct] = useState(null);
+  const [editingVariant, setEditingVariant] = useState(null);
+  const [variantName, setVariantName] = useState("");
+  const [variantQtyMultiplier, setVariantQtyMultiplier] = useState("");
+  const [variantPrice, setVariantPrice] = useState("");
 
   const sortedProducts = [...products].sort((a, b) =>
     a.name.localeCompare(b.name)
@@ -962,6 +1024,85 @@ function ProductsPage({
     closeProductForm();
   }
 
+  function resetVariantForm() {
+  setEditingVariant(null);
+  setVariantName("");
+  setVariantQtyMultiplier("");
+  setVariantPrice("");
+}
+
+function openVariantModal(product) {
+  setSelectedVariantProduct(product);
+  resetVariantForm();
+}
+
+function closeVariantModal() {
+  setSelectedVariantProduct(null);
+  resetVariantForm();
+}
+
+function openEditVariantForm(variant) {
+  setEditingVariant(variant);
+  setVariantName(variant.name);
+  setVariantQtyMultiplier(String(variant.qtyMultiplier));
+  setVariantPrice(String(variant.price));
+}
+
+function submitVariantForm(event) {
+  event.preventDefault();
+
+  if (!selectedVariantProduct) {
+    alert("Produk belum dipilih.");
+    return;
+  }
+
+  const name = variantName.trim();
+  const qtyMultiplier = Number(variantQtyMultiplier || 0);
+  const price = Number(variantPrice || 0);
+
+  if (!name) {
+    alert("Nama varian wajib diisi.");
+    return;
+  }
+
+  if (qtyMultiplier <= 0) {
+    alert("Qty multiplier harus lebih dari 0.");
+    return;
+  }
+
+  if (price <= 0) {
+    alert("Harga varian harus lebih dari 0.");
+    return;
+  }
+
+  if (editingVariant) {
+    const updatedVariant = {
+      ...editingVariant,
+      name: name,
+      qtyMultiplier: qtyMultiplier,
+      price: price,
+    };
+
+    onUpdateProductVariant(updatedVariant);
+    alert("Varian berhasil diperbarui.");
+    resetVariantForm();
+    return;
+  }
+
+  const newVariant = {
+    id: Date.now(),
+    productId: selectedVariantProduct.id,
+    name: name,
+    qtyMultiplier: qtyMultiplier,
+    price: price,
+    active: true,
+  };
+
+  onAddProductVariant(newVariant);
+  alert("Varian berhasil ditambahkan.");
+  resetVariantForm();
+}
+
   return (
     <div>
       <div className="products-header">
@@ -1044,6 +1185,14 @@ function ProductsPage({
       onClick={() => openEditProductForm(product)}
     >
       Edit
+    </button>
+
+    <button
+      type="button"
+      className="small-variant-button"
+      onClick={() => openVariantModal(product)}
+    >
+      Varian
     </button>
 
     {product.active ? (
@@ -1147,6 +1296,132 @@ function ProductsPage({
           </div>
         </div>
       ) : null}
+
+      {selectedVariantProduct ? (
+  <div className="modal-backdrop">
+    <div className="variant-modal">
+      <div className="modal-header">
+        <div>
+          <h3>Varian Produk</h3>
+          <p>{selectedVariantProduct.name}</p>
+        </div>
+
+        <button type="button" className="modal-close" onClick={closeVariantModal}>
+          ×
+        </button>
+      </div>
+
+      <div className="variant-list">
+        {productVariants
+          .filter((variant) => variant.productId === selectedVariantProduct.id)
+          .map((variant) => (
+            <div
+              key={variant.id}
+              className={variant.active ? "variant-item" : "variant-item inactive"}
+            >
+              <div>
+                <strong>{variant.name}</strong>
+                <p>
+                  Mengurangi stok {variant.qtyMultiplier} {selectedVariantProduct.unit} •{" "}
+                  {formatRupiah(variant.price)}
+                </p>
+              </div>
+
+              <div className="variant-actions">
+                <span className={variant.active ? "product-status active" : "product-status inactive"}>
+                  {variant.active ? "Aktif" : "Nonaktif"}
+                </span>
+
+                <button
+                  type="button"
+                  className="small-edit-button"
+                  onClick={() => openEditVariantForm(variant)}
+                >
+                  Edit
+                </button>
+
+                {variant.active ? (
+                  <button
+                    type="button"
+                    className="small-danger-button"
+                    onClick={() => onDeactivateProductVariant(variant.id)}
+                  >
+                    Nonaktifkan
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="small-activate-button"
+                    onClick={() => onActivateProductVariant(variant.id)}
+                  >
+                    Aktifkan
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+
+        {productVariants.filter((variant) => variant.productId === selectedVariantProduct.id).length === 0 ? (
+          <div className="empty-state">
+            Produk ini belum memiliki varian.
+          </div>
+        ) : null}
+      </div>
+
+      <form className="variant-form" onSubmit={submitVariantForm}>
+        <h4>{editingVariant ? "Edit Varian" : "Tambah Varian"}</h4>
+
+        <label>
+          Nama Varian
+          <input
+            type="text"
+            value={variantName}
+            onChange={(event) => setVariantName(event.target.value)}
+            placeholder="Contoh: Paket 10 pcs"
+          />
+        </label>
+
+        <label>
+          Qty Multiplier
+          <input
+            type="number"
+            min="1"
+            value={variantQtyMultiplier}
+            onChange={(event) => setVariantQtyMultiplier(event.target.value)}
+            placeholder="Contoh: 10"
+          />
+        </label>
+
+        <label>
+          Harga Jual Varian
+          <input
+            type="number"
+            min="1"
+            value={variantPrice}
+            onChange={(event) => setVariantPrice(event.target.value)}
+            placeholder="Contoh: 9000"
+          />
+        </label>
+
+        <div className="variant-form-actions">
+          {editingVariant ? (
+            <button type="button" className="secondary-button" onClick={resetVariantForm}>
+              Batal Edit
+            </button>
+          ) : (
+            <button type="button" className="secondary-button" onClick={closeVariantModal}>
+              Tutup
+            </button>
+          )}
+
+          <button type="submit" className="finish-button">
+            {editingVariant ? "Simpan Varian" : "Tambah Varian"}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+) : null}
     </div>
   );
 }
