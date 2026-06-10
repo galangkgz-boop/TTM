@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import { dummyProducts } from "./db/dummyProducts";
 import { dummyStockBatches } from "./db/dummyStockBatches";
+import { dummyProductVariants } from "./db/dummyProductVariants";
 import { formatRupiah } from "./lib/format";
 
 const menus = [
@@ -17,6 +18,7 @@ const menus = [
 const TRANSACTIONS_STORAGE_KEY = "ttm_pos_transactions";
 const STOCK_BATCHES_STORAGE_KEY = "ttm_pos_stock_batches";
 const PRODUCTS_STORAGE_KEY = "ttm_pos_products";
+const PRODUCT_VARIANTS_STORAGE_KEY = "ttm_pos_product_variants";
 
 function createTransactionCode(existingTransactions) {
   const now = new Date();
@@ -171,6 +173,20 @@ function App() {
   }
 });
 
+const [productVariants, setProductVariants] = useState(() => {
+  const savedVariants = localStorage.getItem(PRODUCT_VARIANTS_STORAGE_KEY);
+
+  if (!savedVariants) {
+    return dummyProductVariants;
+  }
+
+  try {
+    return JSON.parse(savedVariants);
+  } catch {
+    return dummyProductVariants;
+  }
+});
+
   const [stockBatches, setStockBatches] = useState(() => {
   const savedStockBatches = localStorage.getItem(STOCK_BATCHES_STORAGE_KEY);
 
@@ -222,6 +238,13 @@ useEffect(() => {
     JSON.stringify(products)
   );
 }, [products]);
+
+useEffect(() => {
+  localStorage.setItem(
+    PRODUCT_VARIANTS_STORAGE_KEY,
+    JSON.stringify(productVariants)
+  );
+}, [productVariants]);
 
   function addTransaction(transaction, updatedBatches) {
   setTransactions((currentTransactions) => [
@@ -372,6 +395,7 @@ function activateProduct(productId) {
           {activePage === "products" ? (
             <ProductsPage
             products={products}
+            productVariants={productVariants}
             onAddProduct={addProduct}
             onUpdateProduct={updateProduct}
             onDeactivateProduct={deactivateProduct}
@@ -433,8 +457,8 @@ function CashierPage({ products, stockBatches, transactions, onAddTransaction })
         selectedCategory === "Semua" || product.category === selectedCategory;
 
       const matchSearch =
-        product.name.toUpperCase().includes(keyword) ||
-        product.category.toUpperCase().includes(keyword);
+        product.name.toLowerCase().includes(keyword) ||
+        product.category.toLowerCase().includes(keyword);
 
       return matchCategory && matchSearch;
     });
@@ -832,6 +856,7 @@ function DashboardPage() {
 
 function ProductsPage({
   products,
+  productVariants,
   onAddProduct,
   onUpdateProduct,
   onDeactivateProduct,
@@ -981,20 +1006,31 @@ function ProductsPage({
               <th>Kategori</th>
               <th>Harga Jual</th>
               <th>Satuan</th>
+              <th>Varian</th>
               <th>Status</th>
               <th>Aksi</th>
             </tr>
           </thead>
 
           <tbody>
-            {sortedProducts.map((product) => (
-              <tr key={product.id} className={product.active ? "" : "inactive-product-row"}>
+            {sortedProducts.map((product) => {
+  const activeVariantCount = productVariants.filter(
+    (variant) => variant.productId === product.id && variant.active
+  ).length;
+
+  return (
+    <tr key={product.id} className={product.active ? "" : "inactive-product-row"}>
                 <td>
                   <strong>{product.name}</strong>
                 </td>
                 <td>{product.category}</td>
                 <td>{formatRupiah(product.price)}</td>
                 <td>{product.unit}</td>
+                <td>
+                  <span className="variant-count-pill">
+                    {activeVariantCount} varian
+                  </span>
+                </td>
                 <td>
                   <span className={product.active ? "product-status active" : "product-status inactive"}>
                     {product.active ? "Aktif" : "Nonaktif"}
@@ -1030,7 +1066,8 @@ function ProductsPage({
   </div>
 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
 

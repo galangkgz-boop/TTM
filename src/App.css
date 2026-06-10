@@ -1108,3 +1108,14 @@
     grid-template-columns: 1fr;
   }
 }
+
+.variant-count-pill {
+  display: inline-flex;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: #f3f4f6;
+  color: #374151;
+  font-weight: 800;
+  font-size: 12px;
+}
