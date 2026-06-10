@@ -438,50 +438,60 @@ function activateProductVariant(variantId) {
         </header>
 
         <section className="page-card">
-          {activePage === "dashboard" ? <DashboardPage /> : null}
+          {activePage === "dashboard" ? (
+            <DashboardPage
+              transactions={transactions}
+              products={products}
+              stockBatches={stockBatches}
+            />
+          ) : null}
+
           {activePage === "cashier" ? ( 
             <CashierPage 
-            products={products}
-            productVariants={productVariants}
-            stockBatches={stockBatches}
-            transactions={transactions}
-            onAddTransaction={addTransaction} 
-          /> 
+              products={products}
+              productVariants={productVariants}
+              stockBatches={stockBatches}
+              transactions={transactions}
+              onAddTransaction={addTransaction} 
+            /> 
           ) : null}
 
           {activePage === "products" ? (
             <ProductsPage
-  products={products}
-  productVariants={productVariants}
-  onAddProduct={addProduct}
-  onUpdateProduct={updateProduct}
-  onDeactivateProduct={deactivateProduct}
-  onActivateProduct={activateProduct}
-  onAddProductVariant={addProductVariant}
-  onUpdateProductVariant={updateProductVariant}
-  onDeactivateProductVariant={deactivateProductVariant}
-  onActivateProductVariant={activateProductVariant}
-/>
+              products={products}
+              productVariants={productVariants}
+              onAddProduct={addProduct}
+              onUpdateProduct={updateProduct}
+              onDeactivateProduct={deactivateProduct}
+              onActivateProduct={activateProduct}
+              onAddProductVariant={addProductVariant}
+              onUpdateProductVariant={updateProductVariant}
+              onDeactivateProductVariant={deactivateProductVariant}
+              onActivateProductVariant={activateProductVariant}
+            />
           ) : null}
 
           {activePage === "inventory" ? (
             <InventoryPage
-            products={products}
-            stockBatches={stockBatches}
-            onAddStockBatch={addStockBatch}
-          /> 
+              products={products}
+              stockBatches={stockBatches}
+              onAddStockBatch={addStockBatch}
+            /> 
           ) : null}
 
           {activePage === "transactions" ? ( 
             <TransactionsPage 
-            transactions={transactions}
-            onClearTransactions={clearTransactions} 
+              transactions={transactions}
+              onClearTransactions={clearTransactions} 
             /> 
           ) : null}
 
           {activePage === "reports" ? (
-  <ReportsPage transactions={transactions} />
-) : null}
+            <ReportsPage 
+              transactions={transactions} 
+            />
+          ) : null}
+
           {activePage === "settings" ? <SettingsPage /> : null}
         </section>
       </main>
@@ -684,12 +694,12 @@ function decreaseQty(cartItemId) {
   );
 }
 
-  function clearCart() {
+function clearCart() {
     setCart([]);
     setDiscountAmount("");
   }
 
-  function openPaymentModal() {
+function openPaymentModal() {
   if (cart.length === 0) return;
   if (isDiscountTooLarge) return;
 
@@ -1045,11 +1055,243 @@ function finishTransaction() {
   );
 }
 
-function DashboardPage() {
+function DashboardPage({ transactions, products, stockBatches }) {
+  const today = new Date();
+
+  const startOfToday = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
+
+  const startOfTomorrow = new Date(startOfToday);
+  startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
+
+  const todayTransactions = transactions.filter((transaction) => {
+    const transactionDate = new Date(transaction.date);
+    return transactionDate >= startOfToday && transactionDate < startOfTomorrow;
+  });
+
+  const todayRevenue = todayTransactions.reduce(
+    (total, transaction) => total + Number(transaction.total || 0),
+    0
+  );
+
+  const todayProfit = todayTransactions.reduce(
+    (total, transaction) => total + Number(transaction.profit || 0),
+    0
+  );
+
+  const todayDiscount = todayTransactions.reduce(
+    (total, transaction) => total + Number(transaction.discount || 0),
+    0
+  );
+
+  const todayFifoQty = todayTransactions.reduce((total, transaction) => {
+    const transactionFifoQty = transaction.items.reduce(
+      (itemTotal, item) =>
+        itemTotal + Number(item.fifoQty || item.qty || 0),
+      0
+    );
+
+    return total + transactionFifoQty;
+  }, 0);
+
+  const productSalesMap = {};
+
+  todayTransactions.forEach((transaction) => {
+    transaction.items.forEach((item) => {
+      const key = item.name;
+
+      if (!productSalesMap[key]) {
+        productSalesMap[key] = {
+          name: item.name,
+          qty: 0,
+          fifoQty: 0,
+          revenue: 0,
+        };
+      }
+
+      productSalesMap[key].qty =
+        productSalesMap[key].qty + Number(item.qty || 0);
+
+      productSalesMap[key].fifoQty =
+        productSalesMap[key].fifoQty + Number(item.fifoQty || item.qty || 0);
+
+      productSalesMap[key].revenue =
+        productSalesMap[key].revenue + Number(item.subtotal || 0);
+    });
+  });
+
+  const topProductsToday = Object.values(productSalesMap)
+    .sort((a, b) => b.qty - a.qty)
+    .slice(0, 5);
+
+  const lowStockProducts = products
+    .filter((product) => product.active)
+    .map((product) => {
+      const totalStock = getProductStockFromBatches(product.id, stockBatches);
+
+      return {
+        id: product.id,
+        name: product.name,
+        category: product.category,
+        stock: totalStock,
+        unit: product.unit,
+      };
+    })
+    .filter((product) => product.stock <= 10)
+    .sort((a, b) => a.stock - b.stock)
+    .slice(0, 8);
+
   return (
-    <div className="empty-page">
-      <h3>Dashboard</h3>
-      <p>Ringkasan omzet, profit, transaksi, dan produk terlaris nanti muncul di sini.</p>
+    <div>
+      <div className="dashboard-header">
+        <div>
+          <h3>Dashboard</h3>
+          <p className="muted">
+            Ringkasan performa toko hari ini berdasarkan transaksi dan stok FIFO.
+          </p>
+        </div>
+      </div>
+
+      <div className="dashboard-summary">
+        <div>
+          <span>Omzet Hari Ini</span>
+          <strong>{formatRupiah(todayRevenue)}</strong>
+        </div>
+
+        <div>
+          <span>Profit FIFO Hari Ini</span>
+          <strong>{formatRupiah(todayProfit)}</strong>
+        </div>
+
+        <div>
+          <span>Transaksi Hari Ini</span>
+          <strong>{todayTransactions.length}</strong>
+        </div>
+
+        <div>
+          <span>Qty FIFO Keluar</span>
+          <strong>{todayFifoQty}</strong>
+        </div>
+
+        <div>
+          <span>Diskon Hari Ini</span>
+          <strong>{formatRupiah(todayDiscount)}</strong>
+        </div>
+
+        <div>
+          <span>Total Riwayat Transaksi</span>
+          <strong>{transactions.length}</strong>
+        </div>
+      </div>
+
+      <div className="dashboard-grid">
+        <div className="dashboard-section">
+          <div className="section-title">
+            <h4>Produk / Varian Terlaris Hari Ini</h4>
+            <p>Berdasarkan qty jual hari ini.</p>
+          </div>
+
+          <div className="dashboard-list">
+            {topProductsToday.map((product, index) => (
+              <div key={product.name} className="dashboard-list-item">
+                <div>
+                  <strong>
+                    {index + 1}. {product.name}
+                  </strong>
+                  <p>
+                    Qty jual {product.qty} • FIFO keluar {product.fifoQty}
+                  </p>
+                </div>
+
+                <span>{formatRupiah(product.revenue)}</span>
+              </div>
+            ))}
+
+            {topProductsToday.length === 0 ? (
+              <div className="empty-state">
+                Belum ada penjualan hari ini.
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="dashboard-section">
+          <div className="section-title">
+            <h4>Stok Rendah</h4>
+            <p>Produk aktif dengan stok FIFO 10 atau kurang.</p>
+          </div>
+
+          <div className="dashboard-list">
+            {lowStockProducts.map((product) => (
+              <div key={product.id} className="dashboard-list-item">
+                <div>
+                  <strong>{product.name}</strong>
+                  <p>{product.category}</p>
+                </div>
+
+                <span>
+                  {product.stock} {product.unit}
+                </span>
+              </div>
+            ))}
+
+            {lowStockProducts.length === 0 ? (
+              <div className="empty-state">
+                Tidak ada stok rendah.
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </div>
+
+      <div className="dashboard-section">
+        <div className="section-title">
+          <h4>Transaksi Terbaru Hari Ini</h4>
+          <p>5 transaksi terakhir dari hari ini.</p>
+        </div>
+
+        <div className="dashboard-table-wrap">
+          <table className="dashboard-table">
+            <thead>
+              <tr>
+                <th>Kode</th>
+                <th>Waktu</th>
+                <th>Item</th>
+                <th>Total</th>
+                <th>Profit</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {todayTransactions.slice(0, 5).map((transaction) => (
+                <tr key={transaction.id}>
+                  <td>
+                    <strong>{transaction.code}</strong>
+                  </td>
+                  <td>
+                    {new Date(transaction.date).toLocaleTimeString("id-ID", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </td>
+                  <td>{transaction.items.length}</td>
+                  <td>{formatRupiah(transaction.total || 0)}</td>
+                  <td>{formatRupiah(transaction.profit || 0)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {todayTransactions.length === 0 ? (
+            <div className="empty-state">
+              Belum ada transaksi hari ini.
+            </div>
+          ) : null}
+        </div>
+      </div>
     </div>
   );
 }
@@ -1944,7 +2186,7 @@ function TransactionsPage({ transactions, onClearTransactions }) {
           </p>
         </div>
 
-        {filteredTransactions.length > 0 ? (
+        {transactions.length > 0 ? (
           <button 
             type="button" 
             className="danger-button" 
@@ -1958,7 +2200,7 @@ function TransactionsPage({ transactions, onClearTransactions }) {
       <div className="history-summary">
         <div>
           <span>Total Transaksi</span>
-          <strong>{filteredTransactions.length}</strong>
+          <strong>{transactions.length}</strong>
         </div>
 
         <div>
@@ -2033,7 +2275,7 @@ function TransactionsPage({ transactions, onClearTransactions }) {
           </div>
         ))}
 
-        {filteredTransactions.length === 0 ? (
+        {transactions.length === 0 ? (
           <div className="empty-state">
             Belum ada transaksi. Coba lakukan transaksi dari halaman Kasir.
           </div>
