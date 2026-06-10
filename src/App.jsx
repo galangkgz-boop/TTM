@@ -2481,7 +2481,7 @@ function TransactionDetailModal({ transaction, settings, onClose }) {
         </button>
       </div>
 
-      <div className="receipt-paper">
+      <div className="receipt-paper printable-receipt">
         <div className="receipt-store">
           <h4>{settings.storeName}</h4>
 
