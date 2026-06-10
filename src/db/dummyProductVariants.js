@@ -2,15 +2,15 @@ export const dummyProductVariants = [
   {
     id: 1,
     productId: 6,
-    name: "1 pcs",
+    name: "8cm 1 pcs",
     qtyMultiplier: 1,
     price: 3000,
     active: true,
   },
   {
     id: 2,
-    productId: 7,
-    name: "1 ball",
+    productId: 6,
+    name: "8cm 1 ball",
     qtyMultiplier: 20,
     price: 55000,
     active: true,

@@ -60,16 +60,6 @@ export const dummyProducts = [
     active: true,
   },
   {
-    id: 7,
-    name: "Kulit Pangsit 1 Ball",
-    category: "Kulit Pangsit",
-    price: 55000,
-    cost: 45000,
-    stock: 10,
-    unit: "ball",
-    active: true,
-  },
-  {
     id: 8,
     name: "Es Kristal 5kg",
     category: "Es Kristal",
