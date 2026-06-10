@@ -51,7 +51,11 @@ function processFifoSale(cartItems, stockBatches) {
   const fifoResultItems = [];
 
   for (const cartItem of cartItems) {
-    let remainingQtyToSell = Number(cartItem.qty || 0);
+    const saleQty = Number(cartItem.qty || 0);
+    const qtyMultiplier = Number(cartItem.qtyMultiplier || 1);
+    const fifoQtyToSell = saleQty * qtyMultiplier;
+
+    let remainingQtyToSell = fifoQtyToSell;
 
     const productBatches = updatedBatches
       .filter(
@@ -118,10 +122,13 @@ function processFifoSale(cartItems, stockBatches) {
       0
     );
 
-    const subtotal = Number(cartItem.price || 0) * Number(cartItem.qty || 0);
+    const subtotal = Number(cartItem.price || 0) * saleQty;
 
     fifoResultItems.push({
       ...cartItem,
+      qty: saleQty,
+      qtyMultiplier: qtyMultiplier,
+      fifoQty: fifoQtyToSell,
       subtotal: subtotal,
       fifoBatches: usedBatches,
       totalCost: totalCost,
@@ -435,6 +442,7 @@ function activateProductVariant(variantId) {
           {activePage === "cashier" ? ( 
             <CashierPage 
             products={products}
+            productVariants={productVariants}
             stockBatches={stockBatches}
             transactions={transactions}
             onAddTransaction={addTransaction} 
@@ -479,7 +487,7 @@ function activateProductVariant(variantId) {
   );
 }
 
-function CashierPage({ products, stockBatches, transactions, onAddTransaction }) {
+function CashierPage({ products, productVariants, stockBatches, transactions, onAddTransaction }) {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [cart, setCart] = useState([]);
@@ -496,6 +504,22 @@ function CashierPage({ products, stockBatches, transactions, onAddTransaction })
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
 }, [products, stockBatches]);
+
+  const activeVariantsByProductId = useMemo(() => {
+  const result = {};
+
+  productVariants
+    .filter((variant) => variant.active)
+    .forEach((variant) => {
+      if (!result[variant.productId]) {
+        result[variant.productId] = [];
+      }
+
+      result[variant.productId].push(variant);
+    });
+
+  return result;
+}, [productVariants]);
 
   const categories = useMemo(() => {
     const uniqueCategories = activeProducts.map((product) => product.category);
@@ -533,48 +557,82 @@ function CashierPage({ products, stockBatches, transactions, onAddTransaction })
     !isDiscountTooLarge &&
     numericCashReceived >= cartTotal;
 
-  function addToCart(product) {
-    setCart((currentCart) => {
-      const existingItem = currentCart.find((item) => item.id === product.id);
+  function addToCart(product, variant) {
+  const selectedVariant = variant || null;
 
-      if (existingItem) {
-        return currentCart.map((item) =>
-          item.id === product.id ? { ...item, qty: item.qty + 1 } : item
-        );
-      }
+  const cartItemId = selectedVariant
+    ? String(product.id) + "-variant-" + String(selectedVariant.id)
+    : String(product.id) + "-default";
 
-      return [
-        ...currentCart,
-        {
-          id: product.id,
-          name: product.name,
-          category: product.category,
-          price: product.price,
-          cost: product.cost,
-          unit: product.unit,
-          qty: 1,
-        },
-      ];
-    });
-  }
+  const displayName = selectedVariant
+    ? product.name + " - " + selectedVariant.name
+    : product.name;
 
-  function increaseQty(productId) {
-    setCart((currentCart) =>
-      currentCart.map((item) =>
-        item.id === productId ? { ...item, qty: item.qty + 1 } : item
+  const salePrice = selectedVariant ? selectedVariant.price : product.price;
+  const qtyMultiplier = selectedVariant ? selectedVariant.qtyMultiplier : 1;
+
+  setCart((currentCart) => {
+    const existingItem = currentCart.find((item) => item.cartItemId === cartItemId);
+
+    if (existingItem) {
+      return currentCart.map((item) =>
+        item.cartItemId === cartItemId
+          ? {
+              ...item,
+              qty: item.qty + 1,
+            }
+          : item
+      );
+    }
+
+    return [
+      ...currentCart,
+      {
+        cartItemId: cartItemId,
+        id: product.id,
+        productId: product.id,
+        variantId: selectedVariant ? selectedVariant.id : null,
+        name: displayName,
+        productName: product.name,
+        variantName: selectedVariant ? selectedVariant.name : null,
+        category: product.category,
+        price: salePrice,
+        cost: product.cost,
+        unit: product.unit,
+        qty: 1,
+        qtyMultiplier: qtyMultiplier,
+      },
+    ];
+  });
+}
+
+  function increaseQty(cartItemId) {
+  setCart((currentCart) =>
+    currentCart.map((item) =>
+      item.cartItemId === cartItemId
+        ? {
+            ...item,
+            qty: item.qty + 1,
+          }
+        : item
+    )
+  );
+}
+
+function decreaseQty(cartItemId) {
+  setCart((currentCart) =>
+    currentCart
+      .map((item) =>
+        item.cartItemId === cartItemId
+          ? {
+              ...item,
+              qty: item.qty - 1,
+            }
+          : item
       )
-    );
-  }
-
-  function decreaseQty(productId) {
-    setCart((currentCart) =>
-      currentCart
-        .map((item) =>
-          item.id === productId ? { ...item, qty: item.qty - 1 } : item
-        )
-        .filter((item) => item.qty > 0)
-    );
-  }
+      .filter((item) => item.qty > 0)
+  );
+}
 
   function clearCart() {
     setCart([]);
@@ -704,24 +762,45 @@ function finishTransaction() {
           </div>
 
           <div className="product-grid">
-            {filteredProducts.map((product) => (
-              <button
-                key={product.id}
-                type="button"
-                className="product-card"
-                onClick={() => addToCart(product)}
-              >
-                <div>
-                  <h4>{product.name}</h4>
-                  <p>{product.category}</p>
-                </div>
+            {filteredProducts.map((product) => {
+  const productVariantsForCashier = activeVariantsByProductId[product.id] || [];
 
-                <div className="product-card-footer">
-                  <strong>{formatRupiah(product.price)}</strong>
-                  <span>Stok {product.stock}</span>
-                </div>
-              </button>
-            ))}
+  return (
+    <div key={product.id} className="product-card">
+      <button
+        type="button"
+        className="product-main-button"
+        onClick={() => addToCart(product, null)}
+      >
+        <div>
+          <h4>{product.name}</h4>
+          <p>{product.category}</p>
+        </div>
+
+        <div className="product-card-footer">
+          <strong>{formatRupiah(product.price)}</strong>
+          <span>Stok {product.stock}</span>
+        </div>
+      </button>
+
+      {productVariantsForCashier.length > 0 ? (
+        <div className="cashier-variant-list">
+          {productVariantsForCashier.map((variant) => (
+            <button
+              key={variant.id}
+              type="button"
+              className="cashier-variant-button"
+              onClick={() => addToCart(product, variant)}
+            >
+              <span>{variant.name}</span>
+              <strong>{formatRupiah(variant.price)}</strong>
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+})}
 
             {filteredProducts.length === 0 ? (
               <div className="empty-state">
@@ -747,20 +826,23 @@ function finishTransaction() {
 
           <div className="cart-list">
             {cart.map((item) => (
-              <div key={item.id} className="cart-item">
+              <div key={item.cartItemId} className="cart-item">
                 <div>
                   <h5>{item.name}</h5>
                   <p>
-                    {formatRupiah(item.price)} / {item.unit}
-                  </p>
+  {formatRupiah(item.price)} / {item.unit}
+  {Number(item.qtyMultiplier || 1) > 1
+    ? " • FIFO " + item.qtyMultiplier + " " + item.unit
+    : ""}
+</p>
                 </div>
 
                 <div className="qty-control">
-                  <button type="button" onClick={() => decreaseQty(item.id)}>
+                  <button type="button" onClick={() => decreaseQty(item.cartItemId)}>
                     -
                   </button>
                   <span>{item.qty}</span>
-                  <button type="button" onClick={() => increaseQty(item.id)}>
+                  <button type="button" onClick={() => increaseQty(item.cartItemId)}>
                     +
                   </button>
                 </div>

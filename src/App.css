@@ -1236,3 +1236,67 @@
     grid-template-columns: 1fr;
   }
 }
+
+.product-card {
+  min-height: 150px;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  background: white;
+  padding: 0;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+.product-main-button {
+  width: 100%;
+  min-height: 120px;
+  border: 0;
+  background: white;
+  padding: 16px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.product-main-button:hover {
+  background: #f9fafb;
+}
+
+.cashier-variant-list {
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+}
+
+.cashier-variant-button {
+  border: 0;
+  border-top: 1px solid #f3f4f6;
+  background: #f9fafb;
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  text-align: left;
+  align-items: center;
+}
+
+.cashier-variant-button:hover {
+  background: #ecfdf5;
+}
+
+.cashier-variant-button span {
+  color: #374151;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.cashier-variant-button strong {
+  color: #166534;
+  font-size: 12px;
+}
