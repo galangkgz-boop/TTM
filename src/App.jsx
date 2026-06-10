@@ -559,6 +559,12 @@ function CashierPage({ products, productVariants, stockBatches, transactions, on
 
   function addToCart(product, variant) {
   const selectedVariant = variant || null;
+  const qtyMultiplier = selectedVariant ? Number(selectedVariant.qtyMultiplier || 1) : 1;
+
+  if (Number(product.stock || 0) < qtyMultiplier) {
+    alert("Stok tidak cukup untuk pilihan ini.");
+    return;
+  }
 
   const cartItemId = selectedVariant
     ? String(product.id) + "-variant-" + String(selectedVariant.id)
@@ -569,10 +575,23 @@ function CashierPage({ products, productVariants, stockBatches, transactions, on
     : product.name;
 
   const salePrice = selectedVariant ? selectedVariant.price : product.price;
-  const qtyMultiplier = selectedVariant ? selectedVariant.qtyMultiplier : 1;
 
   setCart((currentCart) => {
     const existingItem = currentCart.find((item) => item.cartItemId === cartItemId);
+    const currentFifoQty = currentCart
+  .filter((item) => item.productId === product.id)
+  .reduce(
+    (total, item) =>
+      total + Number(item.qty || 0) * Number(item.qtyMultiplier || 1),
+    0
+  );
+
+const nextFifoQty = currentFifoQty + qtyMultiplier;
+
+if (nextFifoQty > Number(product.stock || 0)) {
+  alert("Stok tidak cukup untuk pilihan ini.");
+  return currentCart;
+}
 
     if (existingItem) {
       return currentCart.map((item) =>
@@ -607,16 +626,45 @@ function CashierPage({ products, productVariants, stockBatches, transactions, on
 }
 
   function increaseQty(cartItemId) {
-  setCart((currentCart) =>
-    currentCart.map((item) =>
+  setCart((currentCart) => {
+    const selectedItem = currentCart.find(
+      (item) => item.cartItemId === cartItemId
+    );
+
+    if (!selectedItem) {
+      return currentCart;
+    }
+
+    const product = activeProducts.find(
+      (item) => item.id === selectedItem.productId
+    );
+
+    const availableStock = product ? Number(product.stock || 0) : 0;
+    const currentFifoQty = currentCart
+      .filter((item) => item.productId === selectedItem.productId)
+      .reduce(
+        (total, item) =>
+          total + Number(item.qty || 0) * Number(item.qtyMultiplier || 1),
+        0
+      );
+
+    const nextFifoQty =
+      currentFifoQty + Number(selectedItem.qtyMultiplier || 1);
+
+    if (nextFifoQty > availableStock) {
+      alert("Stok tidak cukup untuk menambah qty.");
+      return currentCart;
+    }
+
+    return currentCart.map((item) =>
       item.cartItemId === cartItemId
         ? {
             ...item,
             qty: item.qty + 1,
           }
         : item
-    )
-  );
+    );
+  });
 }
 
 function decreaseQty(cartItemId) {
@@ -768,10 +816,11 @@ function finishTransaction() {
   return (
     <div key={product.id} className="product-card">
       <button
-        type="button"
-        className="product-main-button"
-        onClick={() => addToCart(product, null)}
-      >
+  type="button"
+  className="product-main-button"
+  disabled={Number(product.stock || 0) <= 0}
+  onClick={() => addToCart(product, null)}
+>
         <div>
           <h4>{product.name}</h4>
           <p>{product.category}</p>
@@ -779,23 +828,37 @@ function finishTransaction() {
 
         <div className="product-card-footer">
           <strong>{formatRupiah(product.price)}</strong>
-          <span>Stok {product.stock}</span>
+<span>
+  {Number(product.stock || 0) <= 0 ? "Stok habis" : "Stok " + product.stock}
+</span>
         </div>
       </button>
 
       {productVariantsForCashier.length > 0 ? (
         <div className="cashier-variant-list">
-          {productVariantsForCashier.map((variant) => (
-            <button
-              key={variant.id}
-              type="button"
-              className="cashier-variant-button"
-              onClick={() => addToCart(product, variant)}
-            >
-              <span>{variant.name}</span>
-              <strong>{formatRupiah(variant.price)}</strong>
-            </button>
-          ))}
+          {productVariantsForCashier.map((variant) => {
+  const variantStockNeeded = Number(variant.qtyMultiplier || 1);
+  const isVariantOutOfStock = Number(product.stock || 0) < variantStockNeeded;
+
+  return (
+    <button
+      key={variant.id}
+      type="button"
+      className="cashier-variant-button"
+      disabled={isVariantOutOfStock}
+      onClick={() => addToCart(product, variant)}
+    >
+      <span>
+        {variant.name}
+        {variantStockNeeded > 1 ? " • isi " + variantStockNeeded : ""}
+      </span>
+
+      <strong>
+        {isVariantOutOfStock ? "Stok kurang" : formatRupiah(variant.price)}
+      </strong>
+    </button>
+  );
+})}
         </div>
       ) : null}
     </div>

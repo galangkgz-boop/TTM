@@ -1300,3 +1300,18 @@
   color: #166534;
   font-size: 12px;
 }
+
+.product-main-button:disabled,
+.cashier-variant-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.product-main-button:disabled:hover,
+.cashier-variant-button:disabled:hover {
+  background: white;
+}
+
+.cashier-variant-button:disabled:hover {
+  background: #f9fafb;
+}
