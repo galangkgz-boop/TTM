@@ -1944,7 +1944,7 @@ function TransactionsPage({ transactions, onClearTransactions }) {
           </p>
         </div>
 
-        {transactions.length > 0 ? (
+        {filteredTransactions.length > 0 ? (
           <button 
             type="button" 
             className="danger-button" 
@@ -1958,7 +1958,7 @@ function TransactionsPage({ transactions, onClearTransactions }) {
       <div className="history-summary">
         <div>
           <span>Total Transaksi</span>
-          <strong>{transactions.length}</strong>
+          <strong>{filteredTransactions.length}</strong>
         </div>
 
         <div>
@@ -2033,7 +2033,7 @@ function TransactionsPage({ transactions, onClearTransactions }) {
           </div>
         ))}
 
-        {transactions.length === 0 ? (
+        {filteredTransactions.length === 0 ? (
           <div className="empty-state">
             Belum ada transaksi. Coba lakukan transaksi dari halaman Kasir.
           </div>
@@ -2173,27 +2173,79 @@ function TransactionDetailModal({ transaction, onClose }) {
 }
 
 function ReportsPage({ transactions }) {
-  const totalRevenue = transactions.reduce(
+  const [reportPeriod, setReportPeriod] = useState("all")
+  function isTransactionInPeriod(transactionDate, period) {
+  const date = new Date(transactionDate);
+  const now = new Date();
+
+  const startOfToday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  );
+
+  const startOfTomorrow = new Date(startOfToday);
+  startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
+
+  if (period === "today") {
+    return date >= startOfToday && date < startOfTomorrow;
+  }
+
+  if (period === "week") {
+    const day = now.getDay();
+    const diffToMonday = day === 0 ? -6 : 1 - day;
+
+    const startOfWeek = new Date(startOfToday);
+    startOfWeek.setDate(startOfWeek.getDate() + diffToMonday);
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(endOfWeek.getDate() + 7);
+
+    return date >= startOfWeek && date < endOfWeek;
+  }
+
+  if (period === "month") {
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+    return date >= startOfMonth && date < startOfNextMonth;
+  }
+
+  if (period === "year") {
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    const startOfNextYear = new Date(now.getFullYear() + 1, 0, 1);
+
+    return date >= startOfYear && date < startOfNextYear;
+  }
+
+  return true;
+}
+
+const filteredTransactions = transactions.filter((transaction) =>
+  isTransactionInPeriod(transaction.date, reportPeriod)
+);
+
+  const totalRevenue = filteredTransactions.reduce(
     (total, transaction) => total + Number(transaction.total || 0),
     0
   );
 
-  const totalSubtotal = transactions.reduce(
+  const totalSubtotal = filteredTransactions.reduce(
     (total, transaction) => total + Number(transaction.subtotal || 0),
     0
   );
 
-  const totalDiscount = transactions.reduce(
+  const totalDiscount = filteredTransactions.reduce(
     (total, transaction) => total + Number(transaction.discount || 0),
     0
   );
 
-  const totalProfit = transactions.reduce(
+  const totalProfit = filteredTransactions.reduce(
     (total, transaction) => total + Number(transaction.profit || 0),
     0
   );
 
-  const totalItemsSold = transactions.reduce((total, transaction) => {
+  const totalItemsSold = filteredTransactions.reduce((total, transaction) => {
     const transactionQty = transaction.items.reduce(
       (itemTotal, item) => itemTotal + Number(item.qty || 0),
       0
@@ -2202,7 +2254,7 @@ function ReportsPage({ transactions }) {
     return total + transactionQty;
   }, 0);
 
-  const totalFifoQtySold = transactions.reduce((total, transaction) => {
+  const totalFifoQtySold = filteredTransactions.reduce((total, transaction) => {
     const transactionFifoQty = transaction.items.reduce(
       (itemTotal, item) =>
         itemTotal + Number(item.fifoQty || item.qty || 0),
@@ -2214,7 +2266,7 @@ function ReportsPage({ transactions }) {
 
   const productSalesMap = {};
 
-  transactions.forEach((transaction) => {
+  filteredTransactions.forEach((transaction) => {
     transaction.items.forEach((item) => {
       const key = item.name;
 
@@ -2247,18 +2299,60 @@ function ReportsPage({ transactions }) {
     .slice(0, 10);
 
   const averageTransactionValue =
-    transactions.length > 0 ? totalRevenue / transactions.length : 0;
+    filteredTransactions.length > 0 ? totalRevenue / filteredTransactions.length : 0;
 
   return (
     <div>
       <div className="reports-header">
-        <div>
-          <h3>Laporan</h3>
-          <p className="muted">
-            Ringkasan transaksi lokal berdasarkan riwayat penjualan dan modal FIFO.
-          </p>
-        </div>
-      </div>
+  <div>
+    <h3>Laporan</h3>
+    <p className="muted">
+      Ringkasan transaksi lokal berdasarkan riwayat penjualan dan modal FIFO.
+    </p>
+  </div>
+
+  <div className="report-filter-tabs">
+    <button
+      type="button"
+      className={reportPeriod === "today" ? "active" : ""}
+      onClick={() => setReportPeriod("today")}
+    >
+      Hari Ini
+    </button>
+
+    <button
+      type="button"
+      className={reportPeriod === "week" ? "active" : ""}
+      onClick={() => setReportPeriod("week")}
+    >
+      Minggu Ini
+    </button>
+
+    <button
+      type="button"
+      className={reportPeriod === "month" ? "active" : ""}
+      onClick={() => setReportPeriod("month")}
+    >
+      Bulan Ini
+    </button>
+
+    <button
+      type="button"
+      className={reportPeriod === "year" ? "active" : ""}
+      onClick={() => setReportPeriod("year")}
+    >
+      Tahun Ini
+    </button>
+
+    <button
+      type="button"
+      className={reportPeriod === "all" ? "active" : ""}
+      onClick={() => setReportPeriod("all")}
+    >
+      Semua
+    </button>
+  </div>
+</div>
 
       <div className="reports-summary">
         <div>
@@ -2278,7 +2372,7 @@ function ReportsPage({ transactions }) {
 
         <div>
           <span>Jumlah Transaksi</span>
-          <strong>{transactions.length}</strong>
+          <strong>{filteredTransactions.length}</strong>
         </div>
 
         <div>
@@ -2363,7 +2457,7 @@ function ReportsPage({ transactions }) {
             </thead>
 
             <tbody>
-              {transactions.slice(0, 10).map((transaction) => (
+              {filteredTransactions.slice(0, 10).map((transaction) => (
                 <tr key={transaction.id}>
                   <td>
                     <strong>{transaction.code}</strong>
@@ -2383,7 +2477,7 @@ function ReportsPage({ transactions }) {
             </tbody>
           </table>
 
-          {transactions.length === 0 ? (
+          {filteredTransactions.length === 0 ? (
             <div className="empty-state">
               Belum ada transaksi.
             </div>

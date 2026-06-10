@@ -1443,3 +1443,41 @@
     grid-template-columns: 1fr;
   }
 }
+
+.report-filter-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.report-filter-tabs button {
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+  border-radius: 999px;
+  padding: 9px 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.report-filter-tabs button.active {
+  background: #22c55e;
+  border-color: #22c55e;
+  color: #052e16;
+}
+
+@media (max-width: 700px) {
+  .reports-header {
+    flex-direction: column;
+  }
+
+  .report-filter-tabs {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .report-filter-tabs button {
+    flex: 1;
+  }
+}
