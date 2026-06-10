@@ -19,6 +19,15 @@ const TRANSACTIONS_STORAGE_KEY = "ttm_pos_transactions";
 const STOCK_BATCHES_STORAGE_KEY = "ttm_pos_stock_batches";
 const PRODUCTS_STORAGE_KEY = "ttm_pos_products";
 const PRODUCT_VARIANTS_STORAGE_KEY = "ttm_pos_product_variants";
+const SETTINGS_STORAGE_KEY = "ttm_pos_settings";
+
+const defaultSettings = {
+  storeName: "Toko Telon Mindi",
+  address: "",
+  phone: "",
+  receiptNote: "Terima kasih sudah belanja.",
+  lowStockThreshold: 10,
+};
 
 function createTransactionCode(existingTransactions) {
   const now = new Date();
@@ -194,6 +203,23 @@ const [productVariants, setProductVariants] = useState(() => {
   }
 });
 
+const [settings, setSettings] = useState(() => {
+  const savedSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
+
+  if (!savedSettings) {
+    return defaultSettings;
+  }
+
+  try {
+    return {
+      ...defaultSettings,
+      ...JSON.parse(savedSettings),
+    };
+  } catch {
+    return defaultSettings;
+  }
+});
+
   const [stockBatches, setStockBatches] = useState(() => {
   const savedStockBatches = localStorage.getItem(STOCK_BATCHES_STORAGE_KEY);
 
@@ -252,6 +278,13 @@ useEffect(() => {
     JSON.stringify(productVariants)
   );
 }, [productVariants]);
+
+useEffect(() => {
+  localStorage.setItem(
+    SETTINGS_STORAGE_KEY,
+    JSON.stringify(settings)
+  );
+}, [settings]);
 
   function addTransaction(transaction, updatedBatches) {
   setTransactions((currentTransactions) => [
@@ -408,7 +441,7 @@ function activateProductVariant(variantId) {
         <div className="brand">
           <div className="brand-logo">TTM</div>
           <div>
-            <h1>Toko Telon Mindi</h1>
+            <h1>{settings.storeName}</h1>
             <p>POS v2</p>
           </div>
         </div>
@@ -443,6 +476,7 @@ function activateProductVariant(variantId) {
               transactions={transactions}
               products={products}
               stockBatches={stockBatches}
+              settings={settings}
             />
           ) : null}
 
@@ -492,7 +526,12 @@ function activateProductVariant(variantId) {
             />
           ) : null}
 
-          {activePage === "settings" ? <SettingsPage /> : null}
+          {activePage === "settings" ? (
+            <SettingsPage
+              settings={settings}
+              onUpdateSettings={setSettings}
+            />
+          ) : null}
         </section>
       </main>
     </div>
@@ -1055,7 +1094,7 @@ function finishTransaction() {
   );
 }
 
-function DashboardPage({ transactions, products, stockBatches }) {
+function DashboardPage({ transactions, products, stockBatches, settings }) {
   const today = new Date();
 
   const startOfToday = new Date(
@@ -1140,7 +1179,8 @@ function DashboardPage({ transactions, products, stockBatches }) {
         unit: product.unit,
       };
     })
-    .filter((product) => product.stock <= 10)
+    .filter((product) => product.stock <=
+    Number(settings.lowStockThreshold || 10))
     .sort((a, b) => a.stock - b.stock)
     .slice(0, 8);
 
@@ -1221,7 +1261,7 @@ function DashboardPage({ transactions, products, stockBatches }) {
         <div className="dashboard-section">
           <div className="section-title">
             <h4>Stok Rendah</h4>
-            <p>Produk aktif dengan stok FIFO 10 atau kurang.</p>
+            <p>Produk aktif dengan stok FIFO {settings.lowStockThreshold} atau kurang.</p>
           </div>
 
           <div className="dashboard-list">
@@ -2730,11 +2770,136 @@ const filteredTransactions = transactions.filter((transaction) =>
   );
 }
 
-function SettingsPage() {
+function SettingsPage({ settings, onUpdateSettings }) {
+  const [storeName, setStoreName] = useState(settings.storeName);
+  const [address, setAddress] = useState(settings.address);
+  const [phone, setPhone] = useState(settings.phone);
+  const [receiptNote, setReceiptNote] = useState(settings.receiptNote);
+  const [lowStockThreshold, setLowStockThreshold] = useState(
+    String(settings.lowStockThreshold)
+  );
+
+  function submitSettings(event) {
+    event.preventDefault();
+
+    const threshold = Number(lowStockThreshold || 0);
+
+    if (!storeName.trim()) {
+      alert("Nama toko wajib diisi.");
+      return;
+    }
+
+    if (threshold < 0) {
+      alert("Batas stok rendah tidak boleh minus.");
+      return;
+    }
+
+    onUpdateSettings({
+      storeName: storeName.trim(),
+      address: address.trim(),
+      phone: phone.trim(),
+      receiptNote: receiptNote.trim(),
+      lowStockThreshold: threshold,
+    });
+
+    alert("Pengaturan berhasil disimpan.");
+  }
+
+  function resetSettingsForm() {
+    setStoreName(settings.storeName);
+    setAddress(settings.address);
+    setPhone(settings.phone);
+    setReceiptNote(settings.receiptNote);
+    setLowStockThreshold(String(settings.lowStockThreshold));
+  }
+
   return (
-    <div className="empty-page">
-      <h3>Pengaturan</h3>
-      <p>Nama toko, alamat, nomor WhatsApp, catatan struk, dan pengaturan kasir.</p>
+    <div>
+      <div className="settings-header">
+        <div>
+          <h3>Pengaturan</h3>
+          <p className="muted">
+            Atur identitas toko dan preferensi dasar aplikasi POS.
+          </p>
+        </div>
+      </div>
+
+      <form className="settings-form" onSubmit={submitSettings}>
+        <div className="settings-section">
+          <div className="section-title">
+            <h4>Identitas Toko</h4>
+            <p>Data ini nanti dipakai untuk tampilan aplikasi dan struk.</p>
+          </div>
+
+          <label>
+            Nama Toko
+            <input
+              type="text"
+              value={storeName}
+              onChange={(event) => setStoreName(event.target.value)}
+              placeholder="Contoh: Toko Telon Mindi"
+            />
+          </label>
+
+          <label>
+            Alamat
+            <textarea
+              value={address}
+              onChange={(event) => setAddress(event.target.value)}
+              placeholder="Alamat toko"
+              rows="3"
+            />
+          </label>
+
+          <label>
+            Nomor WA / Telepon
+            <input
+              type="text"
+              value={phone}
+              onChange={(event) => setPhone(event.target.value)}
+              placeholder="Contoh: 08xxxxxxxxxx"
+            />
+          </label>
+        </div>
+
+        <div className="settings-section">
+          <div className="section-title">
+            <h4>Struk & Stok</h4>
+            <p>Catatan struk dan batas stok rendah untuk Dashboard.</p>
+          </div>
+
+          <label>
+            Catatan Struk
+            <textarea
+              value={receiptNote}
+              onChange={(event) => setReceiptNote(event.target.value)}
+              placeholder="Contoh: Terima kasih sudah belanja."
+              rows="3"
+            />
+          </label>
+
+          <label>
+            Batas Stok Rendah
+            <input
+              type="number"
+              min="0"
+              value={lowStockThreshold}
+              onChange={(event) => setLowStockThreshold(event.target.value)}
+              placeholder="Contoh: 10"
+            />
+          </label>
+        </div>
+
+        <div className="settings-actions">
+          <button type="button" className="secondary-button" onClick={resetSettingsForm}>
+            Reset Form
+          </button>
+
+          <button type="submit" className="finish-button">
+            Simpan Pengaturan
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
