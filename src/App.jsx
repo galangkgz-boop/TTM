@@ -133,6 +133,26 @@ function processFifoSale(cartItems, stockBatches) {
   };
 }
 
+function createStockBatchCode(existingBatches) {
+  const now = new Date();
+
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+
+  const dateCode = String(year) + month + day;
+  const prefix = "BATCH-" + dateCode + "-";
+
+  const todayBatches = existingBatches.filter((batch) =>
+    batch.batchCode.startsWith(prefix)
+  );
+
+  const nextNumber = todayBatches.length + 1;
+  const sequence = String(nextNumber).padStart(4, "0");
+
+  return prefix + sequence;
+}
+
 function App() {
   const [activePage, setActivePage] = useState("cashier");
   const [products, setProducts] = useState(dummyProducts);
@@ -191,6 +211,13 @@ function App() {
     setStockBatches(updatedBatches);
   }
 }
+
+  function addStockBatch(newBatch) {
+    setStockBatches((currentBatches) => [
+      ...currentBatches, 
+      newBatch,
+    ]);
+  }
 
   function reduceProductStock(cartItems) {
   setProducts((currentProducts) =>
@@ -276,6 +303,7 @@ function App() {
             <InventoryPage
             products={products}
             stockBatches={stockBatches}
+            onAddStockBatch={addStockBatch}
           /> 
           ) : null}
 
@@ -731,7 +759,16 @@ function ProductsPage() {
   );
 }
 
-function InventoryPage({ products, stockBatches }) {
+function InventoryPage({ products, stockBatches, onAddStockBatch }) {
+
+  const [isBatchFormOpen, setIsBatchFormOpen] = useState(false);
+  const [batchProductId, setBatchProductId] = useState("");
+  const [batchPurchaseDate, setBatchPurchaseDate] = useState(() => {
+    return new Date().toISOString().slice(0, 10);
+  });
+  const [batchQty, setBatchQty] = useState("");
+  const [batchCost, setBatchCost] = useState("");
+
   const activeProducts = products.filter((product) => product.active);
 
   const productStockSummary = activeProducts
@@ -803,6 +840,57 @@ function InventoryPage({ products, stockBatches }) {
     (batch) => Number(batch.qtyRemaining || 0) > 0
   ).length;
 
+  function resetBatchForm() {
+  setBatchProductId("");
+  setBatchPurchaseDate(new Date().toISOString().slice(0, 10));
+  setBatchQty("");
+  setBatchCost("");
+}
+
+function closeBatchForm() {
+  setIsBatchFormOpen(false);
+  resetBatchForm();
+}
+
+function submitStockBatch(event) {
+  event.preventDefault();
+
+  const selectedProductId = Number(batchProductId);
+  const qty = Number(batchQty || 0);
+  const cost = Number(batchCost || 0);
+
+  if (!selectedProductId) {
+    alert("Pilih produk terlebih dahulu.");
+    return;
+  }
+
+  if (qty <= 0) {
+    alert("Qty masuk harus lebih dari 0.");
+    return;
+  }
+
+  if (cost <= 0) {
+    alert("Harga modal harus lebih dari 0.");
+    return;
+  }
+
+  const newBatch = {
+    id: Date.now(),
+    productId: selectedProductId,
+    batchCode: createStockBatchCode(stockBatches),
+    purchaseDate: batchPurchaseDate,
+    qtyInitial: qty,
+    qtyRemaining: qty,
+    cost: cost,
+  };
+
+  onAddStockBatch(newBatch);
+
+  alert("Batch stok berhasil ditambahkan: " + newBatch.batchCode);
+
+  closeBatchForm();
+}
+
   return (
     <div>
       <div className="inventory-header">
@@ -812,6 +900,14 @@ function InventoryPage({ products, stockBatches }) {
             Semua stok produk dihitung dari batch FIFO yang masih memiliki qty sisa.
           </p>
         </div>
+
+        <button
+          type="button"
+          className="primary-action-button"
+          onClick={() => setIsBatchFormOpen(true)}
+        >
+          Tambah Batch
+        </button>
       </div>
 
       <div className="inventory-summary">
@@ -931,6 +1027,82 @@ function InventoryPage({ products, stockBatches }) {
           </div>
         ) : null}
       </div>
+
+      {isBatchFormOpen ? (
+        <div className="modal-backdrop">
+          <div className="stock-batch-modal">
+            <div className="modal-header">
+              <div>
+                <h3>Tambah Batch FIFO</h3>
+                <p>Input pembelian barang masuk untuk menambah stok.</p>
+              </div>
+
+              <button type="button" className="modal-close" onClick={closeBatchForm}>
+                ×
+              </button>
+            </div>
+
+            <form className="batch-form" onSubmit={submitStockBatch}>
+              <label>
+                Produk
+                <select
+                  value={batchProductId}
+                  onChange={(event) => setBatchProductId(event.target.value)}
+                >
+                  <option value="">Pilih produk</option>
+                  {activeProducts.map((product) => (
+                    <option key={product.id} value={product.id}>
+                      {product.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              
+              <label>
+                Tanggal Masuk
+                <input
+                  type="date"
+                  value={batchPurchaseDate}
+                  onChange={(event) => setBatchPurchaseDate(event.target.value)}
+                />
+              </label>
+
+              <label>
+                Qty Masuk
+                <input
+                  type="number"
+                  min="1"
+                  value={batchQty}
+                  onChange={(event) => setBatchQty(event.target.value)}
+                  placeholder="Contoh: 20"
+                />
+              </label>
+
+              <label>
+                Harga Modal per Unit
+                <input
+                  type="number"
+                  min="1"
+                  value={batchCost}
+                  onChange={(event) => setBatchCost(event.target.value)}
+                  placeholder="Contoh: 20500"
+                />
+              </label>
+
+              <div className="stock-batch-actions">
+                <button type="button" className="secondary-button" onClick={closeBatchForm}>
+                  Batal
+                </button>
+
+                <button type="submit" className="finish-button">
+                  Simpan Batch
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
+
     </div>
   );
 }
