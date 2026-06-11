@@ -1948,3 +1948,20 @@
   flex-wrap: wrap;
   justify-content: flex-end;
 }
+
+.danger-settings-section {
+  border-color: #fecaca;
+  background: #fff7f7;
+}
+
+.reset-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr;
+  gap: 12px;
+}
+
+@media (max-width: 700px) {
+  .reset-actions {
+    grid-template-columns: 1fr;
+  }
+}
