@@ -3263,6 +3263,13 @@ function TransactionDetailModal({ transaction, settings, onClose }) {
 </div>
       </div>
 
+      {transaction.syncStatus === "failed" ? (
+  <div className="sync-error-box">
+    <strong>Gagal Sinkron Supabase</strong>
+    <p>{transaction.syncError || "Tidak ada detail error."}</p>
+  </div>
+) : null}
+
       {isReceiptOpen ? (
   <ReceiptModal
     transaction={transaction}
