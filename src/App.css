@@ -1971,3 +1971,32 @@
     grid-template-columns: 1fr;
   }
 }
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.checkbox-field input {
+  width: 18px;
+  height: 18px;
+}
+
+.toggle-setting-button {
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 13px 14px;
+  background: #f8fafc;
+  color: #334155;
+  font-weight: 800;
+  cursor: pointer;
+  text-align: left;
+}
+
+.toggle-setting-button.active {
+  border-color: #86efac;
+  background: #dcfce7;
+  color: #166534;
+}

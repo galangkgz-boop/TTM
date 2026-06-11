@@ -40,6 +40,7 @@ const defaultSettings = {
   phone: "",
   receiptNote: "Terima kasih sudah belanja.",
   lowStockThreshold: 10,
+  autoLoadSupabase: false
 };
 
 function createTransactionCode(existingTransactions) {
@@ -248,6 +249,7 @@ function mapSupabaseStockBatch(batch) {
 
 function mapSupabaseSettings(settings) {
   return {
+    autoLoadSupabase: Boolean(settings.auto_load_supabase || false),
     storeName: settings.store_name || defaultSettings.storeName,
     address: settings.address || "",
     phone: settings.phone || "",
@@ -371,6 +373,12 @@ useEffect(() => {
     JSON.stringify(settings)
   );
 }, [settings]);
+
+useEffect(() => {
+  if (settings.autoLoadSupabase === true) {
+    loadAllDataFromSupabaseSilently();
+  }
+}, []);
 
 async function addTransaction(transaction, updatedBatches) {
   setTransactions((currentTransactions) => [transaction, ...currentTransactions]);
@@ -722,6 +730,32 @@ async function loadTransactionsFromSupabase() {
   } catch (error) {
     console.error(error);
     alert("Gagal ambil transaksi dari Supabase: " + error.message);
+  }
+}
+
+async function loadAllDataFromSupabaseSilently() {
+  try {
+    const supabaseProducts = await fetchProductsFromSupabase();
+    const supabaseProductVariants = await fetchProductVariantsFromSupabase();
+    const supabaseStockBatches = await fetchStockBatchesFromSupabase();
+    const supabaseSettings = await fetchStoreSettingsFromSupabase();
+    const supabaseTransactions = await fetchTransactionsFromSupabase();
+
+    setProducts(supabaseProducts.map(mapSupabaseProduct));
+    setProductVariants(supabaseProductVariants.map(mapSupabaseProductVariant));
+    setStockBatches(supabaseStockBatches.map(mapSupabaseStockBatch));
+
+    if (supabaseSettings) {
+      setSettings((currentSettings) => ({
+        ...currentSettings,
+        ...mapSupabaseSettings(supabaseSettings),
+        autoLoadSupabase: currentSettings.autoLoadSupabase,
+      }));
+    }
+
+    setTransactions(supabaseTransactions.map(mapSupabaseTransaction));
+  } catch (error) {
+    console.error("Gagal auto load Supabase:", error);
   }
 }
 
@@ -3414,9 +3448,8 @@ function SettingsPage({
   const [address, setAddress] = useState(settings.address);
   const [phone, setPhone] = useState(settings.phone);
   const [receiptNote, setReceiptNote] = useState(settings.receiptNote);
-  const [lowStockThreshold, setLowStockThreshold] = useState(
-    String(settings.lowStockThreshold)
-  );
+  const [lowStockThreshold, setLowStockThreshold] = useState(String(settings.lowStockThreshold));
+  const [autoLoadSupabase, setAutoLoadSupabase] = useState(settings.autoLoadSupabase || false);
 
   function submitSettings(event) {
     event.preventDefault();
@@ -3439,6 +3472,7 @@ function SettingsPage({
       phone: phone.trim(),
       receiptNote: receiptNote.trim(),
       lowStockThreshold: threshold,
+      autoLoadSupabase: autoLoadSupabase,
     });
 
     alert("Pengaturan berhasil disimpan.");
@@ -3450,6 +3484,7 @@ function SettingsPage({
     setPhone(settings.phone);
     setReceiptNote(settings.receiptNote);
     setLowStockThreshold(String(settings.lowStockThreshold));
+    setAutoLoadSupabase(settings.autoLoadSupabase || false);
   }
 
   function exportLocalBackupJson() {
@@ -3638,7 +3673,23 @@ function importLocalBackupJson(event) {
               placeholder="Contoh: 10"
             />
           </label>
+
+          <div className="settings-field">
+            <span>Auto Load Supabase</span>
+
+          <button
+            type="button"
+            className={
+            autoLoadSupabase
+              ? "toggle-setting-button active"
+              : "toggle-setting-button"
+            }
+            onClick={() => setAutoLoadSupabase((currentValue) => !currentValue)}
+          >
+            {autoLoadSupabase ? "ON - Ambil data saat app dibuka" : "OFF - Pakai data lokal"}
+          </button>
         </div>
+      </div>
 
         <div className="settings-section danger-settings-section">
   <div className="section-title">
