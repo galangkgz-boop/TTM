@@ -254,6 +254,7 @@ function mapSupabaseSettings(settings) {
 
 function App() {
   const [activePage, setActivePage] = useState("cashier");
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [products, setProducts] = useState(() => {
   const savedProducts = localStorage.getItem(PRODUCTS_STORAGE_KEY);
 
@@ -342,7 +343,7 @@ function App() {
   { id: "settings", label: "Pengaturan" },
 ];
 
-const activeMenu = menus.find((menu) => menu.id === activePage);
+  const activeMenu = menus.find((menu) => menu.id === activePage);
   const pageTitle = activeMenu ? activeMenu.label : "Kasir";
 
   useEffect(() => {
@@ -384,6 +385,24 @@ useEffect(() => {
   if (settings.autoLoadSupabase === true) {
     loadAllDataFromSupabaseSilently();
   }
+}, []);
+
+useEffect(() => {
+  function handleOnline() {
+    setIsOnline(true);
+  }
+
+  function handleOffline() {
+    setIsOnline(false);
+  }
+
+  window.addEventListener("online", handleOnline);
+  window.addEventListener("offline", handleOffline);
+
+  return () => {
+    window.removeEventListener("online", handleOnline);
+    window.removeEventListener("offline", handleOffline);
+  };
 }, []);
 
 function addStockBatch(newBatch) {
@@ -1059,6 +1078,14 @@ async function retrySingleTransactionSync(transaction) {
             <p className="eyebrow">POS Toko</p>
             <h2>{pageTitle}</h2>
           </div>
+
+          <div className="topbar-status-group">
+  <div className={isOnline ? "connection-pill online" : "connection-pill offline"}>
+    {isOnline ? "Online" : "Offline"}
+  </div>
+
+  <div className="status-pill">Development</div>
+</div>
 
           <div className="status-pill">Development</div>
         </header>
