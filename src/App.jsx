@@ -9,6 +9,10 @@ import {
   fetchProductVariantsFromSupabase,
   fetchStockBatchesFromSupabase,
   fetchStoreSettingsFromSupabase,
+  replaceProductsInSupabase,
+  replaceProductVariantsInSupabase,
+  replaceStockBatchesInSupabase,
+  updateStoreSettingsInSupabase,
 } from "./services/supabaseDataService";
 
 const menus = [
@@ -545,6 +549,30 @@ async function testSupabaseConnection() {
   }
 }
 
+async function uploadLocalMasterDataToSupabase() {
+  const confirmUpload = window.confirm(
+    "Kirim data lokal ke Supabase? Data products, variants, stock batches, dan settings di Supabase akan diganti."
+  );
+
+  if (confirmUpload === false) {
+    return;
+  }
+
+  try {
+    await replaceProductVariantsInSupabase([]);
+    await replaceStockBatchesInSupabase([]);
+    await replaceProductsInSupabase(products);
+    await replaceProductVariantsInSupabase(productVariants);
+    await replaceStockBatchesInSupabase(stockBatches);
+    await updateStoreSettingsInSupabase(settings);
+
+    alert("Data lokal berhasil dikirim ke Supabase.");
+  } catch (error) {
+    console.error(error);
+    alert("Gagal kirim data ke Supabase: " + error.message);
+  }
+}
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -654,6 +682,7 @@ async function testSupabaseConnection() {
   onResetStockBatchesToDummy={resetStockBatchesToDummy}
   onResetAllLocalData={resetAllLocalData}
   onTestSupabaseConnection={testSupabaseConnection}
+  onUploadLocalMasterDataToSupabase={uploadLocalMasterDataToSupabase}
 />
           ) : null}
         </section>
@@ -3223,6 +3252,7 @@ function SettingsPage({
   onResetStockBatchesToDummy,
   onResetAllLocalData,
   onTestSupabaseConnection,
+  onUploadLocalMasterDataToSupabase
 }) {
   const [storeName, setStoreName] = useState(settings.storeName);
   const [address, setAddress] = useState(settings.address);
@@ -3519,6 +3549,14 @@ function importLocalBackupJson(event) {
     Simpan Pengaturan
   </button>
 </div>
+
+<button
+  type="button"
+  className="secondary-button"
+  onClick={onUploadLocalMasterDataToSupabase}
+>
+  Kirim ke Supabase
+</button>
       </form>
     </div>
   );
