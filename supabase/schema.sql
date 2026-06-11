@@ -122,3 +122,153 @@ values (
   10
 )
 on conflict (id) do nothing;
+
+alter table products enable row level security;
+alter table product_variants enable row level security;
+alter table stock_batches enable row level security;
+alter table transactions enable row level security;
+alter table transaction_items enable row level security;
+alter table transaction_item_batches enable row level security;
+alter table store_settings enable row level security;
+
+create policy "Allow anon read products"
+on products for select
+to anon
+using (true);
+
+create policy "Allow anon insert products"
+on products for insert
+to anon
+with check (true);
+
+create policy "Allow anon update products"
+on products for update
+to anon
+using (true)
+with check (true);
+
+create policy "Allow anon delete products"
+on products for delete
+to anon
+using (true);
+
+create policy "Allow anon read product variants"
+on product_variants for select
+to anon
+using (true);
+
+create policy "Allow anon insert product variants"
+on product_variants for insert
+to anon
+with check (true);
+
+create policy "Allow anon update product variants"
+on product_variants for update
+to anon
+using (true)
+with check (true);
+
+create policy "Allow anon delete product variants"
+on product_variants for delete
+to anon
+using (true);
+
+create policy "Allow anon read stock batches"
+on stock_batches for select
+to anon
+using (true);
+
+create policy "Allow anon insert stock batches"
+on stock_batches for insert
+to anon
+with check (true);
+
+create policy "Allow anon update stock batches"
+on stock_batches for update
+to anon
+using (true)
+with check (true);
+
+create policy "Allow anon delete stock batches"
+on stock_batches for delete
+to anon
+using (true);
+
+create policy "Allow anon read transactions"
+on transactions for select
+to anon
+using (true);
+
+create policy "Allow anon insert transactions"
+on transactions for insert
+to anon
+with check (true);
+
+create policy "Allow anon update transactions"
+on transactions for update
+to anon
+using (true)
+with check (true);
+
+create policy "Allow anon delete transactions"
+on transactions for delete
+to anon
+using (true);
+
+create policy "Allow anon read transaction items"
+on transaction_items for select
+to anon
+using (true);
+
+create policy "Allow anon insert transaction items"
+on transaction_items for insert
+to anon
+with check (true);
+
+create policy "Allow anon update transaction items"
+on transaction_items for update
+to anon
+using (true)
+with check (true);
+
+create policy "Allow anon delete transaction items"
+on transaction_items for delete
+to anon
+using (true);
+
+create policy "Allow anon read transaction item batches"
+on transaction_item_batches for select
+to anon
+using (true);
+
+create policy "Allow anon insert transaction item batches"
+on transaction_item_batches for insert
+to anon
+with check (true);
+
+create policy "Allow anon update transaction item batches"
+on transaction_item_batches for update
+to anon
+using (true)
+with check (true);
+
+create policy "Allow anon delete transaction item batches"
+on transaction_item_batches for delete
+to anon
+using (true);
+
+create policy "Allow anon read store settings"
+on store_settings for select
+to anon
+using (true);
+
+create policy "Allow anon insert store settings"
+on store_settings for insert
+to anon
+with check (true);
+
+create policy "Allow anon update store settings"
+on store_settings for update
+to anon
+using (true)
+with check (true);
