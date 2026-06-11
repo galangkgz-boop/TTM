@@ -552,60 +552,6 @@ function activateProductVariant(variantId) {
   );
 }
 
-function resetTransactionsOnly() {
-  const confirmReset = window.confirm(
-    "Hapus semua transaksi? Produk, varian, stok, dan pengaturan tetap aman."
-  );
-
-  if (confirmReset === false) {
-    return;
-  }
-
-  setTransactions([]);
-  localStorage.removeItem(TRANSACTIONS_STORAGE_KEY);
-
-  alert("Transaksi berhasil direset.");
-}
-
-function resetStockBatchesToDummy() {
-  const confirmReset = window.confirm(
-    "Reset stok FIFO ke data dummy? Data batch stok sekarang akan diganti."
-  );
-
-  if (confirmReset === false) {
-    return;
-  }
-
-  setStockBatches(dummyStockBatches);
-  localStorage.removeItem(STOCK_BATCHES_STORAGE_KEY);
-
-  alert("Stok FIFO berhasil direset ke data dummy.");
-}
-
-function resetAllLocalData() {
-  const confirmReset = window.confirm(
-    "Reset semua data lokal? Produk, varian, stok, transaksi, dan pengaturan akan kembali ke awal."
-  );
-
-  if (confirmReset === false) {
-    return;
-  }
-
-  setProducts(dummyProducts);
-  setProductVariants(dummyProductVariants);
-  setStockBatches(dummyStockBatches);
-  setTransactions([]);
-  setSettings(defaultSettings);
-
-  localStorage.removeItem(PRODUCTS_STORAGE_KEY);
-  localStorage.removeItem(PRODUCT_VARIANTS_STORAGE_KEY);
-  localStorage.removeItem(STOCK_BATCHES_STORAGE_KEY);
-  localStorage.removeItem(TRANSACTIONS_STORAGE_KEY);
-  localStorage.removeItem(SETTINGS_STORAGE_KEY);
-
-  alert("Semua data lokal berhasil direset.");
-}
-
 function mapSupabaseTransaction(transaction) {
   const items = (transaction.transaction_items || []).map((item) => ({
     cartItemId:
@@ -1179,9 +1125,6 @@ async function retrySingleTransactionSync(transaction) {
   onRestoreProductVariants={setProductVariants}
   onRestoreStockBatches={setStockBatches}
   onRestoreTransactions={setTransactions}
-  onResetTransactionsOnly={resetTransactionsOnly}
-  onResetStockBatchesToDummy={resetStockBatchesToDummy}
-  onResetAllLocalData={resetAllLocalData}
   onTestSupabaseConnection={testSupabaseConnection}
   onUploadLocalMasterDataToSupabase={uploadLocalMasterDataToSupabase}
   onLoadMasterDataFromSupabase={loadMasterDataFromSupabase}
@@ -3831,9 +3774,6 @@ function SettingsPage({
   onRestoreProductVariants,
   onRestoreStockBatches,
   onRestoreTransactions,
-  onResetTransactionsOnly,
-  onResetStockBatchesToDummy,
-  onResetAllLocalData,
   onTestSupabaseConnection,
   onUploadLocalMasterDataToSupabase,
   onLoadMasterDataFromSupabase,
