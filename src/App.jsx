@@ -916,7 +916,7 @@ async function retryFailedTransactionSync() {
     try {
       await createTransactionInSupabase(transaction);
       await updateStockBatchesInSupabase(stockBatches);
-      
+
       successCount += 1;
 
       setTransactions((currentTransactions) =>
@@ -956,6 +956,25 @@ async function retryFailedTransactionSync() {
       "\nGagal: " +
       failedCount
   );
+}
+
+async function syncLocalStockBatchesToSupabase() {
+  const confirmSync = window.confirm(
+    "Sinkron stok FIFO lokal ke Supabase? Qty batch di Supabase akan disamakan dengan data lokal."
+  );
+
+  if (confirmSync === false) {
+    return;
+  }
+
+  try {
+    await updateStockBatchesInSupabase(stockBatches);
+
+    alert("Stok FIFO lokal berhasil disinkronkan ke Supabase.");
+  } catch (error) {
+    console.error(error);
+    alert("Gagal sinkron stok ke Supabase: " + error.message);
+  }
 }
 
   return (
@@ -1071,6 +1090,7 @@ async function retryFailedTransactionSync() {
   onLoadMasterDataFromSupabase={loadMasterDataFromSupabase}
   onLoadTransactionsFromSupabase={loadTransactionsFromSupabase}
   onRetryFailedTransactionSync={retryFailedTransactionSync}
+  onSyncLocalStockBatchesToSupabase={syncLocalStockBatchesToSupabase}
 />
           ) : null}
         </section>
@@ -3659,7 +3679,8 @@ function SettingsPage({
   onUploadLocalMasterDataToSupabase,
   onLoadMasterDataFromSupabase,
   onLoadTransactionsFromSupabase,
-  onRetryFailedTransactionSync
+  onRetryFailedTransactionSync,
+  onSyncLocalStockBatchesToSupabase,
 }) {
   const [storeName, setStoreName] = useState(settings.storeName);
   const [address, setAddress] = useState(settings.address);
@@ -3693,15 +3714,6 @@ function SettingsPage({
     });
 
     alert("Pengaturan berhasil disimpan.");
-  }
-
-  function resetSettingsForm() {
-    setStoreName(settings.storeName);
-    setAddress(settings.address);
-    setPhone(settings.phone);
-    setReceiptNote(settings.receiptNote);
-    setLowStockThreshold(String(settings.lowStockThreshold));
-    setAutoLoadSupabase(settings.autoLoadSupabase || false);
   }
 
   function exportLocalBackupJson() {
@@ -3968,6 +3980,30 @@ function importLocalBackupJson(event) {
   Ambil dari Supabase
 </button>
 
+<button
+  type="button"
+  className="secondary-button"
+  onClick={onLoadTransactionsFromSupabase}
+>
+  Ambil Transaksi
+</button>
+
+<button
+  type="button"
+  className="secondary-button"
+  onClick={onRetryFailedTransactionSync}
+>
+  Sinkron Ulang Gagal
+</button>
+
+<button
+  type="button"
+  className="secondary-button"
+  onClick={onSyncLocalStockBatchesToSupabase}
+>
+  Sinkron Stok
+</button>
+
   <button type="button" className="secondary-button" onClick={exportLocalBackupJson}>
     Export Backup JSON
   </button>
@@ -3980,29 +4016,6 @@ function importLocalBackupJson(event) {
       onChange={importLocalBackupJson}
     />
   </label>
-
-  <button
-  type="button"
-  className="secondary-button"
-  onClick={onLoadTransactionsFromSupabase}
->
-  Ambil Transaksi dari Supabase
-</button>
-
-  <button 
-  type="button" 
-  className="secondary-button" 
-  onClick={resetSettingsForm}>
-    Reset Form
-  </button>
-
-  <button
-  type="button"
-  className="secondary-button"
-  onClick={onRetryFailedTransactionSync}
->
-  Sinkron Ulang Gagal
-</button>
 
   <button type="submit" className="finish-button">
     Simpan Pengaturan
