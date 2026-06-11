@@ -970,6 +970,20 @@ async function loadAllDataFromSupabaseSilently() {
   }
 }
 
+async function refreshAllDataFromSupabase() {
+  const confirmRefresh = window.confirm(
+    "Refresh data online dari Supabase? Data aplikasi akan diperbarui dari database online."
+  );
+
+  if (confirmRefresh === false) {
+    return;
+  }
+
+  await loadAllDataFromSupabaseSilently();
+
+  alert("Data online berhasil direfresh.");
+}
+
 async function retryFailedTransactionSync() {
   const unsyncedTransactions = transactions.filter(
     (transaction) =>
@@ -1222,11 +1236,9 @@ async function retrySingleTransactionSync(transaction) {
   onRestoreStockBatches={setStockBatches}
   onRestoreTransactions={setTransactions}
   onTestSupabaseConnection={testSupabaseConnection}
-  onUploadLocalMasterDataToSupabase={uploadLocalMasterDataToSupabase}
-  onLoadMasterDataFromSupabase={loadMasterDataFromSupabase}
-  onLoadTransactionsFromSupabase={loadTransactionsFromSupabase}
   onRetryFailedTransactionSync={retryFailedTransactionSync}
   onSyncLocalStockBatchesToSupabase={syncLocalStockBatchesToSupabase}
+  onRefreshAllDataFromSupabase={refreshAllDataFromSupabase}
 />
           ) : null}
         </section>
@@ -3872,10 +3884,9 @@ function SettingsPage({
   onRestoreTransactions,
   onTestSupabaseConnection,
   onUploadLocalMasterDataToSupabase,
-  onLoadMasterDataFromSupabase,
-  onLoadTransactionsFromSupabase,
   onRetryFailedTransactionSync,
   onSyncLocalStockBatchesToSupabase,
+  onRefreshAllDataFromSupabase,
 }) {
   const [storeName, setStoreName] = useState(settings.storeName);
   const [address, setAddress] = useState(settings.address);
@@ -4116,17 +4127,9 @@ function importLocalBackupJson(event) {
     <button
       type="button"
       className="secondary-button"
-      onClick={onLoadMasterDataFromSupabase}
+      onClick={onRefreshAllDataFromSupabase}
     >
-      Ambil Master Data
-    </button>
-
-    <button
-      type="button"
-      className="secondary-button"
-      onClick={onLoadTransactionsFromSupabase}
-    >
-      Ambil Transaksi
+      Refresh Data Online
     </button>
 
     <button
