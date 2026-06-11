@@ -381,14 +381,47 @@ useEffect(() => {
 }, []);
 
 async function addTransaction(transaction, updatedBatches) {
-  setTransactions((currentTransactions) => [transaction, ...currentTransactions]);
+  const localTransaction = {
+    ...transaction,
+    syncStatus: "pending",
+  };
+
+  setTransactions((currentTransactions) => [
+    localTransaction,
+    ...currentTransactions,
+  ]);
+
   setStockBatches(updatedBatches);
 
   try {
     await createTransactionInSupabase(transaction);
     await updateStockBatchesInSupabase(updatedBatches);
+
+    setTransactions((currentTransactions) =>
+      currentTransactions.map((currentTransaction) =>
+        currentTransaction.id === transaction.id
+          ? {
+              ...currentTransaction,
+              syncStatus: "synced",
+            }
+          : currentTransaction
+      )
+    );
   } catch (error) {
     console.error(error);
+
+    setTransactions((currentTransactions) =>
+      currentTransactions.map((currentTransaction) =>
+        currentTransaction.id === transaction.id
+          ? {
+              ...currentTransaction,
+              syncStatus: "failed",
+              syncError: error.message,
+            }
+          : currentTransaction
+      )
+    );
+
     alert(
       "Transaksi tersimpan lokal, tapi gagal sinkron ke Supabase: " +
         error.message
@@ -631,7 +664,30 @@ function mapSupabaseTransaction(transaction) {
     change: Number(transaction.change_amount || 0),
     paymentMethod: transaction.payment_method || "Cash",
     profit: Number(transaction.profit || 0),
+    syncStatus: "synced"
   };
+}
+
+function mergeSupabaseTransactionsWithLocalFailed(
+  supabaseTransactions,
+  localTransactions
+) {
+  const mappedSupabaseTransactions = supabaseTransactions.map(mapSupabaseTransaction);
+
+  const unsyncedLocalTransactions = localTransactions.filter(
+    (transaction) =>
+      transaction.syncStatus === "failed" || transaction.syncStatus === "pending"
+  );
+
+  const supabaseCodes = new Set(
+    mappedSupabaseTransactions.map((transaction) => transaction.code)
+  );
+
+  const localOnlyUnsyncedTransactions = unsyncedLocalTransactions.filter(
+    (transaction) => supabaseCodes.has(transaction.code) === false
+  );
+
+  return [...localOnlyUnsyncedTransactions, ...mappedSupabaseTransactions];
 }
 
 async function testSupabaseConnection() {
@@ -724,7 +780,12 @@ async function loadTransactionsFromSupabase() {
   try {
     const supabaseTransactions = await fetchTransactionsFromSupabase();
 
-    setTransactions(supabaseTransactions.map(mapSupabaseTransaction));
+    setTransactions((currentTransactions) =>
+  mergeSupabaseTransactionsWithLocalFailed(
+    supabaseTransactions,
+    currentTransactions
+  )
+);
 
     alert("Riwayat transaksi berhasil diambil dari Supabase.");
   } catch (error) {
@@ -753,7 +814,12 @@ async function loadAllDataFromSupabaseSilently() {
       }));
     }
 
-    setTransactions(supabaseTransactions.map(mapSupabaseTransaction));
+    setTransactions((currentTransactions) =>
+  mergeSupabaseTransactionsWithLocalFailed(
+    supabaseTransactions,
+    currentTransactions
+  )
+);
   } catch (error) {
     console.error("Gagal auto load Supabase:", error);
   }
@@ -2778,6 +2844,22 @@ function TransactionsPage({ transactions, settings, onClearTransactions }) {
             <div className="transaction-card-header">
               <div>
                 <h4>{transaction.code}</h4>
+
+                <span
+                      className={
+                        transaction.syncStatus === "synced"
+                          ? "sync-badge synced"
+                          : transaction.syncStatus === "failed"
+                            ? "sync-badge failed"
+                            : "sync-badge pending"
+                      }
+                    >
+                      {transaction.syncStatus === "synced"
+                        ? "Tersinkron"
+                        : transaction.syncStatus === "failed"
+                          ? "Gagal Sinkron"
+                          : "Menunggu Sinkron"}
+                    </span>
                 <p>
                   {new Date(transaction.date).toLocaleString("id-ID", {
                     dateStyle: "medium",
