@@ -149,6 +149,20 @@ export async function updateStoreSettingsInSupabase(settings) {
 }
 
 export async function createTransactionInSupabase(transaction) {
+  const { data: existingTransaction, error: existingError } = await supabase
+    .from("transactions")
+    .select("id")
+    .eq("code", transaction.code)
+    .maybeSingle();
+
+  if (existingError) {
+    throw existingError;
+  }
+
+  if (existingTransaction) {
+    return existingTransaction;
+  }
+
   const transactionRow = {
     code: transaction.code,
     transaction_date: transaction.date,
