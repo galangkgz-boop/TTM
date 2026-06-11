@@ -380,61 +380,12 @@ useEffect(() => {
   }
 }, []);
 
-async function addTransaction(transaction, updatedBatches) {
-  const localTransaction = {
-    ...transaction,
-    syncStatus: "pending",
-  };
-
-  setTransactions((currentTransactions) => [
-    localTransaction,
-    ...currentTransactions,
-  ]);
-
-  setStockBatches(updatedBatches);
-
-  try {
-    await createTransactionInSupabase(transaction);
-    await updateStockBatchesInSupabase(updatedBatches);
-
-    setTransactions((currentTransactions) =>
-      currentTransactions.map((currentTransaction) =>
-        currentTransaction.id === transaction.id
-          ? {
-              ...currentTransaction,
-              syncStatus: "synced",
-            }
-          : currentTransaction
-      )
-    );
-  } catch (error) {
-    console.error(error);
-
-    setTransactions((currentTransactions) =>
-      currentTransactions.map((currentTransaction) =>
-        currentTransaction.id === transaction.id
-          ? {
-              ...currentTransaction,
-              syncStatus: "failed",
-              syncError: error.message,
-            }
-          : currentTransaction
-      )
-    );
-
-    alert(
-      "Transaksi tersimpan lokal, tapi gagal sinkron ke Supabase: " +
-        error.message
-    );
-  }
-}
-
 function addStockBatch(newBatch) {
     setStockBatches((currentBatches) => [
       ...currentBatches, 
       newBatch,
     ]);
-  }
+}
 
 function reduceProductStock(cartItems) {
   setProducts((currentProducts) =>
@@ -727,6 +678,55 @@ function applyUnsyncedTransactionsToStockBatches(stockBatches, localTransactions
   return updatedBatches;
 }
 
+async function addTransaction(transaction, updatedBatches) {
+  const localTransaction = {
+    ...transaction,
+    syncStatus: "pending",
+  };
+
+  setTransactions((currentTransactions) => [
+    localTransaction,
+    ...currentTransactions,
+  ]);
+
+  setStockBatches(updatedBatches);
+
+  try {
+    await createTransactionInSupabase(transaction);
+    await updateStockBatchesInSupabase(updatedBatches);
+
+    setTransactions((currentTransactions) =>
+      currentTransactions.map((currentTransaction) =>
+        currentTransaction.id === transaction.id
+          ? {
+              ...currentTransaction,
+              syncStatus: "synced",
+            }
+          : currentTransaction
+      )
+    );
+  } catch (error) {
+    console.error(error);
+
+    setTransactions((currentTransactions) =>
+      currentTransactions.map((currentTransaction) =>
+        currentTransaction.id === transaction.id
+          ? {
+              ...currentTransaction,
+              syncStatus: "failed",
+              syncError: error.message,
+            }
+          : currentTransaction
+      )
+    );
+
+    alert(
+      "Transaksi tersimpan lokal, tapi gagal sinkron ke Supabase: " +
+        error.message
+    );
+  }
+}
+
 async function testSupabaseConnection() {
   try {
     const supabaseProducts = await fetchProductsFromSupabase();
@@ -977,6 +977,47 @@ async function syncLocalStockBatchesToSupabase() {
   }
 }
 
+async function retrySingleTransactionSync(transaction) {
+  if (!transaction) {
+    return;
+  }
+
+  try {
+    await createTransactionInSupabase(transaction);
+    await updateStockBatchesInSupabase(stockBatches);
+
+    setTransactions((currentTransactions) =>
+      currentTransactions.map((currentTransaction) =>
+        currentTransaction.id === transaction.id
+          ? {
+              ...currentTransaction,
+              syncStatus: "synced",
+              syncError: "",
+            }
+          : currentTransaction
+      )
+    );
+
+    alert("Transaksi berhasil disinkronkan.");
+  } catch (error) {
+    console.error(error);
+
+    setTransactions((currentTransactions) =>
+      currentTransactions.map((currentTransaction) =>
+        currentTransaction.id === transaction.id
+          ? {
+              ...currentTransaction,
+              syncStatus: "failed",
+              syncError: error.message,
+            }
+          : currentTransaction
+      )
+    );
+
+    alert("Gagal sinkron ulang transaksi: " + error.message);
+  }
+}
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -1062,6 +1103,7 @@ async function syncLocalStockBatchesToSupabase() {
               transactions={transactions}
               settings={settings}
               onClearTransactions={clearTransactions} 
+              onRetrySingleTransactionSync={retrySingleTransactionSync}
             /> 
           ) : null}
 
@@ -2915,7 +2957,7 @@ function exportStockBatchesCsv() {
   );
 }
 
-function TransactionsPage({ transactions, settings, onClearTransactions }) {
+function TransactionsPage({ transactions, settings, onClearTransactions, onRetrySingleTransactionSync }) {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
 
   function exportTransactionsCsv() {
@@ -3128,13 +3170,14 @@ function TransactionsPage({ transactions, settings, onClearTransactions }) {
           transaction={selectedTransaction}
           settings={settings}
           onClose={() => setSelectedTransaction(null)}
+          onRetrySingleTransactionSync={onRetrySingleTransactionSync}
         />
       ) : null}
     </div>
   );
 }
 
-function TransactionDetailModal({ transaction, settings, onClose }) {
+function TransactionDetailModal({ transaction, settings, onClose, onRetrySingleTransactionSync }) {
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
 
   return (
@@ -3265,8 +3308,18 @@ function TransactionDetailModal({ transaction, settings, onClose }) {
 
       {transaction.syncStatus === "failed" ? (
   <div className="sync-error-box">
-    <strong>Gagal Sinkron Supabase</strong>
-    <p>{transaction.syncError || "Tidak ada detail error."}</p>
+    <div>
+      <strong>Gagal Sinkron Supabase</strong>
+      <p>{transaction.syncError || "Tidak ada detail error."}</p>
+    </div>
+
+    <button
+      type="button"
+      className="secondary-button"
+      onClick={() => onRetrySingleTransactionSync(transaction)}
+    >
+      Sinkron Ulang
+    </button>
   </div>
 ) : null}
 
