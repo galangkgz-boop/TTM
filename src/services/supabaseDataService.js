@@ -204,6 +204,24 @@ export async function replaceStockBatchesInSupabase(stockBatches) {
   }
 }
 
+export async function createStockBatchInSupabase(batch) {
+  const row = {
+    id: batch.id,
+    product_id: batch.productId,
+    batch_code: batch.batchCode,
+    purchase_date: batch.purchaseDate,
+    qty_initial: batch.qtyInitial,
+    qty_remaining: batch.qtyRemaining,
+    cost: batch.cost,
+  };
+
+  const { error } = await supabase.from("stock_batches").insert(row);
+
+  if (error) {
+    throw error;
+  }
+}
+
 export async function updateStoreSettingsInSupabase(settings) {
   const row = {
     id: 1,

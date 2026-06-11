@@ -6,10 +6,6 @@ import { dummyProductVariants } from "./db/dummyProductVariants";
 import { formatRupiah } from "./lib/format";
 import {
   fetchProductsFromSupabase,
-  createProductInSupabase,
-  updateProductInSupabase,
-  createProductVariantInSupabase,
-  updateProductVariantInSupabase,
   fetchProductVariantsFromSupabase,
   fetchStockBatchesFromSupabase,
   fetchStoreSettingsFromSupabase,
@@ -21,6 +17,11 @@ import {
   updateStockBatchesInSupabase,
   fetchTransactionsFromSupabase,
   updateUsedStockBatchesInSupabase,
+  createProductInSupabase,
+  updateProductInSupabase,
+  createProductVariantInSupabase,
+  updateProductVariantInSupabase,
+  createStockBatchInSupabase,
 } from "./services/supabaseDataService";
 
 const TRANSACTIONS_STORAGE_KEY = "ttm_pos_transactions";
@@ -418,13 +419,6 @@ useEffect(() => {
   };
 }, []);
 
-function addStockBatch(newBatch) {
-    setStockBatches((currentBatches) => [
-      ...currentBatches, 
-      newBatch,
-    ]);
-}
-
 function reduceProductStock(cartItems) {
   setProducts((currentProducts) =>
     currentProducts.map((product) => {
@@ -637,6 +631,20 @@ async function activateProductVariant(variantId) {
   } catch (error) {
     console.error(error);
     alert("Varian diaktifkan lokal, tapi gagal update Supabase: " + error.message);
+  }
+}
+
+async function addStockBatch(newBatch) {
+  setStockBatches((currentBatches) => [
+    ...currentBatches,
+    newBatch,
+  ]);
+
+  try {
+    await createStockBatchInSupabase(newBatch);
+  } catch (error) {
+    console.error(error);
+    alert("Batch stok tersimpan lokal, tapi gagal masuk Supabase: " + error.message);
   }
 }
 
