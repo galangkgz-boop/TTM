@@ -32,7 +32,7 @@ const defaultSettings = {
   phone: "",
   receiptNote: "Terima kasih sudah belanja.",
   lowStockThreshold: 10,
-  autoLoadSupabase: false
+  autoLoadSupabase: true
 };
 
 function createTransactionCode(existingTransactions) {
@@ -3848,7 +3848,6 @@ function SettingsPage({
   const [phone, setPhone] = useState(settings.phone);
   const [receiptNote, setReceiptNote] = useState(settings.receiptNote);
   const [lowStockThreshold, setLowStockThreshold] = useState(String(settings.lowStockThreshold));
-  const [autoLoadSupabase, setAutoLoadSupabase] = useState(settings.autoLoadSupabase || false);
 
   function submitSettings(event) {
     event.preventDefault();
@@ -3870,8 +3869,8 @@ function SettingsPage({
       address: address.trim(),
       phone: phone.trim(),
       receiptNote: receiptNote.trim(),
-      lowStockThreshold: threshold,
-      autoLoadSupabase: autoLoadSupabase,
+      lowStockThreshold: Number(lowStockthreshold || 10),
+      autoLoadSupabase: true,
     });
 
     alert("Pengaturan berhasil disimpan.");
@@ -4063,22 +4062,6 @@ function importLocalBackupJson(event) {
               placeholder="Contoh: 10"
             />
           </label>
-
-          <div className="settings-field">
-            <span>Auto Load Supabase</span>
-
-          <button
-            type="button"
-            className={
-            autoLoadSupabase
-              ? "toggle-setting-button active"
-              : "toggle-setting-button"
-            }
-            onClick={() => setAutoLoadSupabase((currentValue) => !currentValue)}
-          >
-            {autoLoadSupabase ? "ON - Ambil data saat app dibuka" : "OFF - Pakai data lokal"}
-          </button>
-        </div>
       </div>
 
         <div className="settings-section">
