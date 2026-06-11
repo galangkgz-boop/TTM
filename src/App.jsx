@@ -825,6 +825,74 @@ async function loadAllDataFromSupabaseSilently() {
   }
 }
 
+async function retryFailedTransactionSync() {
+  const unsyncedTransactions = transactions.filter(
+    (transaction) =>
+      transaction.syncStatus === "failed" || transaction.syncStatus === "pending"
+  );
+
+  if (unsyncedTransactions.length === 0) {
+    alert("Tidak ada transaksi gagal/pending untuk disinkron ulang.");
+    return;
+  }
+
+  const confirmRetry = window.confirm(
+    "Sinkron ulang " +
+      unsyncedTransactions.length +
+      " transaksi gagal/pending ke Supabase?"
+  );
+
+  if (confirmRetry === false) {
+    return;
+  }
+
+  let successCount = 0;
+  let failedCount = 0;
+
+  for (const transaction of unsyncedTransactions) {
+    try {
+      await createTransactionInSupabase(transaction);
+      successCount += 1;
+
+      setTransactions((currentTransactions) =>
+        currentTransactions.map((currentTransaction) =>
+          currentTransaction.id === transaction.id
+            ? {
+                ...currentTransaction,
+                syncStatus: "synced",
+                syncError: "",
+              }
+            : currentTransaction
+        )
+      );
+    } catch (error) {
+      failedCount += 1;
+
+      setTransactions((currentTransactions) =>
+        currentTransactions.map((currentTransaction) =>
+          currentTransaction.id === transaction.id
+            ? {
+                ...currentTransaction,
+                syncStatus: "failed",
+                syncError: error.message,
+              }
+            : currentTransaction
+        )
+      );
+
+      console.error("Gagal sinkron ulang transaksi:", error);
+    }
+  }
+
+  alert(
+    "Sinkron ulang selesai.\n\n" +
+      "Berhasil: " +
+      successCount +
+      "\nGagal: " +
+      failedCount
+  );
+}
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -937,6 +1005,7 @@ async function loadAllDataFromSupabaseSilently() {
   onUploadLocalMasterDataToSupabase={uploadLocalMasterDataToSupabase}
   onLoadMasterDataFromSupabase={loadMasterDataFromSupabase}
   onLoadTransactionsFromSupabase={loadTransactionsFromSupabase}
+  onRetryFailedTransactionSync={retryFailedTransactionSync}
 />
           ) : null}
         </section>
@@ -3525,6 +3594,7 @@ function SettingsPage({
   onUploadLocalMasterDataToSupabase,
   onLoadMasterDataFromSupabase,
   onLoadTransactionsFromSupabase,
+  onRetryFailedTransactionSync
 }) {
   const [storeName, setStoreName] = useState(settings.storeName);
   const [address, setAddress] = useState(settings.address);
@@ -3851,7 +3921,7 @@ function importLocalBackupJson(event) {
   className="secondary-button"
   onClick={onLoadTransactionsFromSupabase}
 >
-  Ambil Transaksi
+  Ambil Transaksi dari Supabase
 </button>
 
   <button 
@@ -3860,6 +3930,14 @@ function importLocalBackupJson(event) {
   onClick={resetSettingsForm}>
     Reset Form
   </button>
+
+  <button
+  type="button"
+  className="secondary-button"
+  onClick={onRetryFailedTransactionSync}
+>
+  Sinkron Ulang Gagal
+</button>
 
   <button type="submit" className="finish-button">
     Simpan Pengaturan
