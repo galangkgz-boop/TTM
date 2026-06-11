@@ -13,6 +13,8 @@ import {
   replaceProductVariantsInSupabase,
   replaceStockBatchesInSupabase,
   updateStoreSettingsInSupabase,
+  createTransactionInSupabase,
+  updateStockBatchesInSupabase,
 } from "./services/supabaseDataService";
 
 const menus = [
@@ -369,14 +371,19 @@ useEffect(() => {
   );
 }, [settings]);
 
-function addTransaction(transaction, updatedBatches) {
-  setTransactions((currentTransactions) => [
-    transaction,
-    ...currentTransactions,
-  ]);
+async function addTransaction(transaction, updatedBatches) {
+  setTransactions((currentTransactions) => [transaction, ...currentTransactions]);
+  setStockBatches(updatedBatches);
 
-  if (updatedBatches) {
-    setStockBatches(updatedBatches);
+  try {
+    await createTransactionInSupabase(transaction);
+    await updateStockBatchesInSupabase(updatedBatches);
+  } catch (error) {
+    console.error(error);
+    alert(
+      "Transaksi tersimpan lokal, tapi gagal sinkron ke Supabase: " +
+        error.message
+    );
   }
 }
 

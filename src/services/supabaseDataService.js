@@ -147,3 +147,109 @@ export async function updateStoreSettingsInSupabase(settings) {
     throw error;
   }
 }
+
+export async function createTransactionInSupabase(transaction) {
+  const transactionRow = {
+    code: transaction.code,
+    transaction_date: transaction.date,
+    subtotal: transaction.subtotal,
+    discount: transaction.discount,
+    total: transaction.total,
+    cash_received: transaction.cashReceived,
+    change_amount: transaction.change,
+    payment_method: transaction.paymentMethod,
+    profit: transaction.profit,
+  };
+
+  const { data: createdTransaction, error: transactionError } = await supabase
+    .from("transactions")
+    .insert(transactionRow)
+    .select()
+    .single();
+
+  if (transactionError) {
+    throw transactionError;
+  }
+
+  const transactionItems = transaction.items.map((item) => ({
+    transaction_id: createdTransaction.id,
+    product_id: item.productId || item.id || null,
+    variant_id: item.variantId || null,
+    name: item.name,
+    product_name: item.productName || item.name,
+    variant_name: item.variantName || null,
+    category: item.category || "",
+    unit: item.unit || "pcs",
+    qty: item.qty,
+    qty_multiplier: item.qtyMultiplier || 1,
+    fifo_qty: item.fifoQty || item.qty,
+    price: item.price,
+    subtotal: item.subtotal,
+    total_cost: item.totalCost || 0,
+    profit: item.profit || 0,
+  }));
+
+  const { data: createdItems, error: itemsError } = await supabase
+    .from("transaction_items")
+    .insert(transactionItems)
+    .select();
+
+  if (itemsError) {
+    throw itemsError;
+  }
+
+  const itemBatchRows = [];
+
+  transaction.items.forEach((item, itemIndex) => {
+    const createdItem = createdItems[itemIndex];
+
+    if (!createdItem || !Array.isArray(item.fifoBatches)) {
+      return;
+    }
+
+    item.fifoBatches.forEach((batch) => {
+      itemBatchRows.push({
+        transaction_item_id: createdItem.id,
+        stock_batch_id: batch.batchId || null,
+        batch_code: batch.batchCode,
+        purchase_date: batch.purchaseDate,
+        qty: batch.qty,
+        cost: batch.cost,
+        total_cost: batch.totalCost,
+      });
+    });
+  });
+
+  if (itemBatchRows.length > 0) {
+    const { error: batchesError } = await supabase
+      .from("transaction_item_batches")
+      .insert(itemBatchRows);
+
+    if (batchesError) {
+      throw batchesError;
+    }
+  }
+
+  return createdTransaction;
+}
+
+export async function updateStockBatchesInSupabase(stockBatches) {
+  const updates = stockBatches.map((batch) =>
+    supabase
+      .from("stock_batches")
+      .update({
+        qty_initial: batch.qtyInitial,
+        qty_remaining: batch.qtyRemaining,
+        cost: batch.cost,
+      })
+      .eq("id", batch.id)
+  );
+
+  const results = await Promise.all(updates);
+
+  const failedResult = results.find((result) => result.error);
+
+  if (failedResult) {
+    throw failedResult.error;
+  }
+}
