@@ -4116,14 +4116,6 @@ function importLocalBackupJson(event) {
     <button
       type="button"
       className="secondary-button"
-      onClick={onUploadLocalMasterDataToSupabase}
-    >
-      Kirim ke Supabase
-    </button>
-
-    <button
-      type="button"
-      className="secondary-button"
       onClick={onLoadMasterDataFromSupabase}
     >
       Ambil Master Data
