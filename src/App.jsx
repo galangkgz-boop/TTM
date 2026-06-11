@@ -556,9 +556,13 @@ function activateProductVariant(variantId) {
 
           {activePage === "settings" ? (
             <SettingsPage
-              settings={settings}
-              onUpdateSettings={setSettings}
-            />
+  settings={settings}
+  products={products}
+  productVariants={productVariants}
+  stockBatches={stockBatches}
+  transactions={transactions}
+  onUpdateSettings={setSettings}
+/>
           ) : null}
         </section>
       </main>
@@ -3112,7 +3116,14 @@ const filteredTransactions = transactions.filter((transaction) =>
   );
 }
 
-function SettingsPage({ settings, onUpdateSettings }) {
+function SettingsPage({
+  settings,
+  products,
+  productVariants,
+  stockBatches,
+  transactions,
+  onUpdateSettings,
+}) {
   const [storeName, setStoreName] = useState(settings.storeName);
   const [address, setAddress] = useState(settings.address);
   const [phone, setPhone] = useState(settings.phone);
@@ -3154,6 +3165,44 @@ function SettingsPage({ settings, onUpdateSettings }) {
     setReceiptNote(settings.receiptNote);
     setLowStockThreshold(String(settings.lowStockThreshold));
   }
+
+  function exportLocalBackupJson() {
+  const backupData = {
+    version: "1.0.0",
+    exportedAt: new Date().toISOString(),
+    appName: "TTM POS",
+    settings: settings,
+    products: products,
+    productVariants: productVariants,
+    stockBatches: stockBatches,
+    transactions: transactions,
+  };
+
+  const jsonContent = JSON.stringify(backupData, null, 2);
+
+  const blob = new Blob([jsonContent], {
+    type: "application/json;charset=utf-8;",
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  const now = new Date();
+  const filename =
+    "backup-ttm-pos-" +
+    now.getFullYear() +
+    "-" +
+    String(now.getMonth() + 1).padStart(2, "0") +
+    "-" +
+    String(now.getDate()).padStart(2, "0") +
+    ".json";
+
+  link.href = url;
+  link.download = filename;
+  link.click();
+
+  URL.revokeObjectURL(url);
+}
 
   return (
     <div>
@@ -3233,14 +3282,18 @@ function SettingsPage({ settings, onUpdateSettings }) {
         </div>
 
         <div className="settings-actions">
-          <button type="button" className="secondary-button" onClick={resetSettingsForm}>
-            Reset Form
-          </button>
+  <button type="button" className="secondary-button" onClick={resetSettingsForm}>
+    Reset Form
+  </button>
 
-          <button type="submit" className="finish-button">
-            Simpan Pengaturan
-          </button>
-        </div>
+  <button type="button" className="secondary-button" onClick={exportLocalBackupJson}>
+    Export Backup JSON
+  </button>
+
+  <button type="submit" className="finish-button">
+    Simpan Pengaturan
+  </button>
+</div>
       </form>
     </div>
   );
