@@ -18,7 +18,6 @@ import {
   fetchTransactionsFromSupabase,
   updateUsedStockBatchesInSupabase,
 } from "./services/supabaseDataService";
-import { Badge, Receipt } from "lucide-react";
 
 const TRANSACTIONS_STORAGE_KEY = "ttm_pos_transactions";
 const STOCK_BATCHES_STORAGE_KEY = "ttm_pos_stock_batches";
@@ -241,7 +240,6 @@ function mapSupabaseStockBatch(batch) {
 
 function mapSupabaseSettings(settings) {
   return {
-    autoLoadSupabase: Boolean(settings.auto_load_supabase || false),
     storeName: settings.store_name || defaultSettings.storeName,
     address: settings.address || "",
     phone: settings.phone || "",
@@ -249,6 +247,7 @@ function mapSupabaseSettings(settings) {
     lowStockThreshold: Number(
       settings.low_stock_threshold || defaultSettings.lowStockThreshold
     ),
+    autoLoadSupabase: true,
   };
 }
 
@@ -827,21 +826,29 @@ async function loadMasterDataFromSupabase() {
   try {
     const supabaseProducts = await fetchProductsFromSupabase();
     const supabaseProductVariants = await fetchProductVariantsFromSupabase();
-  setStockBatches((currentStockBatches) => {
-    const mappedSupabaseStockBatches = supabaseStockBatches.map(mapSupabaseStockBatch);
-
-  return applyUnsyncedTransactionsToStockBatches(mappedSupabaseStockBatches,
-    transactions
-  );
-});
+    const supabaseStockBatches = await fetchStockBatchesFromSupabase();
     const supabaseSettings = await fetchStoreSettingsFromSupabase();
 
     setProducts(supabaseProducts.map(mapSupabaseProduct));
     setProductVariants(supabaseProductVariants.map(mapSupabaseProductVariant));
-    setStockBatches(supabaseStockBatches.map(mapSupabaseStockBatch));
+
+    const mappedSupabaseStockBatches = supabaseStockBatches.map(
+      mapSupabaseStockBatch
+    );
+
+    setStockBatches(
+      applyUnsyncedTransactionsToStockBatches(
+        mappedSupabaseStockBatches,
+        transactions
+      )
+    );
 
     if (supabaseSettings) {
-      setSettings(mapSupabaseSettings(supabaseSettings));
+      setSettings((currentSettings) => ({
+        ...currentSettings,
+        ...mapSupabaseSettings(supabaseSettings),
+        autoLoadSupabase: true,
+      }));
     }
 
     alert("Data master berhasil diambil dari Supabase.");
@@ -887,44 +894,37 @@ async function loadAllDataFromSupabaseSilently() {
 
     setProducts(supabaseProducts.map(mapSupabaseProduct));
     setProductVariants(supabaseProductVariants.map(mapSupabaseProductVariant));
-    const mappedSupabaseTransactions = supabaseTransactions.map(
-  mapSupabaseTransaction
-);
 
-setTransactions((currentTransactions) =>
-  mergeSupabaseTransactionsWithLocalFailed(
-    supabaseTransactions,
-    currentTransactions
-  )
-);
+    setTransactions((currentTransactions) =>
+      mergeSupabaseTransactionsWithLocalFailed(
+        supabaseTransactions,
+        currentTransactions
+      )
+    );
 
-setStockBatches((currentStockBatches) => {
-  const mappedSupabaseStockBatches = supabaseStockBatches.map(
-    mapSupabaseStockBatch
-  );
+    setStockBatches((currentStockBatches) => {
+      const mappedSupabaseStockBatches = supabaseStockBatches.map(
+        mapSupabaseStockBatch
+      );
 
-  return applyUnsyncedTransactionsToStockBatches(
-    mappedSupabaseStockBatches,
-    transactions
-  );
-});
+      return applyUnsyncedTransactionsToStockBatches(
+        mappedSupabaseStockBatches,
+        transactions
+      );
+    });
 
     if (supabaseSettings) {
       setSettings((currentSettings) => ({
         ...currentSettings,
         ...mapSupabaseSettings(supabaseSettings),
-        autoLoadSupabase: currentSettings.autoLoadSupabase,
+        autoLoadSupabase: true,
       }));
     }
 
-    setTransactions((currentTransactions) =>
-  mergeSupabaseTransactionsWithLocalFailed(
-    supabaseTransactions,
-    currentTransactions
-  )
-);
+    setSupabaseStatus("connected");
   } catch (error) {
     console.error("Gagal auto load Supabase:", error);
+    setSupabaseStatus("failed");
   }
 }
 
@@ -2783,8 +2783,6 @@ function exportStockBatchesCsv() {
   downloadCsvFile(filename, rows);
 }
 
-
-
   return (
     <div>
       <div className="inventory-header">
@@ -3345,22 +3343,7 @@ function TransactionDetailModal({ transaction, settings, onClose, onRetrySingleT
           </div>
         </div>
 
-        <div className="detail-actions">
-  <button
-    type="button"
-    className="secondary-button"
-    onClick={() => setIsReceiptOpen(true)}
-  >
-    Lihat Struk
-  </button>
-
-  <button type="button" className="finish-button" onClick={onClose}>
-    Tutup
-  </button>
-</div>
-      </div>
-
-      {transaction.syncStatus === "failed" ? (
+        {transaction.syncStatus === "failed" ? (
   <div className="sync-error-box">
     <div>
       <strong>Gagal Sinkron Supabase</strong>
@@ -3376,6 +3359,21 @@ function TransactionDetailModal({ transaction, settings, onClose, onRetrySingleT
     </button>
   </div>
 ) : null}
+
+        <div className="detail-actions">
+  <button
+    type="button"
+    className="secondary-button"
+    onClick={() => setIsReceiptOpen(true)}
+  >
+    Lihat Struk
+  </button>
+
+  <button type="button" className="finish-button" onClick={onClose}>
+    Tutup
+  </button>
+</div>
+      </div>
 
       {isReceiptOpen ? (
   <ReceiptModal
@@ -3869,7 +3867,7 @@ function SettingsPage({
       address: address.trim(),
       phone: phone.trim(),
       receiptNote: receiptNote.trim(),
-      lowStockThreshold: Number(lowStockthreshold || 10),
+      lowStockThreshold: Number(lowStockThreshold || 10),
       autoLoadSupabase: true,
     });
 
