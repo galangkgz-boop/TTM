@@ -17,16 +17,7 @@ import {
   updateStockBatchesInSupabase,
   fetchTransactionsFromSupabase
 } from "./services/supabaseDataService";
-
-const menus = [
-  { id: "dashboard", label: "Dashboard" },
-  { id: "cashier", label: "Kasir" },
-  { id: "products", label: "Produk" },
-  { id: "inventory", label: "Stok" },
-  { id: "transactions", label: "Riwayat" },
-  { id: "reports", label: "Laporan" },
-  { id: "settings", label: "Pengaturan" },
-];
+import { Badge, Receipt } from "lucide-react";
 
 const TRANSACTIONS_STORAGE_KEY = "ttm_pos_transactions";
 const STOCK_BATCHES_STORAGE_KEY = "ttm_pos_stock_batches";
@@ -262,7 +253,6 @@ function mapSupabaseSettings(settings) {
 
 function App() {
   const [activePage, setActivePage] = useState("cashier");
-
   const [products, setProducts] = useState(() => {
   const savedProducts = localStorage.getItem(PRODUCTS_STORAGE_KEY);
 
@@ -277,7 +267,7 @@ function App() {
   }
 });
 
-const [productVariants, setProductVariants] = useState(() => {
+  const [productVariants, setProductVariants] = useState(() => {
   const savedVariants = localStorage.getItem(PRODUCT_VARIANTS_STORAGE_KEY);
 
   if (!savedVariants) {
@@ -291,7 +281,7 @@ const [productVariants, setProductVariants] = useState(() => {
   }
 });
 
-const [settings, setSettings] = useState(() => {
+  const [settings, setSettings] = useState(() => {
   const savedSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
 
   if (!savedSettings) {
@@ -334,9 +324,24 @@ const [settings, setSettings] = useState(() => {
     } catch {
       return [];
     }
-  });
+});
 
-  const activeMenu = menus.find((menu) => menu.id === activePage);
+  const unsyncedTransactionCount = transactions.filter(
+  (transaction) =>
+    transaction.syncStatus === "failed" || transaction.syncStatus === "pending"
+).length;
+
+  const menus = [
+  { id: "dashboard", label: "Dashboard" },
+  { id: "cashier", label: "Kasir" },
+  { id: "products", label: "Produk" },
+  { id: "inventory", label: "Stok" },
+  { id: "transactions", label: "Riwayat", badge: unsyncedTransactionCount, },
+  { id: "reports", label: "Laporan" },
+  { id: "settings", label: "Pengaturan" },
+];
+
+const activeMenu = menus.find((menu) => menu.id === activePage);
   const pageTitle = activeMenu ? activeMenu.label : "Kasir";
 
   useEffect(() => {
@@ -1032,13 +1037,17 @@ async function retrySingleTransactionSync(transaction) {
         <nav className="menu-list">
           {menus.map((menu) => (
             <button
-              key={menu.id}
-              type="button"
-              className={activePage === menu.id ? "menu-item active" : "menu-item"}
-              onClick={() => setActivePage(menu.id)}
-            >
-              {menu.label}
-            </button>
+  key={menu.id}
+  type="button"
+  className={activePage === menu.id ? "menu-item active" : "menu-item"}
+  onClick={() => setActivePage(menu.id)}
+>
+  <span>{menu.label}</span>
+
+  {menu.badge > 0 ? (
+    <strong className="nav-badge">{menu.badge}</strong>
+  ) : null}
+</button>
           ))}
         </nav>
       </aside>
