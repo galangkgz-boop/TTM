@@ -15,7 +15,8 @@ import {
   updateStoreSettingsInSupabase,
   createTransactionInSupabase,
   updateStockBatchesInSupabase,
-  fetchTransactionsFromSupabase
+  fetchTransactionsFromSupabase,
+  updateUsedStockBatchesInSupabase,
 } from "./services/supabaseDataService";
 import { Badge, Receipt } from "lucide-react";
 
@@ -698,7 +699,7 @@ async function addTransaction(transaction, updatedBatches) {
 
   try {
     await createTransactionInSupabase(transaction);
-    await updateStockBatchesInSupabase(updatedBatches);
+    await updateUsedStockBatchesInSupabase(transaction, updatedBatches);
 
     setTransactions((currentTransactions) =>
       currentTransactions.map((currentTransaction) =>
@@ -920,7 +921,7 @@ async function retryFailedTransactionSync() {
   for (const transaction of unsyncedTransactions) {
     try {
       await createTransactionInSupabase(transaction);
-      await updateStockBatchesInSupabase(stockBatches);
+      await updateUsedStockBatchesInSupabase(transaction, stockBatches);
 
       successCount += 1;
 
@@ -989,7 +990,7 @@ async function retrySingleTransactionSync(transaction) {
 
   try {
     await createTransactionInSupabase(transaction);
-    await updateStockBatchesInSupabase(stockBatches);
+    await updateUsedStockBatchesInSupabase(transaction, stockBatches);
 
     setTransactions((currentTransactions) =>
       currentTransactions.map((currentTransaction) =>

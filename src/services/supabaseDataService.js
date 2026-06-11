@@ -268,6 +268,47 @@ export async function updateStockBatchesInSupabase(stockBatches) {
   }
 }
 
+export async function updateUsedStockBatchesInSupabase(transaction, stockBatches) {
+  const usedBatchIds = new Set();
+
+  transaction.items.forEach((item) => {
+    if (!Array.isArray(item.fifoBatches)) {
+      return;
+    }
+
+    item.fifoBatches.forEach((batch) => {
+      if (batch.batchId) {
+        usedBatchIds.add(batch.batchId);
+      }
+    });
+  });
+
+  const usedBatches = stockBatches.filter((batch) => usedBatchIds.has(batch.id));
+
+  if (usedBatches.length === 0) {
+    return;
+  }
+
+  const updates = usedBatches.map((batch) =>
+    supabase
+      .from("stock_batches")
+      .update({
+        qty_initial: batch.qtyInitial,
+        qty_remaining: batch.qtyRemaining,
+        cost: batch.cost,
+      })
+      .eq("id", batch.id)
+  );
+
+  const results = await Promise.all(updates);
+
+  const failedResult = results.find((result) => result.error);
+
+  if (failedResult) {
+    throw failedResult.error;
+  }
+}
+
 export async function fetchTransactionsFromSupabase() {
   const { data, error } = await supabase
     .from("transactions")
@@ -288,3 +329,4 @@ export async function fetchTransactionsFromSupabase() {
 
   return data || [];
 }
+
