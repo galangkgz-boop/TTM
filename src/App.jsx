@@ -208,6 +208,53 @@ function downloadCsvFile(filename, rows) {
   URL.revokeObjectURL(url);
 }
 
+function mapSupabaseProduct(product) {
+  return {
+    id: product.id,
+    name: product.name,
+    category: product.category,
+    price: Number(product.price || 0),
+    cost: Number(product.cost || 0),
+    unit: product.unit,
+    active: product.active,
+  };
+}
+
+function mapSupabaseProductVariant(variant) {
+  return {
+    id: variant.id,
+    productId: variant.product_id,
+    name: variant.name,
+    qtyMultiplier: Number(variant.qty_multiplier || 1),
+    price: Number(variant.price || 0),
+    active: variant.active,
+  };
+}
+
+function mapSupabaseStockBatch(batch) {
+  return {
+    id: batch.id,
+    productId: batch.product_id,
+    batchCode: batch.batch_code,
+    purchaseDate: batch.purchase_date,
+    qtyInitial: Number(batch.qty_initial || 0),
+    qtyRemaining: Number(batch.qty_remaining || 0),
+    cost: Number(batch.cost || 0),
+  };
+}
+
+function mapSupabaseSettings(settings) {
+  return {
+    storeName: settings.store_name || defaultSettings.storeName,
+    address: settings.address || "",
+    phone: settings.phone || "",
+    receiptNote: settings.receipt_note || defaultSettings.receiptNote,
+    lowStockThreshold: Number(
+      settings.low_stock_threshold || defaultSettings.lowStockThreshold
+    ),
+  };
+}
+
 function App() {
   const [activePage, setActivePage] = useState("cashier");
 
@@ -573,6 +620,36 @@ async function uploadLocalMasterDataToSupabase() {
   }
 }
 
+async function loadMasterDataFromSupabase() {
+  const confirmLoad = window.confirm(
+    "Ambil data dari Supabase? Data lokal products, variants, stock batches, dan settings akan diganti."
+  );
+
+  if (confirmLoad === false) {
+    return;
+  }
+
+  try {
+    const supabaseProducts = await fetchProductsFromSupabase();
+    const supabaseProductVariants = await fetchProductVariantsFromSupabase();
+    const supabaseStockBatches = await fetchStockBatchesFromSupabase();
+    const supabaseSettings = await fetchStoreSettingsFromSupabase();
+
+    setProducts(supabaseProducts.map(mapSupabaseProduct));
+    setProductVariants(supabaseProductVariants.map(mapSupabaseProductVariant));
+    setStockBatches(supabaseStockBatches.map(mapSupabaseStockBatch));
+
+    if (supabaseSettings) {
+      setSettings(mapSupabaseSettings(supabaseSettings));
+    }
+
+    alert("Data master berhasil diambil dari Supabase.");
+  } catch (error) {
+    console.error(error);
+    alert("Gagal ambil data dari Supabase: " + error.message);
+  }
+}
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -683,6 +760,7 @@ async function uploadLocalMasterDataToSupabase() {
   onResetAllLocalData={resetAllLocalData}
   onTestSupabaseConnection={testSupabaseConnection}
   onUploadLocalMasterDataToSupabase={uploadLocalMasterDataToSupabase}
+  onLoadMasterDataFromSupabase={loadMasterDataFromSupabase}
 />
           ) : null}
         </section>
@@ -3252,7 +3330,8 @@ function SettingsPage({
   onResetStockBatchesToDummy,
   onResetAllLocalData,
   onTestSupabaseConnection,
-  onUploadLocalMasterDataToSupabase
+  onUploadLocalMasterDataToSupabase,
+  onLoadMasterDataFromSupabase,
 }) {
   const [storeName, setStoreName] = useState(settings.storeName);
   const [address, setAddress] = useState(settings.address);
@@ -3519,17 +3598,29 @@ function importLocalBackupJson(event) {
   </div>
 </div>
 
-        <div className="settings-actions">
-  <button type="button" className="secondary-button" onClick={resetSettingsForm}>
-    Reset Form
-  </button>
-
+<div className="settings-actions">
   <button
   type="button"
   className="secondary-button"
   onClick={onTestSupabaseConnection}
 >
   Test Supabase
+</button>
+
+<button
+  type="button"
+  className="secondary-button"
+  onClick={onUploadLocalMasterDataToSupabase}
+>
+  Kirim ke Supabase
+</button>
+
+<button
+  type="button"
+  className="secondary-button"
+  onClick={onLoadMasterDataFromSupabase}
+>
+  Ambil dari Supabase
 </button>
 
   <button type="button" className="secondary-button" onClick={exportLocalBackupJson}>
@@ -3545,18 +3636,17 @@ function importLocalBackupJson(event) {
     />
   </label>
 
+  <button 
+  type="button" 
+  className="secondary-button" 
+  onClick={resetSettingsForm}>
+    Reset Form
+  </button>
+
   <button type="submit" className="finish-button">
     Simpan Pengaturan
   </button>
 </div>
-
-<button
-  type="button"
-  className="secondary-button"
-  onClick={onUploadLocalMasterDataToSupabase}
->
-  Kirim ke Supabase
-</button>
       </form>
     </div>
   );
