@@ -1664,8 +1664,23 @@
 
 .settings-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr 1.4fr;
+  grid-template-columns: 1fr 1fr 1fr 1.4fr;
   gap: 12px;
+}
+
+.import-backup-button {
+  border: 0;
+  border-radius: 14px;
+  padding: 13px 14px;
+  background: #e0f2fe;
+  color: #075985;
+  font-weight: 800;
+  cursor: pointer;
+  text-align: center;
+}
+
+.import-backup-button input {
+  display: none;
 }
 
 @media (max-width: 700px) {

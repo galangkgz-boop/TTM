@@ -562,6 +562,10 @@ function activateProductVariant(variantId) {
   stockBatches={stockBatches}
   transactions={transactions}
   onUpdateSettings={setSettings}
+  onRestoreProducts={setProducts}
+  onRestoreProductVariants={setProductVariants}
+  onRestoreStockBatches={setStockBatches}
+  onRestoreTransactions={setTransactions}
 />
           ) : null}
         </section>
@@ -3123,6 +3127,10 @@ function SettingsPage({
   stockBatches,
   transactions,
   onUpdateSettings,
+  onRestoreProducts,
+  onRestoreProductVariants,
+  onRestoreStockBatches,
+  onRestoreTransactions,
 }) {
   const [storeName, setStoreName] = useState(settings.storeName);
   const [address, setAddress] = useState(settings.address);
@@ -3202,6 +3210,79 @@ function SettingsPage({
   link.click();
 
   URL.revokeObjectURL(url);
+}
+
+function importLocalBackupJson(event) {
+  const file = event.target.files[0];
+
+  if (!file) {
+    return;
+  }
+
+  const confirmImport = window.confirm(
+    "Import backup akan mengganti data lokal saat ini. Lanjutkan?"
+  );
+
+  if (confirmImport === false) {
+    event.target.value = "";
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = function () {
+    try {
+      const backupData = JSON.parse(reader.result);
+
+      if (!backupData || typeof backupData !== "object") {
+        alert("File backup tidak valid.");
+        event.target.value = "";
+        return;
+      }
+
+      if (!Array.isArray(backupData.products)) {
+        alert("File backup tidak memiliki data products yang valid.");
+        event.target.value = "";
+        return;
+      }
+
+      if (!Array.isArray(backupData.productVariants)) {
+        alert("File backup tidak memiliki data productVariants yang valid.");
+        event.target.value = "";
+        return;
+      }
+
+      if (!Array.isArray(backupData.stockBatches)) {
+        alert("File backup tidak memiliki data stockBatches yang valid.");
+        event.target.value = "";
+        return;
+      }
+
+      if (!Array.isArray(backupData.transactions)) {
+        alert("File backup tidak memiliki data transactions yang valid.");
+        event.target.value = "";
+        return;
+      }
+
+      onUpdateSettings({
+        ...defaultSettings,
+        ...(backupData.settings || {}),
+      });
+
+      onRestoreProducts(backupData.products);
+      onRestoreProductVariants(backupData.productVariants);
+      onRestoreStockBatches(backupData.stockBatches);
+      onRestoreTransactions(backupData.transactions);
+
+      alert("Backup berhasil diimport.");
+      event.target.value = "";
+    } catch {
+      alert("Gagal membaca file backup. Pastikan file berupa JSON backup TTM POS.");
+      event.target.value = "";
+    }
+  };
+
+  reader.readAsText(file);
 }
 
   return (
@@ -3289,6 +3370,15 @@ function SettingsPage({
   <button type="button" className="secondary-button" onClick={exportLocalBackupJson}>
     Export Backup JSON
   </button>
+
+  <label className="import-backup-button">
+    Import Backup JSON
+    <input
+      type="file"
+      accept="application/json,.json"
+      onChange={importLocalBackupJson}
+    />
+  </label>
 
   <button type="submit" className="finish-button">
     Simpan Pengaturan
