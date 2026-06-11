@@ -1019,6 +1019,7 @@ async function syncLocalStockBatchesToSupabase() {
               products={products}
               stockBatches={stockBatches}
               settings={settings}
+              onOpenSettings={() => setActivePage("settings")}
             />
           ) : null}
 
@@ -1645,7 +1646,7 @@ function finishTransaction() {
   );
 }
 
-function DashboardPage({ transactions, products, stockBatches, settings }) {
+function DashboardPage({ transactions, products, stockBatches, settings, onOpenSettings }) {
   const today = new Date();
 
   const startOfToday = new Date(
@@ -1809,10 +1810,18 @@ const pendingTransactions = transactions.filter(
     <div>
       <strong>Ada transaksi belum tersinkron</strong>
       <p>
-        Masuk ke Pengaturan lalu klik Sinkron Ulang Gagal agar transaksi naik ke
-        Supabase.
+        Klik tombol di bawah untuk masuk ke Pengaturan lalu jalankan Sinkron
+        Ulang Gagal.
       </p>
     </div>
+
+    <button
+      type="button"
+      className="secondary-button"
+      onClick={onOpenSettings}
+    >
+      Buka Pengaturan
+    </button>
   </div>
 ) : null}
 
