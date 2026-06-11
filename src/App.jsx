@@ -255,6 +255,7 @@ function mapSupabaseSettings(settings) {
 function App() {
   const [activePage, setActivePage] = useState("cashier");
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [supabaseStatus, setSupabaseStatus] = useState("idle");
   const [products, setProducts] = useState(() => {
   const savedProducts = localStorage.getItem(PRODUCTS_STORAGE_KEY);
 
@@ -345,6 +346,15 @@ function App() {
 
   const activeMenu = menus.find((menu) => menu.id === activePage);
   const pageTitle = activeMenu ? activeMenu.label : "Kasir";
+
+  const supabaseStatusLabel =
+  supabaseStatus === "connected"
+    ? "Supabase Terhubung"
+    : supabaseStatus === "checking"
+      ? "Cek Supabase..."
+      : supabaseStatus === "failed"
+        ? "Supabase Gagal"
+        : "Supabase Belum Dites";
 
   useEffect(() => {
     localStorage.setItem(
@@ -753,11 +763,15 @@ async function addTransaction(transaction, updatedBatches) {
 }
 
 async function testSupabaseConnection() {
+  setSupabaseStatus("checking");
+
   try {
     const supabaseProducts = await fetchProductsFromSupabase();
     const supabaseProductVariants = await fetchProductVariantsFromSupabase();
     const supabaseStockBatches = await fetchStockBatchesFromSupabase();
     const supabaseSettings = await fetchStoreSettingsFromSupabase();
+
+    setSupabaseStatus("connected");
 
     alert(
       "Supabase terkoneksi.\n\n" +
@@ -772,6 +786,7 @@ async function testSupabaseConnection() {
     );
   } catch (error) {
     console.error(error);
+    setSupabaseStatus("failed");
     alert("Gagal konek ke Supabase: " + error.message);
   }
 }
@@ -1084,10 +1099,12 @@ async function retrySingleTransactionSync(transaction) {
     {isOnline ? "Online" : "Offline"}
   </div>
 
+  <div className={"supabase-pill " + supabaseStatus}>
+    {supabaseStatusLabel}
+  </div>
+
   <div className="status-pill">Development</div>
 </div>
-
-          <div className="status-pill">Development</div>
         </header>
 
         <section className="page-card">

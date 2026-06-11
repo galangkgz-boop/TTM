@@ -2175,3 +2175,30 @@
     justify-content: flex-start;
   }
 }
+
+.supabase-pill {
+  border-radius: 999px;
+  padding: 8px 13px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.supabase-pill.idle {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.supabase-pill.checking {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.supabase-pill.connected {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.supabase-pill.failed {
+  background: #fee2e2;
+  color: #991b1b;
+}
