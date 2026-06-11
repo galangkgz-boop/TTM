@@ -15,6 +15,7 @@ import {
   updateStoreSettingsInSupabase,
   createTransactionInSupabase,
   updateStockBatchesInSupabase,
+  fetchTransactionsFromSupabase
 } from "./services/supabaseDataService";
 
 const menus = [
@@ -579,6 +580,52 @@ function resetAllLocalData() {
   alert("Semua data lokal berhasil direset.");
 }
 
+function mapSupabaseTransaction(transaction) {
+  const items = (transaction.transaction_items || []).map((item) => ({
+    cartItemId:
+      String(item.product_id || item.id) +
+      "-" +
+      (item.variant_id ? "variant-" + item.variant_id : "default"),
+    id: item.product_id,
+    productId: item.product_id,
+    variantId: item.variant_id,
+    name: item.name,
+    productName: item.product_name,
+    variantName: item.variant_name,
+    category: item.category,
+    unit: item.unit,
+    qty: Number(item.qty || 0),
+    qtyMultiplier: Number(item.qty_multiplier || 1),
+    fifoQty: Number(item.fifo_qty || 0),
+    price: Number(item.price || 0),
+    subtotal: Number(item.subtotal || 0),
+    totalCost: Number(item.total_cost || 0),
+    profit: Number(item.profit || 0),
+    fifoBatches: (item.transaction_item_batches || []).map((batch) => ({
+      batchId: batch.stock_batch_id,
+      batchCode: batch.batch_code,
+      purchaseDate: batch.purchase_date,
+      qty: Number(batch.qty || 0),
+      cost: Number(batch.cost || 0),
+      totalCost: Number(batch.total_cost || 0),
+    })),
+  }));
+
+  return {
+    id: transaction.id,
+    code: transaction.code,
+    date: transaction.transaction_date,
+    items: items,
+    subtotal: Number(transaction.subtotal || 0),
+    discount: Number(transaction.discount || 0),
+    total: Number(transaction.total || 0),
+    cashReceived: Number(transaction.cash_received || 0),
+    change: Number(transaction.change_amount || 0),
+    paymentMethod: transaction.payment_method || "Cash",
+    profit: Number(transaction.profit || 0),
+  };
+}
+
 async function testSupabaseConnection() {
   try {
     const supabaseProducts = await fetchProductsFromSupabase();
@@ -654,6 +701,27 @@ async function loadMasterDataFromSupabase() {
   } catch (error) {
     console.error(error);
     alert("Gagal ambil data dari Supabase: " + error.message);
+  }
+}
+
+async function loadTransactionsFromSupabase() {
+  const confirmLoad = window.confirm(
+    "Ambil riwayat transaksi dari Supabase? Riwayat lokal saat ini akan diganti."
+  );
+
+  if (confirmLoad === false) {
+    return;
+  }
+
+  try {
+    const supabaseTransactions = await fetchTransactionsFromSupabase();
+
+    setTransactions(supabaseTransactions.map(mapSupabaseTransaction));
+
+    alert("Riwayat transaksi berhasil diambil dari Supabase.");
+  } catch (error) {
+    console.error(error);
+    alert("Gagal ambil transaksi dari Supabase: " + error.message);
   }
 }
 
@@ -768,6 +836,7 @@ async function loadMasterDataFromSupabase() {
   onTestSupabaseConnection={testSupabaseConnection}
   onUploadLocalMasterDataToSupabase={uploadLocalMasterDataToSupabase}
   onLoadMasterDataFromSupabase={loadMasterDataFromSupabase}
+  onLoadTransactionsFromSupabase={loadTransactionsFromSupabase}
 />
           ) : null}
         </section>
@@ -3339,6 +3408,7 @@ function SettingsPage({
   onTestSupabaseConnection,
   onUploadLocalMasterDataToSupabase,
   onLoadMasterDataFromSupabase,
+  onLoadTransactionsFromSupabase,
 }) {
   const [storeName, setStoreName] = useState(settings.storeName);
   const [address, setAddress] = useState(settings.address);
@@ -3642,6 +3712,14 @@ function importLocalBackupJson(event) {
       onChange={importLocalBackupJson}
     />
   </label>
+
+  <button
+  type="button"
+  className="secondary-button"
+  onClick={onLoadTransactionsFromSupabase}
+>
+  Ambil Transaksi
+</button>
 
   <button 
   type="button" 

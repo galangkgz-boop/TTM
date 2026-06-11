@@ -253,3 +253,24 @@ export async function updateStockBatchesInSupabase(stockBatches) {
     throw failedResult.error;
   }
 }
+
+export async function fetchTransactionsFromSupabase() {
+  const { data, error } = await supabase
+    .from("transactions")
+    .select(
+      `
+      *,
+      transaction_items (
+        *,
+        transaction_item_batches (*)
+      )
+    `
+    )
+    .order("transaction_date", { ascending: false });
+
+  if (error) {
+    throw error;
+  }
+
+  return data || [];
+}
