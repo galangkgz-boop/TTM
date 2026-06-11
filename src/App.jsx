@@ -1735,6 +1735,19 @@ function DashboardPage({ transactions, products, stockBatches, settings }) {
     .sort((a, b) => a.stock - b.stock)
     .slice(0, 8);
 
+const unsyncedTransactions = transactions.filter(
+  (transaction) =>
+    transaction.syncStatus === "failed" || transaction.syncStatus === "pending"
+);
+
+const failedTransactions = transactions.filter(
+  (transaction) => transaction.syncStatus === "failed"
+);
+
+const pendingTransactions = transactions.filter(
+  (transaction) => transaction.syncStatus === "pending"
+);
+
   return (
     <div>
       <div className="dashboard-header">
@@ -1776,7 +1789,32 @@ function DashboardPage({ transactions, products, stockBatches, settings }) {
           <span>Total Riwayat Transaksi</span>
           <strong>{transactions.length}</strong>
         </div>
+
+        <div>
+  <span>Status Supabase</span>
+  <strong>{settings.autoLoadSupabase ? "Auto Load ON" : "Auto Load OFF"}</strong>
+  <small>
+    {unsyncedTransactions.length > 0
+      ? failedTransactions.length +
+        " gagal, " +
+        pendingTransactions.length +
+        " pending"
+      : "Semua transaksi lokal aman"}
+  </small>
+</div>
       </div>
+
+      {unsyncedTransactions.length > 0 ? (
+  <div className="sync-warning-box">
+    <div>
+      <strong>Ada transaksi belum tersinkron</strong>
+      <p>
+        Masuk ke Pengaturan lalu klik Sinkron Ulang Gagal agar transaksi naik ke
+        Supabase.
+      </p>
+    </div>
+  </div>
+) : null}
 
       <div className="dashboard-grid">
         <div className="dashboard-section">
