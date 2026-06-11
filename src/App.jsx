@@ -4,6 +4,12 @@ import { dummyProducts } from "./db/dummyProducts";
 import { dummyStockBatches } from "./db/dummyStockBatches";
 import { dummyProductVariants } from "./db/dummyProductVariants";
 import { formatRupiah } from "./lib/format";
+import {
+  fetchProductsFromSupabase,
+  fetchProductVariantsFromSupabase,
+  fetchStockBatchesFromSupabase,
+  fetchStoreSettingsFromSupabase,
+} from "./services/supabaseDataService";
 
 const menus = [
   { id: "dashboard", label: "Dashboard" },
@@ -312,7 +318,7 @@ useEffect(() => {
   );
 }, [settings]);
 
-  function addTransaction(transaction, updatedBatches) {
+function addTransaction(transaction, updatedBatches) {
   setTransactions((currentTransactions) => [
     transaction,
     ...currentTransactions,
@@ -323,14 +329,14 @@ useEffect(() => {
   }
 }
 
-  function addStockBatch(newBatch) {
+function addStockBatch(newBatch) {
     setStockBatches((currentBatches) => [
       ...currentBatches, 
       newBatch,
     ]);
   }
 
-  function reduceProductStock(cartItems) {
+function reduceProductStock(cartItems) {
   setProducts((currentProducts) =>
     currentProducts.map((product) => {
       const soldItem = cartItems.find((item) => item.id === product.id);
@@ -347,7 +353,7 @@ useEffect(() => {
   );
 }
 
-  function clearTransactions() {
+function clearTransactions() {
   const confirmClear = window.confirm(
     "Hapus semua riwayat transaksi sementara dan reset stok FIFO?"
   );
@@ -515,6 +521,30 @@ function resetAllLocalData() {
   alert("Semua data lokal berhasil direset.");
 }
 
+async function testSupabaseConnection() {
+  try {
+    const supabaseProducts = await fetchProductsFromSupabase();
+    const supabaseProductVariants = await fetchProductVariantsFromSupabase();
+    const supabaseStockBatches = await fetchStockBatchesFromSupabase();
+    const supabaseSettings = await fetchStoreSettingsFromSupabase();
+
+    alert(
+      "Supabase terkoneksi.\n\n" +
+        "Products: " +
+        supabaseProducts.length +
+        "\nVariants: " +
+        supabaseProductVariants.length +
+        "\nStock Batches: " +
+        supabaseStockBatches.length +
+        "\nSettings: " +
+        (supabaseSettings ? "ada" : "tidak ada")
+    );
+  } catch (error) {
+    console.error(error);
+    alert("Gagal konek ke Supabase: " + error.message);
+  }
+}
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -623,6 +653,7 @@ function resetAllLocalData() {
   onResetTransactionsOnly={resetTransactionsOnly}
   onResetStockBatchesToDummy={resetStockBatchesToDummy}
   onResetAllLocalData={resetAllLocalData}
+  onTestSupabaseConnection={testSupabaseConnection}
 />
           ) : null}
         </section>
@@ -3191,6 +3222,7 @@ function SettingsPage({
   onResetTransactionsOnly,
   onResetStockBatchesToDummy,
   onResetAllLocalData,
+  onTestSupabaseConnection,
 }) {
   const [storeName, setStoreName] = useState(settings.storeName);
   const [address, setAddress] = useState(settings.address);
@@ -3461,6 +3493,14 @@ function importLocalBackupJson(event) {
   <button type="button" className="secondary-button" onClick={resetSettingsForm}>
     Reset Form
   </button>
+
+  <button
+  type="button"
+  className="secondary-button"
+  onClick={onTestSupabaseConnection}
+>
+  Test Supabase
+</button>
 
   <button type="button" className="secondary-button" onClick={exportLocalBackupJson}>
     Export Backup JSON
