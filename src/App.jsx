@@ -1902,6 +1902,57 @@ function InventoryPage({ products, stockBatches, onAddStockBatch }) {
         0
       );
 
+      function exportStockBatchesCsv() {
+  if (stockBatches.length === 0) {
+    alert("Belum ada batch stok untuk diexport.");
+    return;
+  }
+
+  const rows = [
+    [
+      "Produk",
+      "Kategori",
+      "Kode Batch",
+      "Tanggal Masuk",
+      "Harga Modal",
+      "Qty Awal",
+      "Qty Sisa",
+      "Nilai Stok Sisa",
+      "Status",
+    ],
+  ];
+
+  stockBatches.forEach((batch) => {
+    const product = products.find((item) => item.id === batch.productId);
+    const qtyRemaining = Number(batch.qtyRemaining || 0);
+    const cost = Number(batch.cost || 0);
+
+    rows.push([
+      product ? product.name : "Produk tidak ditemukan",
+      product ? product.category : "-",
+      batch.batchCode,
+      batch.purchaseDate,
+      cost,
+      batch.qtyInitial,
+      qtyRemaining,
+      qtyRemaining * cost,
+      qtyRemaining > 0 ? "Aktif" : "Habis",
+    ]);
+  });
+
+  const now = new Date();
+  const filename =
+    "stok-fifo-ttm-" +
+    now.getFullYear() +
+    "-" +
+    String(now.getMonth() + 1).padStart(2, "0") +
+    "-" +
+    String(now.getDate()).padStart(2, "0") +
+    ".csv";
+
+  downloadCsvFile(filename, rows);
+}
+
       return {
         id: product.id,
         name: product.name,
@@ -1954,16 +2005,11 @@ function InventoryPage({ products, stockBatches, onAddStockBatch }) {
     (batch) => Number(batch.qtyRemaining || 0) > 0
   ).length;
 
-  function resetBatchForm() {
+function resetBatchForm() {
   setBatchProductId("");
   setBatchPurchaseDate(new Date().toISOString().slice(0, 10));
   setBatchQty("");
   setBatchCost("");
-}
-
-function closeBatchForm() {
-  setIsBatchFormOpen(false);
-  resetBatchForm();
 }
 
 function submitStockBatch(event) {
@@ -2005,24 +2051,92 @@ function submitStockBatch(event) {
   closeBatchForm();
 }
 
+function closeBatchForm() {
+  setIsBatchFormOpen(false);
+  resetBatchForm();
+}
+
+function exportStockBatchesCsv() {
+  if (stockBatches.length === 0) {
+    alert("Belum ada batch stok untuk diexport.");
+    return;
+  }
+
+  const rows = [
+    [
+      "Produk",
+      "Kategori",
+      "Kode Batch",
+      "Tanggal Masuk",
+      "Harga Modal",
+      "Qty Awal",
+      "Qty Sisa",
+      "Nilai Stok Sisa",
+      "Status",
+    ],
+  ];
+
+  stockBatches.forEach((batch) => {
+    const product = products.find((item) => item.id === batch.productId);
+    const qtyRemaining = Number(batch.qtyRemaining || 0);
+    const cost = Number(batch.cost || 0);
+
+    rows.push([
+      product ? product.name : "Produk tidak ditemukan",
+      product ? product.category : "-",
+      batch.batchCode,
+      batch.purchaseDate,
+      cost,
+      batch.qtyInitial,
+      qtyRemaining,
+      qtyRemaining * cost,
+      qtyRemaining > 0 ? "Aktif" : "Habis",
+    ]);
+  });
+
+  const now = new Date();
+  const filename =
+    "stok-fifo-ttm-" +
+    now.getFullYear() +
+    "-" +
+    String(now.getMonth() + 1).padStart(2, "0") +
+    "-" +
+    String(now.getDate()).padStart(2, "0") +
+    ".csv";
+
+  downloadCsvFile(filename, rows);
+}
+
+
+
   return (
     <div>
       <div className="inventory-header">
-        <div>
-          <h3>Stok FIFO</h3>
-          <p className="muted">
-            Semua stok produk dihitung dari batch FIFO yang masih memiliki qty sisa.
-          </p>
-        </div>
+  <div>
+    <h3>Stok FIFO</h3>
+    <p className="muted">
+      Semua stok produk dihitung dari batch FIFO yang masih memiliki qty sisa.
+    </p>
+  </div>
 
-        <button
-          type="button"
-          className="primary-action-button"
-          onClick={() => setIsBatchFormOpen(true)}
-        >
-          Tambah Batch
-        </button>
-      </div>
+  <div className="inventory-header-actions">
+    <button
+      type="button"
+      className="secondary-button"
+      onClick={exportStockBatchesCsv}
+    >
+      Export CSV
+    </button>
+
+    <button
+      type="button"
+      className="primary-action-button"
+      onClick={() => setIsBatchFormOpen(true)}
+    >
+      Tambah Batch
+    </button>
+  </div>
+</div>
 
       <div className="inventory-summary">
         <div>
@@ -2224,16 +2338,6 @@ function submitStockBatch(event) {
 function TransactionsPage({ transactions, settings, onClearTransactions }) {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
 
-  const totalOmzet = transactions.reduce(
-    (total, transaction) => total + transaction.total,
-    0
-  );
-
-  const totalProfit = transactions.reduce(
-    (total, transaction) => total + transaction.profit,
-    0
-  );
-
   function exportTransactionsCsv() {
   if (transactions.length === 0) {
     alert("Belum ada transaksi untuk diexport.");
@@ -2296,6 +2400,16 @@ function TransactionsPage({ transactions, settings, onClearTransactions }) {
 
   downloadCsvFile(filename, rows);
 }
+
+  const totalOmzet = transactions.reduce(
+    (total, transaction) => total + transaction.total,
+    0
+  );
+
+  const totalProfit = transactions.reduce(
+    (total, transaction) => total + transaction.profit,
+    0
+  );
 
   return (
     <div>

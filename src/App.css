@@ -1926,3 +1926,10 @@
   flex-wrap: wrap;
   justify-content: flex-end;
 }
+
+.inventory-header-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
