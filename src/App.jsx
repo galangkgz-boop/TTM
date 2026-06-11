@@ -690,6 +690,43 @@ function mergeSupabaseTransactionsWithLocalFailed(
   return [...localOnlyUnsyncedTransactions, ...mappedSupabaseTransactions];
 }
 
+function applyUnsyncedTransactionsToStockBatches(stockBatches, localTransactions) {
+  const updatedBatches = stockBatches.map((batch) => ({ ...batch }));
+
+  const unsyncedTransactions = localTransactions.filter(
+    (transaction) =>
+      transaction.syncStatus === "failed" || transaction.syncStatus === "pending"
+  );
+
+  unsyncedTransactions.forEach((transaction) => {
+    transaction.items.forEach((item) => {
+      if (!Array.isArray(item.fifoBatches)) {
+        return;
+      }
+
+      item.fifoBatches.forEach((fifoBatch) => {
+        const batchIndex = updatedBatches.findIndex(
+          (batch) => batch.id === fifoBatch.batchId
+        );
+
+        if (batchIndex === -1) {
+          return;
+        }
+
+        const currentQty = Number(updatedBatches[batchIndex].qtyRemaining || 0);
+        const usedQty = Number(fifoBatch.qty || 0);
+
+        updatedBatches[batchIndex] = {
+          ...updatedBatches[batchIndex],
+          qtyRemaining: Math.max(0, currentQty - usedQty),
+        };
+      });
+    });
+  });
+
+  return updatedBatches;
+}
+
 async function testSupabaseConnection() {
   try {
     const supabaseProducts = await fetchProductsFromSupabase();
@@ -750,7 +787,13 @@ async function loadMasterDataFromSupabase() {
   try {
     const supabaseProducts = await fetchProductsFromSupabase();
     const supabaseProductVariants = await fetchProductVariantsFromSupabase();
-    const supabaseStockBatches = await fetchStockBatchesFromSupabase();
+  setStockBatches((currentStockBatches) => {
+    const mappedSupabaseStockBatches = supabaseStockBatches.map(mapSupabaseStockBatch);
+
+  return applyUnsyncedTransactionsToStockBatches(mappedSupabaseStockBatches,
+    transactions
+  );
+});
     const supabaseSettings = await fetchStoreSettingsFromSupabase();
 
     setProducts(supabaseProducts.map(mapSupabaseProduct));
@@ -804,7 +847,27 @@ async function loadAllDataFromSupabaseSilently() {
 
     setProducts(supabaseProducts.map(mapSupabaseProduct));
     setProductVariants(supabaseProductVariants.map(mapSupabaseProductVariant));
-    setStockBatches(supabaseStockBatches.map(mapSupabaseStockBatch));
+    const mappedSupabaseTransactions = supabaseTransactions.map(
+  mapSupabaseTransaction
+);
+
+setTransactions((currentTransactions) =>
+  mergeSupabaseTransactionsWithLocalFailed(
+    supabaseTransactions,
+    currentTransactions
+  )
+);
+
+setStockBatches((currentStockBatches) => {
+  const mappedSupabaseStockBatches = supabaseStockBatches.map(
+    mapSupabaseStockBatch
+  );
+
+  return applyUnsyncedTransactionsToStockBatches(
+    mappedSupabaseStockBatches,
+    transactions
+  );
+});
 
     if (supabaseSettings) {
       setSettings((currentSettings) => ({
@@ -852,6 +915,8 @@ async function retryFailedTransactionSync() {
   for (const transaction of unsyncedTransactions) {
     try {
       await createTransactionInSupabase(transaction);
+      await updateStockBatchesInSupabase(stockBatches);
+      
       successCount += 1;
 
       setTransactions((currentTransactions) =>
