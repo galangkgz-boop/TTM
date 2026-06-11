@@ -8,6 +8,8 @@ import {
   fetchProductsFromSupabase,
   createProductInSupabase,
   updateProductInSupabase,
+  createProductVariantInSupabase,
+  updateProductVariantInSupabase,
   fetchProductVariantsFromSupabase,
   fetchStockBatchesFromSupabase,
   fetchStoreSettingsFromSupabase,
@@ -545,22 +547,36 @@ async function activateProduct(productId) {
   }
 }
 
-function addProductVariant(newVariant) {
+async function addProductVariant(newVariant) {
   setProductVariants((currentVariants) => [
     ...currentVariants,
     newVariant,
   ]);
+
+  try {
+    await createProductVariantInSupabase(newVariant);
+  } catch (error) {
+    console.error(error);
+    alert("Varian tersimpan lokal, tapi gagal masuk Supabase: " + error.message);
+  }
 }
 
-function updateProductVariant(updatedVariant) {
+async function updateProductVariant(updatedVariant) {
   setProductVariants((currentVariants) =>
     currentVariants.map((variant) =>
       variant.id === updatedVariant.id ? updatedVariant : variant
     )
   );
+
+  try {
+    await updateProductVariantInSupabase(updatedVariant);
+  } catch (error) {
+    console.error(error);
+    alert("Varian tersimpan lokal, tapi gagal update Supabase: " + error.message);
+  }
 }
 
-function deactivateProductVariant(variantId) {
+async function deactivateProductVariant(variantId) {
   const confirmDeactivate = window.confirm(
     "Nonaktifkan varian ini? Varian tidak akan muncul di kasir."
   );
@@ -569,29 +585,59 @@ function deactivateProductVariant(variantId) {
     return;
   }
 
+  const variantToUpdate = productVariants.find(
+    (variant) => variant.id === variantId
+  );
+
+  if (!variantToUpdate) {
+    return;
+  }
+
+  const updatedVariant = {
+    ...variantToUpdate,
+    active: false,
+  };
+
   setProductVariants((currentVariants) =>
     currentVariants.map((variant) =>
-      variant.id === variantId
-        ? {
-            ...variant,
-            active: false,
-          }
-        : variant
+      variant.id === variantId ? updatedVariant : variant
     )
   );
+
+  try {
+    await updateProductVariantInSupabase(updatedVariant);
+  } catch (error) {
+    console.error(error);
+    alert("Varian dinonaktifkan lokal, tapi gagal update Supabase: " + error.message);
+  }
 }
 
-function activateProductVariant(variantId) {
+async function activateProductVariant(variantId) {
+  const variantToUpdate = productVariants.find(
+    (variant) => variant.id === variantId
+  );
+
+  if (!variantToUpdate) {
+    return;
+  }
+
+  const updatedVariant = {
+    ...variantToUpdate,
+    active: true,
+  };
+
   setProductVariants((currentVariants) =>
     currentVariants.map((variant) =>
-      variant.id === variantId
-        ? {
-            ...variant,
-            active: true,
-          }
-        : variant
+      variant.id === variantId ? updatedVariant : variant
     )
   );
+
+  try {
+    await updateProductVariantInSupabase(updatedVariant);
+  } catch (error) {
+    console.error(error);
+    alert("Varian diaktifkan lokal, tapi gagal update Supabase: " + error.message);
+  }
 }
 
 function mapSupabaseTransaction(transaction) {

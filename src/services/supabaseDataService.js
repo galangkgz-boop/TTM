@@ -51,6 +51,42 @@ export async function updateProductInSupabase(product) {
   }
 }
 
+export async function createProductVariantInSupabase(variant) {
+  const row = {
+    id: variant.id,
+    product_id: variant.productId,
+    name: variant.name,
+    qty_multiplier: variant.qtyMultiplier,
+    price: variant.price,
+    active: variant.active,
+  };
+
+  const { error } = await supabase.from("product_variants").insert(row);
+
+  if (error) {
+    throw error;
+  }
+}
+
+export async function updateProductVariantInSupabase(variant) {
+  const row = {
+    product_id: variant.productId,
+    name: variant.name,
+    qty_multiplier: variant.qtyMultiplier,
+    price: variant.price,
+    active: variant.active,
+  };
+
+  const { error } = await supabase
+    .from("product_variants")
+    .update(row)
+    .eq("id", variant.id);
+
+  if (error) {
+    throw error;
+  }
+}
+
 export async function fetchProductVariantsFromSupabase() {
   const { data, error } = await supabase
     .from("product_variants")
