@@ -6,6 +6,8 @@ import { dummyProductVariants } from "./db/dummyProductVariants";
 import { formatRupiah } from "./lib/format";
 import {
   fetchProductsFromSupabase,
+  createProductInSupabase,
+  updateProductInSupabase,
   fetchProductVariantsFromSupabase,
   fetchStockBatchesFromSupabase,
   fetchStoreSettingsFromSupabase,
@@ -454,22 +456,36 @@ function clearTransactions() {
   localStorage.removeItem(STOCK_BATCHES_STORAGE_KEY);
 }
 
-function addProduct(newProduct) {
+async function addProduct(newProduct) {
   setProducts((currentProducts) => [
     ...currentProducts,
     newProduct,
   ]);
+
+  try {
+    await createProductInSupabase(newProduct);
+  } catch (error) {
+    console.error(error);
+    alert("Produk tersimpan lokal, tapi gagal masuk Supabase: " + error.message);
+  }
 }
 
-function updateProduct(updatedProduct) {
+async function updateProduct(updatedProduct) {
   setProducts((currentProducts) =>
     currentProducts.map((product) =>
       product.id === updatedProduct.id ? updatedProduct : product
     )
   );
+
+  try {
+    await updateProductInSupabase(updatedProduct);
+  } catch (error) {
+    console.error(error);
+    alert("Produk tersimpan lokal, tapi gagal update Supabase: " + error.message);
+  }
 }
 
-function deactivateProduct(productId) {
+async function deactivateProduct(productId) {
   const confirmDeactivate = window.confirm(
     "Nonaktifkan produk ini? Produk tidak akan muncul di kasir."
   );
@@ -478,29 +494,55 @@ function deactivateProduct(productId) {
     return;
   }
 
+  const productToUpdate = products.find((product) => product.id === productId);
+
+  if (!productToUpdate) {
+    return;
+  }
+
+  const updatedProduct = {
+    ...productToUpdate,
+    active: false,
+  };
+
   setProducts((currentProducts) =>
     currentProducts.map((product) =>
-      product.id === productId
-        ? {
-            ...product,
-            active: false,
-          }
-        : product
+      product.id === productId ? updatedProduct : product
     )
   );
+
+  try {
+    await updateProductInSupabase(updatedProduct);
+  } catch (error) {
+    console.error(error);
+    alert("Produk dinonaktifkan lokal, tapi gagal update Supabase: " + error.message);
+  }
 }
 
-function activateProduct(productId) {
+async function activateProduct(productId) {
+  const productToUpdate = products.find((product) => product.id === productId);
+
+  if (!productToUpdate) {
+    return;
+  }
+
+  const updatedProduct = {
+    ...productToUpdate,
+    active: true,
+  };
+
   setProducts((currentProducts) =>
     currentProducts.map((product) =>
-      product.id === productId
-        ? {
-            ...product,
-            active: true,
-          }
-        : product
+      product.id === productId ? updatedProduct : product
     )
   );
+
+  try {
+    await updateProductInSupabase(updatedProduct);
+  } catch (error) {
+    console.error(error);
+    alert("Produk diaktifkan lokal, tapi gagal update Supabase: " + error.message);
+  }
 }
 
 function addProductVariant(newVariant) {

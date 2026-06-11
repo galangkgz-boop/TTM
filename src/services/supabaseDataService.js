@@ -13,6 +13,44 @@ export async function fetchProductsFromSupabase() {
   return data || [];
 }
 
+export async function createProductInSupabase(product) {
+  const row = {
+    id: product.id,
+    name: product.name,
+    category: product.category,
+    price: product.price,
+    cost: product.cost,
+    unit: product.unit,
+    active: product.active,
+  };
+
+  const { error } = await supabase.from("products").insert(row);
+
+  if (error) {
+    throw error;
+  }
+}
+
+export async function updateProductInSupabase(product) {
+  const row = {
+    name: product.name,
+    category: product.category,
+    price: product.price,
+    cost: product.cost,
+    unit: product.unit,
+    active: product.active,
+  };
+
+  const { error } = await supabase
+    .from("products")
+    .update(row)
+    .eq("id", product.id);
+
+  if (error) {
+    throw error;
+  }
+}
+
 export async function fetchProductVariantsFromSupabase() {
   const { data, error } = await supabase
     .from("product_variants")
