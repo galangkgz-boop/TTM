@@ -3920,103 +3920,90 @@ function importLocalBackupJson(event) {
         </div>
       </div>
 
-        <div className="settings-section danger-settings-section">
+        <div className="settings-section">
   <div className="section-title">
-    <h4>Reset Data Lokal</h4>
-    <p>
-      Gunakan hanya untuk testing. Export backup JSON dulu kalau data masih penting.
-    </p>
+    <h4>Supabase</h4>
+    <p>Kelola koneksi dan sinkronisasi data dengan database online.</p>
   </div>
 
-  <div className="reset-actions">
+  <div className="settings-button-grid">
     <button
       type="button"
       className="secondary-button"
-      onClick={onResetTransactionsOnly}
+      onClick={onTestSupabaseConnection}
     >
-      Reset Transaksi
+      Test Supabase
     </button>
 
     <button
       type="button"
       className="secondary-button"
-      onClick={onResetStockBatchesToDummy}
+      onClick={onUploadLocalMasterDataToSupabase}
     >
-      Reset Stok FIFO
+      Kirim ke Supabase
     </button>
 
     <button
       type="button"
-      className="danger-button"
-      onClick={onResetAllLocalData}
+      className="secondary-button"
+      onClick={onLoadMasterDataFromSupabase}
     >
-      Reset Semua Data
+      Ambil Master Data
+    </button>
+
+    <button
+      type="button"
+      className="secondary-button"
+      onClick={onLoadTransactionsFromSupabase}
+    >
+      Ambil Transaksi
+    </button>
+
+    <button
+      type="button"
+      className="secondary-button"
+      onClick={onRetryFailedTransactionSync}
+    >
+      Sinkron Ulang Gagal
+    </button>
+
+    <button
+      type="button"
+      className="secondary-button"
+      onClick={onSyncLocalStockBatchesToSupabase}
+    >
+      Sinkron Stok
     </button>
   </div>
 </div>
 
+<div className="settings-section">
+  <div className="section-title">
+    <h4>Backup Lokal</h4>
+    <p>Export dan import data lokal browser dalam format JSON.</p>
+  </div>
+
+  <div className="settings-button-grid">
+    <button
+      type="button"
+      className="secondary-button"
+      onClick={exportLocalBackupJson}
+    >
+      Export Backup JSON
+    </button>
+
+    <label className="import-backup-button">
+      Import Backup JSON
+      <input
+        type="file"
+        accept="application/json,.json"
+        onChange={importLocalBackupJson}
+      />
+    </label>
+  </div>
+</div>
+
 <div className="settings-actions">
-  <button
-  type="button"
-  className="secondary-button"
-  onClick={onTestSupabaseConnection}
->
-  Test Supabase
-</button>
-
-<button
-  type="button"
-  className="secondary-button"
-  onClick={onUploadLocalMasterDataToSupabase}
->
-  Kirim ke Supabase
-</button>
-
-<button
-  type="button"
-  className="secondary-button"
-  onClick={onLoadMasterDataFromSupabase}
->
-  Ambil dari Supabase
-</button>
-
-<button
-  type="button"
-  className="secondary-button"
-  onClick={onLoadTransactionsFromSupabase}
->
-  Ambil Transaksi
-</button>
-
-<button
-  type="button"
-  className="secondary-button"
-  onClick={onRetryFailedTransactionSync}
->
-  Sinkron Ulang Gagal
-</button>
-
-<button
-  type="button"
-  className="secondary-button"
-  onClick={onSyncLocalStockBatchesToSupabase}
->
-  Sinkron Stok
-</button>
-
-  <button type="button" className="secondary-button" onClick={exportLocalBackupJson}>
-    Export Backup JSON
-  </button>
-
-  <label className="import-backup-button">
-    Import Backup JSON
-    <input
-      type="file"
-      accept="application/json,.json"
-      onChange={importLocalBackupJson}
-    />
-  </label>
-
   <button type="submit" className="finish-button">
     Simpan Pengaturan
   </button>
