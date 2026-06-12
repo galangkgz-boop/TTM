@@ -958,13 +958,13 @@ async function retryFailedTransactionSync() {
 }
 
 async function syncLocalStockBatchesToSupabase() {
-  const confirmSync = window.confirm(
-    "Sinkron stok FIFO lokal ke Supabase? Qty batch di Supabase akan disamakan dengan data lokal."
-  );
+  const syncConfirmation = window.prompt(
+  "Sinkron stok FIFO lokal ke Supabase akan menyamakan qty batch online dengan data lokal.\n\nKetik STOK untuk melanjutkan."
+);
 
-  if (confirmSync === false) {
-    return;
-  }
+if (syncConfirmation !== "STOK") {
+  return;
+}
 
   try {
     await updateStockBatchesInSupabase(stockBatches);
@@ -3868,14 +3868,14 @@ function importLocalBackupJson(event) {
     return;
   }
 
-  const confirmImport = window.confirm(
-    "Import backup akan mengganti data lokal saat ini. Lanjutkan?"
-  );
+  const importConfirmation = window.prompt(
+  "Import backup akan mengganti data lokal saat ini.\n\nKetik IMPORT untuk melanjutkan."
+);
 
-  if (confirmImport === false) {
-    event.target.value = "";
-    return;
-  }
+if (importConfirmation !== "IMPORT") {
+  event.target.value = "";
+  return;
+}
 
   const reader = new FileReader();
 
