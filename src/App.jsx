@@ -1037,7 +1037,7 @@ async function retrySingleTransactionSync(transaction) {
           <div className="brand-logo">TTM</div>
           <div>
             <h1>{settings.storeName}</h1>
-            <p>POS v2</p>
+            <p>POS Online</p>
           </div>
         </div>
 
@@ -1085,7 +1085,7 @@ async function retrySingleTransactionSync(transaction) {
     {autoSyncLabel}
   </div>
 
-  <div className="status-pill">Development</div>
+  <div className="status-pill">POS Online</div>
 </div>
         </header>
 
