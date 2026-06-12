@@ -1073,6 +1073,11 @@ if (isUnlocked === false) {
   );
 }
 
+function lockPos() {
+  setIsUnlocked(false);
+  setPinInput("");
+}
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -1129,6 +1134,10 @@ if (isUnlocked === false) {
   </div>
 
   <div className="status-pill">POS Online</div>
+
+  <button type="button" className="lock-button" onClick={lockPos}>
+  Lock
+</button>
 </div>
         </header>
 
