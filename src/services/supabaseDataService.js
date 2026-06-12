@@ -118,13 +118,13 @@ export async function fetchStoreSettingsFromSupabase() {
     .from("store_settings")
     .select("*")
     .eq("id", 1)
-    .single();
+    .maybeSingle();
 
   if (error) {
     throw error;
   }
 
-  return data;
+  return data || null;
 }
 
 export async function createStockBatchInSupabase(batch) {
