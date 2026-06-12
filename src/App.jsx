@@ -401,6 +401,7 @@ useEffect(() => {
 useEffect(() => {
   function handleOnline() {
     setIsOnline(true);
+    retryFailedTransactionSync(false);
   }
 
   function handleOffline() {
@@ -414,7 +415,7 @@ useEffect(() => {
     window.removeEventListener("online", handleOnline);
     window.removeEventListener("offline", handleOffline);
   };
-}, []);
+}, [transactions, stockBatches]);
 
 function reduceProductStock(cartItems) {
   setProducts((currentProducts) =>
@@ -887,17 +888,21 @@ async function refreshAllDataFromSupabase() {
   alert("Data online berhasil direfresh.");
 }
 
-async function retryFailedTransactionSync() {
+async function retryFailedTransactionSync(showAlert = true) {
   const unsyncedTransactions = transactions.filter(
     (transaction) =>
       transaction.syncStatus === "failed" || transaction.syncStatus === "pending"
   );
 
   if (unsyncedTransactions.length === 0) {
+    if (showAlert) {
     alert("Tidak ada transaksi gagal/pending untuk disinkron ulang.");
+    }
+    s
     return;
   }
 
+  if (showAlert) {
   const confirmRetry = window.confirm(
     "Sinkron ulang " +
       unsyncedTransactions.length +
@@ -907,6 +912,7 @@ async function retryFailedTransactionSync() {
   if (confirmRetry === false) {
     return;
   }
+}
 
   let successCount = 0;
   let failedCount = 0;
@@ -948,6 +954,7 @@ async function retryFailedTransactionSync() {
     }
   }
 
+  if (showAlert) {
   alert(
     "Sinkron ulang selesai.\n\n" +
       "Berhasil: " +
@@ -955,6 +962,7 @@ async function retryFailedTransactionSync() {
       "\nGagal: " +
       failedCount
   );
+}
 }
 
 async function syncLocalStockBatchesToSupabase() {
