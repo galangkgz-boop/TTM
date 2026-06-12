@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
+import "./styles/modern-pos.css";
 import { dummyProducts } from "./db/dummyProducts";
 import { dummyStockBatches } from "./db/dummyStockBatches";
 import { dummyProductVariants } from "./db/dummyProductVariants";
