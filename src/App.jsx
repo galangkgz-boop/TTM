@@ -28,6 +28,7 @@ const STOCK_BATCHES_STORAGE_KEY = "ttm_pos_stock_batches";
 const PRODUCTS_STORAGE_KEY = "ttm_pos_products";
 const PRODUCT_VARIANTS_STORAGE_KEY = "ttm_pos_product_variants";
 const SETTINGS_STORAGE_KEY = "ttm_pos_settings";
+const CASHIER_CLOSINGS_STORAGE_KEY = "ttm_cashier_closings";
 
 const defaultSettings = {
   storeName: "Toko Telon Mindi",
@@ -402,6 +403,19 @@ function App() {
 
 const [isCloseCashierPreviewOpen, setIsCloseCashierPreviewOpen] = useState(false);
 const [actualClosingCash, setActualClosingCash] = useState("");
+const [cashierClosings, setCashierClosings] = useState(() => {
+  const savedClosings = localStorage.getItem(CASHIER_CLOSINGS_STORAGE_KEY);
+
+  if (!savedClosings) {
+    return [];
+  }
+
+  try {
+    return JSON.parse(savedClosings);
+  } catch {
+    return [];
+  }
+});
 
   useEffect(() => {
     localStorage.setItem(
@@ -478,6 +492,13 @@ useEffect(() => {
 useEffect(() => {
   localStorage.setItem("ttm-cashier-session", JSON.stringify(cashierSession));
 }, [cashierSession]);
+
+useEffect(() => {
+  localStorage.setItem(
+    CASHIER_CLOSINGS_STORAGE_KEY,
+    JSON.stringify(cashierClosings)
+  );
+}, [cashierClosings]);
 
 async function submitLogin(event) {
   event.preventDefault();
@@ -1229,10 +1250,36 @@ function confirmCloseCashierSession() {
     return;
   }
 
+  const closedAt = new Date().toISOString();
+
+  const closingRecord = {
+    id: Date.now(),
+    openedAt: cashierSession.openedAt,
+    closedAt: closedAt,
+    openingCash: Number(cashierSession.openingCash || 0),
+    salesTotal: cashierSalesTotal,
+    cashInTotal: cashierCashInTotal,
+    cashOutTotal: cashierCashOutTotal,
+    discountTotal: cashierDiscountTotal,
+    profitTotal: cashierProfitTotal,
+    transactionCount: cashierSessionTransactions.length,
+    estimatedClosingCash: estimatedClosingCash,
+    actualClosingCash: actualClosingCashNumber,
+    difference: closingCashDifference,
+    status: closingCashStatus,
+    cashIn: cashierSession.cashIn || [],
+    cashOut: cashierSession.cashOut || [],
+  };
+
+  setCashierClosings((currentClosings) => [
+    closingRecord,
+    ...currentClosings,
+  ]);
+
   setCashierSession((currentSession) => ({
     ...currentSession,
     isOpen: false,
-    closedAt: new Date().toISOString(),
+    closedAt: closedAt,
     actualClosingCash: actualClosingCashNumber,
     estimatedClosingCash: estimatedClosingCash,
     closingCashDifference: closingCashDifference,
@@ -1241,7 +1288,7 @@ function confirmCloseCashierSession() {
 
   setIsCloseCashierPreviewOpen(false);
   setActualClosingCash("");
-  alert("Kasir berhasil ditutup.");
+  alert("Kasir berhasil ditutup dan riwayat close tersimpan.");
 }
 
 function cancelCloseCashierPreview() {
@@ -1367,6 +1414,7 @@ async function lockPos() {
   stockBatches={stockBatches}
   settings={settings}
   cashierSession={cashierSession}
+  cashierClosings={cashierClosings}
   onOpenCashierSession={openCashierSession}
   onCloseCashierSession={closeCashierSession}
   onOpenCashierPage={() => setActivePage("cashier")}
@@ -2187,6 +2235,7 @@ function DashboardPage({
   stockBatches,
   settings,
   cashierSession,
+  cashierClosings,
   onOpenCashierSession,
   onCloseCashierSession,
   onOpenCashierPage,
@@ -2429,6 +2478,62 @@ const pendingTransactions = transactions.filter(
     </button>
   </div>
 ) : null}
+
+<div className="dashboard-section close-history-section">
+  <div className="section-title">
+    <h4>Riwayat Tutup Kasir</h4>
+    <p>5 sesi kasir terakhir yang sudah ditutup.</p>
+  </div>
+
+  <div className="close-history-list">
+    {(cashierClosings || []).slice(0, 5).map((closing) => (
+      <div key={closing.id} className="close-history-item">
+        <div>
+          <strong>
+            {new Date(closing.closedAt).toLocaleDateString("id-ID", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })}
+          </strong>
+          <p>
+            {new Date(closing.openedAt).toLocaleTimeString("id-ID", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+            {" - "}
+            {new Date(closing.closedAt).toLocaleTimeString("id-ID", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </p>
+        </div>
+
+        <div>
+          <span>Estimasi</span>
+          <strong>{formatRupiah(closing.estimatedClosingCash || 0)}</strong>
+        </div>
+
+        <div>
+          <span>Fisik</span>
+          <strong>{formatRupiah(closing.actualClosingCash || 0)}</strong>
+        </div>
+
+        <div>
+          <span>Status</span>
+          <strong>{closing.status}</strong>
+          <p>Selisih {formatRupiah(Math.abs(closing.difference || 0))}</p>
+        </div>
+      </div>
+    ))}
+
+    {(cashierClosings || []).length === 0 ? (
+      <div className="empty-state">
+        Belum ada riwayat tutup kasir.
+      </div>
+    ) : null}
+  </div>
+</div>
 
       <div className="dashboard-grid">
         <div className="dashboard-section">
