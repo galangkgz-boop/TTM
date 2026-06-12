@@ -21,7 +21,8 @@ import {
   createStockBatchInSupabase,
   fetchCurrentProfileFromSupabase,
   saveCashierSessionToSupabase,
-  createCashFlowInSupabase
+  createCashFlowInSupabase,
+  createCashierClosingInSupabase
 } from "./services/supabaseDataService";
 import { supabase } from "./lib/supabaseClient";
 
@@ -1347,7 +1348,7 @@ function closeCashierSession() {
   setIsCloseCashierPreviewOpen(true);
 }
 
-function confirmCloseCashierSession() {
+async function confirmCloseCashierSession() {
   if (actualClosingCash === "") {
     alert("Isi dulu jumlah uang fisik di laci kasir.");
     return;
@@ -1357,6 +1358,7 @@ function confirmCloseCashierSession() {
 
   const closingRecord = {
     id: Date.now(),
+    cashierSessionId: cashierSession.id,
     openedAt: cashierSession.openedAt,
     closedAt: closedAt,
     openingCash: Number(cashierSession.openingCash || 0),
@@ -1374,24 +1376,39 @@ function confirmCloseCashierSession() {
     cashOut: cashierSession.cashOut || [],
   };
 
-  setCashierClosings((currentClosings) => [
-    closingRecord,
-    ...currentClosings,
-  ]);
-
-  setCashierSession((currentSession) => ({
-    ...currentSession,
+  const closedSession = {
+    ...cashierSession,
     isOpen: false,
     closedAt: closedAt,
     actualClosingCash: actualClosingCashNumber,
     estimatedClosingCash: estimatedClosingCash,
     closingCashDifference: closingCashDifference,
     closingCashStatus: closingCashStatus,
-  }));
+  };
+
+  setCashierClosings((currentClosings) => [
+    closingRecord,
+    ...currentClosings,
+  ]);
+
+  setCashierSession(closedSession);
+
+  try {
+    await saveCashierSessionToSupabase(closedSession);
+    await createCashierClosingInSupabase(closingRecord);
+
+    alert("Kasir berhasil ditutup dan tersimpan ke Supabase.");
+  } catch (error) {
+    console.error(error);
+
+    alert(
+      "Kasir berhasil ditutup lokal, tapi gagal tersimpan ke Supabase: " +
+        error.message
+    );
+  }
 
   setIsCloseCashierPreviewOpen(false);
   setActualClosingCash("");
-  alert("Kasir berhasil ditutup dan riwayat close tersimpan.");
 }
 
 function cancelCloseCashierPreview() {
