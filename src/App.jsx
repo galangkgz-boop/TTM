@@ -2566,9 +2566,10 @@ const pendingTransactions = transactions.filter(
       {cashierSession.isOpen && cashierSession.openedAt
         ? "Dibuka " +
           new Date(cashierSession.openedAt).toLocaleTimeString("id-ID", {
-            hour: "2-digit",
-            minute: "2-digit",
-          })
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: "Asia/Jakarta",
+})
         : "Buka kasir sebelum mulai transaksi."}
     </p>
   </div>
@@ -2780,6 +2781,7 @@ const pendingTransactions = transactions.filter(
                     {new Date(transaction.date).toLocaleTimeString("id-ID", {
                       hour: "2-digit",
                       minute: "2-digit",
+                      timeZone: "Asia/Jakarta",
                     })}
                   </td>
                   <td>{transaction.items.length}</td>
