@@ -357,6 +357,11 @@ function App() {
         ? "Supabase Gagal"
         : "Supabase Belum Dites";
 
+  const autoSyncLabel =
+  unsyncedTransactionCount > 0
+    ? "Auto Sync: " + unsyncedTransactionCount + " menunggu"
+    : "Auto Sync Aktif";
+
   useEffect(() => {
     localStorage.setItem(
       TRANSACTIONS_STORAGE_KEY, 
@@ -1068,6 +1073,16 @@ async function retrySingleTransactionSync(transaction) {
 
   <div className={"supabase-pill " + supabaseStatus}>
     {supabaseStatusLabel}
+  </div>
+
+  <div
+    className={
+      unsyncedTransactionCount > 0
+        ? "auto-sync-pill waiting"
+        : "auto-sync-pill active"
+    }
+  >
+    {autoSyncLabel}
   </div>
 
   <div className="status-pill">Development</div>
