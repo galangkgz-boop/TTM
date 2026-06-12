@@ -383,6 +383,23 @@ function App() {
     ? "Auto Sync: " + unsyncedTransactionCount + " menunggu"
     : "Auto Sync Aktif";
 
+    const [cashierSession, setCashierSession] = useState(() => {
+  const savedSession = localStorage.getItem("ttm-cashier-session");
+
+  if (!savedSession) {
+    return {
+      isOpen: false,
+      openedAt: null,
+      closedAt: null,
+      openingCash: 0,
+      cashIn: [],
+      cashOut: [],
+    };
+  }
+
+  return JSON.parse(savedSession);
+});
+
   useEffect(() => {
     localStorage.setItem(
       TRANSACTIONS_STORAGE_KEY, 
@@ -454,6 +471,10 @@ useEffect(() => {
     setActivePage("cashier");
   }
 }, [currentRole, activePage]);
+
+useEffect(() => {
+  localStorage.setItem("ttm-cashier-session", JSON.stringify(cashierSession));
+}, [cashierSession]);
 
 async function submitLogin(event) {
   event.preventDefault();
@@ -1105,6 +1126,52 @@ async function retrySingleTransactionSync(transaction) {
   }
 }
 
+function openCashierSession() {
+  if (cashierSession.isOpen) {
+    alert("Kasir sudah dibuka.");
+    return;
+  }
+
+  const openingCashInput = prompt("Masukkan modal awal kasir:", "0");
+  const openingCash = Number(openingCashInput || 0);
+
+  if (Number.isNaN(openingCash) || openingCash < 0) {
+    alert("Modal awal tidak valid.");
+    return;
+  }
+
+  setCashierSession({
+    isOpen: true,
+    openedAt: new Date().toISOString(),
+    closedAt: null,
+    openingCash: openingCash,
+    cashIn: [],
+    cashOut: [],
+  });
+
+  alert("Kasir berhasil dibuka.");
+}
+
+function closeCashierSession() {
+  if (!cashierSession.isOpen) {
+    alert("Kasir belum dibuka.");
+    return;
+  }
+
+  const confirmation = confirm("Tutup kasir hari ini?");
+  if (!confirmation) {
+    return;
+  }
+
+  setCashierSession((currentSession) => ({
+    ...currentSession,
+    isOpen: false,
+    closedAt: new Date().toISOString(),
+  }));
+
+  alert("Kasir berhasil ditutup.");
+}
+
 if (isUnlocked === false) {
   return (
     <div className="lock-screen">
@@ -1218,23 +1285,28 @@ async function lockPos() {
         <section className="page-card">
           {activePage === "dashboard" ? (
             <DashboardPage
-              transactions={transactions}
-              products={products}
-              stockBatches={stockBatches}
-              settings={settings}
-              onOpenSettings={() => setActivePage("settings")}
-            />
+  transactions={transactions}
+  products={products}
+  stockBatches={stockBatches}
+  settings={settings}
+  cashierSession={cashierSession}
+  onOpenCashierSession={openCashierSession}
+  onCloseCashierSession={closeCashierSession}
+  onOpenCashierPage={() => setActivePage("cashier")}
+  onOpenSettings={() => setActivePage("settings")}
+/>
           ) : null}
 
           {activePage === "cashier" ? ( 
             <CashierPage 
-              products={products}
-              productVariants={productVariants}
-              stockBatches={stockBatches}
-              transactions={transactions}
-              settings={settings}
-              onAddTransaction={addTransaction} 
-            /> 
+  products={products}
+  productVariants={productVariants}
+  stockBatches={stockBatches}
+  transactions={transactions}
+  settings={settings}
+  cashierSession={cashierSession}
+  onAddTransaction={addTransaction} 
+/>
           ) : null}
 
           {activePage === "products" ? (
@@ -1299,7 +1371,15 @@ async function lockPos() {
   );
 }
 
-function CashierPage({ products, productVariants, stockBatches, transactions, settings, onAddTransaction }) {
+function CashierPage({
+  products,
+  productVariants,
+  stockBatches,
+  transactions,
+  settings,
+  cashierSession,
+  onAddTransaction,
+}) {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [cart, setCart] = useState([]);
@@ -1527,6 +1607,11 @@ function clearCart() {
   }
 
 function openPaymentModal() {
+   if (!cashierSession.isOpen) {
+    alert("Kasir belum dibuka. Buka kasir dari Dashboard terlebih dahulu.");
+    return;
+  }
+
   if (cart.length === 0) return;
   if (isDiscountTooLarge) return;
 
@@ -1587,6 +1672,12 @@ function finishTransaction() {
 
   return (
     <div>
+      {!cashierSession.isOpen ? (
+  <div className="cashier-closed-warning">
+    <strong>Kasir belum dibuka</strong>
+    <p>Buka kasir dari Dashboard sebelum melakukan transaksi.</p>
+  </div>
+) : null}
       <div className="cashier-header">
         <div>
           <h3>Kasir</h3>
@@ -1654,7 +1745,7 @@ const displayStock = Math.max(0, Number(product.stock || 0) - reservedQty);
       <button
   type="button"
   className="product-main-button"
-  disabled={Number(displayStock || 0) <= 0}
+  disabled={!cashierSession.isOpen || Number(displayStock || 0) <= 0}
   onClick={() => addToCart(product, null)}
 >
         <div>
@@ -1685,7 +1776,7 @@ const displayStock = Math.max(0, Number(product.stock || 0) - reservedQty);
       key={variant.id}
       type="button"
       className="cashier-variant-button"
-      disabled={isVariantOutOfStock}
+      disabled={!cashierSession.isOpen || isVariantOutOfStock}
       onClick={() => addToCart(product, variant)}
     >
       <span>
@@ -1798,7 +1889,7 @@ const displayStock = Math.max(0, Number(product.stock || 0) - reservedQty);
             <button
               type="button"
               className="pay-button"
-              disabled={cart.length === 0 || isDiscountTooLarge}
+              disabled={!cashierSession.isOpen || cart.length === 0 || isDiscountTooLarge}
               onClick={openPaymentModal}
             >
               Bayar
@@ -1891,7 +1982,17 @@ const displayStock = Math.max(0, Number(product.stock || 0) - reservedQty);
   );
 }
 
-function DashboardPage({ transactions, products, stockBatches, settings, onOpenSettings }) {
+function DashboardPage({
+  transactions,
+  products,
+  stockBatches,
+  settings,
+  cashierSession,
+  onOpenCashierSession,
+  onCloseCashierSession,
+  onOpenCashierPage,
+  onOpenSettings,
+}) {
   const today = new Date();
 
   const startOfToday = new Date(
@@ -1998,6 +2099,66 @@ const pendingTransactions = transactions.filter(
     <div>
       <div className="dashboard-header">
         <div>
+          <div className="cashier-command-panel">
+  <div>
+    <span>Status Kasir</span>
+    <strong>{cashierSession.isOpen ? "Kasir Dibuka" : "Kasir Ditutup"}</strong>
+    <p>
+      {cashierSession.isOpen && cashierSession.openedAt
+        ? "Dibuka " +
+          new Date(cashierSession.openedAt).toLocaleTimeString("id-ID", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : "Buka kasir sebelum mulai transaksi."}
+    </p>
+  </div>
+
+  <div className="cashier-command-actions">
+    <button
+      type="button"
+      className="primary-action-button"
+      onClick={onOpenCashierSession}
+      disabled={cashierSession.isOpen}
+    >
+      Buka Kasir
+    </button>
+
+    <button
+      type="button"
+      className="secondary-button"
+      onClick={onOpenCashierPage}
+      disabled={!cashierSession.isOpen}
+    >
+      Ke Kasir
+    </button>
+
+    <button
+      type="button"
+      className="secondary-button"
+      disabled={!cashierSession.isOpen}
+    >
+      Pemasukan
+    </button>
+
+    <button
+      type="button"
+      className="secondary-button"
+      disabled={!cashierSession.isOpen}
+    >
+      Pengeluaran
+    </button>
+
+    <button
+      type="button"
+      className="danger-button"
+      onClick={onCloseCashierSession}
+      disabled={!cashierSession.isOpen}
+    >
+      Tutup Kasir
+    </button>
+  </div>
+</div>
           <h3>Dashboard</h3>
           <p className="muted">
             Ringkasan performa toko hari ini berdasarkan transaksi dan stok FIFO.
