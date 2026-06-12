@@ -9,9 +9,6 @@ import {
   fetchProductVariantsFromSupabase,
   fetchStockBatchesFromSupabase,
   fetchStoreSettingsFromSupabase,
-  replaceProductsInSupabase,
-  replaceProductVariantsInSupabase,
-  replaceStockBatchesInSupabase,
   updateStoreSettingsInSupabase,
   createTransactionInSupabase,
   updateStockBatchesInSupabase,
@@ -829,30 +826,6 @@ async function testSupabaseConnection() {
     console.error(error);
     setSupabaseStatus("failed");
     alert("Gagal konek ke Supabase: " + error.message);
-  }
-}
-
-async function uploadLocalMasterDataToSupabase() {
-  const confirmUpload = window.confirm(
-    "Kirim data lokal ke Supabase? Data products, variants, stock batches, dan settings di Supabase akan diganti."
-  );
-
-  if (confirmUpload === false) {
-    return;
-  }
-
-  try {
-    await replaceProductVariantsInSupabase([]);
-    await replaceStockBatchesInSupabase([]);
-    await replaceProductsInSupabase(products);
-    await replaceProductVariantsInSupabase(productVariants);
-    await replaceStockBatchesInSupabase(stockBatches);
-    await updateStoreSettingsInSupabase(settings);
-
-    alert("Data lokal berhasil dikirim ke Supabase.");
-  } catch (error) {
-    console.error(error);
-    alert("Gagal kirim data ke Supabase: " + error.message);
   }
 }
 
@@ -3813,7 +3786,6 @@ function SettingsPage({
   onRestoreStockBatches,
   onRestoreTransactions,
   onTestSupabaseConnection,
-  onUploadLocalMasterDataToSupabase,
   onRetryFailedTransactionSync,
   onSyncLocalStockBatchesToSupabase,
   onRefreshAllDataFromSupabase,
