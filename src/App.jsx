@@ -403,6 +403,9 @@ function App() {
 
 const [isCloseCashierPreviewOpen, setIsCloseCashierPreviewOpen] = useState(false);
 const [actualClosingCash, setActualClosingCash] = useState("");
+const [cashFlowModalType, setCashFlowModalType] = useState(null);
+const [cashFlowNote, setCashFlowNote] = useState("");
+const [cashFlowAmount, setCashFlowAmount] = useState("");
 const [cashierClosings, setCashierClosings] = useState(() => {
   const savedClosings = localStorage.getItem(CASHIER_CLOSINGS_STORAGE_KEY);
 
@@ -416,6 +419,7 @@ const [cashierClosings, setCashierClosings] = useState(() => {
     return [];
   }
 });
+
 
   useEffect(() => {
     localStorage.setItem(
@@ -1176,6 +1180,75 @@ function openCashierSession() {
   alert("Kasir berhasil dibuka.");
 }
 
+function openCashFlowModal(type) {
+  if (!cashierSession.isOpen) {
+    alert("Kasir belum dibuka.");
+    return;
+  }
+
+  setCashFlowModalType(type);
+  setCashFlowNote("");
+  setCashFlowAmount("");
+}
+
+function closeCashFlowModal() {
+  setCashFlowModalType(null);
+  setCashFlowNote("");
+  setCashFlowAmount("");
+}
+
+function submitCashFlow(event) {
+  event.preventDefault();
+
+  const note = cashFlowNote.trim();
+  const amount = Number(cashFlowAmount || 0);
+
+  if (!cashierSession.isOpen) {
+    alert("Kasir belum dibuka.");
+    return;
+  }
+
+  if (!note) {
+    alert("Keterangan wajib diisi.");
+    return;
+  }
+
+  if (amount <= 0) {
+    alert("Nominal harus lebih dari 0.");
+    return;
+  }
+
+  const newCashFlow = {
+    id: Date.now(),
+    type: cashFlowModalType,
+    note: note,
+    amount: amount,
+    createdAt: new Date().toISOString(),
+  };
+
+  setCashierSession((currentSession) => {
+    if (cashFlowModalType === "in") {
+      return {
+        ...currentSession,
+        cashIn: [...(currentSession.cashIn || []), newCashFlow],
+      };
+    }
+
+    return {
+      ...currentSession,
+      cashOut: [...(currentSession.cashOut || []), newCashFlow],
+    };
+  });
+
+  alert(
+    cashFlowModalType === "in"
+      ? "Pemasukan berhasil dicatat."
+      : "Pengeluaran berhasil dicatat."
+  );
+
+  closeCashFlowModal();
+}
+
 const cashierOpenTime = cashierSession.openedAt
   ? new Date(cashierSession.openedAt)
   : null;
@@ -1418,6 +1491,8 @@ async function lockPos() {
   onOpenCashierSession={openCashierSession}
   onCloseCashierSession={closeCashierSession}
   onOpenCashierPage={() => setActivePage("cashier")}
+  onOpenCashInModal={() => openCashFlowModal("in")}
+  onOpenCashOutModal={() => openCashFlowModal("out")}
   onOpenSettings={() => setActivePage("settings")}
 />
           ) : null}
@@ -1490,6 +1565,67 @@ async function lockPos() {
   onRefreshAllDataFromSupabase={refreshAllDataFromSupabase}
 />
           ) : null}
+
+          {cashFlowModalType ? (
+  <div className="modal-backdrop">
+    <form className="cash-flow-modal" onSubmit={submitCashFlow}>
+      <div className="modal-header">
+        <div>
+          <h3>
+            {cashFlowModalType === "in" ? "Tambah Pemasukan" : "Tambah Pengeluaran"}
+          </h3>
+          <p>
+            {cashFlowModalType === "in"
+              ? "Catat uang masuk di luar transaksi penjualan."
+              : "Catat uang keluar dari kasir."}
+          </p>
+        </div>
+
+        <button type="button" className="modal-close" onClick={closeCashFlowModal}>
+          ×
+        </button>
+      </div>
+
+      <div className="cash-flow-form">
+        <label>
+          Keterangan
+          <input
+            type="text"
+            value={cashFlowNote}
+            onChange={(event) => setCashFlowNote(event.target.value)}
+            placeholder={
+              cashFlowModalType === "in"
+                ? "Contoh: Tambahan modal"
+                : "Contoh: Beli plastik"
+            }
+            autoFocus
+          />
+        </label>
+
+        <label>
+          Nominal
+          <input
+            type="number"
+            min="0"
+            value={cashFlowAmount}
+            onChange={(event) => setCashFlowAmount(event.target.value)}
+            placeholder="0"
+          />
+        </label>
+      </div>
+
+      <div className="payment-actions">
+        <button type="button" className="secondary-button" onClick={closeCashFlowModal}>
+          Batal
+        </button>
+
+        <button type="submit" className="finish-button">
+          Simpan
+        </button>
+      </div>
+    </form>
+  </div>
+) : null}
 
           {isCloseCashierPreviewOpen ? (
   <div className="modal-backdrop">
@@ -2239,6 +2375,8 @@ function DashboardPage({
   onOpenCashierSession,
   onCloseCashierSession,
   onOpenCashierPage,
+  onOpenCashInModal,
+  onOpenCashOutModal,
   onOpenSettings,
 }) {
   const today = new Date();
@@ -2382,20 +2520,22 @@ const pendingTransactions = transactions.filter(
     </button>
 
     <button
-      type="button"
-      className="secondary-button"
-      disabled={!cashierSession.isOpen}
-    >
-      Pemasukan
-    </button>
+  type="button"
+  className="secondary-button"
+  onClick={onOpenCashInModal}
+  disabled={!cashierSession.isOpen}
+>
+  Pemasukan
+</button>
 
     <button
-      type="button"
-      className="secondary-button"
-      disabled={!cashierSession.isOpen}
-    >
-      Pengeluaran
-    </button>
+  type="button"
+  className="secondary-button"
+  onClick={onOpenCashOutModal}
+  disabled={!cashierSession.isOpen}
+>
+  Pengeluaran
+</button>
 
     <button
       type="button"
