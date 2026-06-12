@@ -400,6 +400,9 @@ function App() {
   return JSON.parse(savedSession);
 });
 
+const [isCloseCashierPreviewOpen, setIsCloseCashierPreviewOpen] = useState(false);
+const [actualClosingCash, setActualClosingCash] = useState("");
+
   useEffect(() => {
     localStorage.setItem(
       TRANSACTIONS_STORAGE_KEY, 
@@ -1152,14 +1155,77 @@ function openCashierSession() {
   alert("Kasir berhasil dibuka.");
 }
 
+const cashierOpenTime = cashierSession.openedAt
+  ? new Date(cashierSession.openedAt)
+  : null;
+
+const cashierSessionTransactions = cashierOpenTime
+  ? transactions.filter((transaction) => {
+      const transactionDate = new Date(transaction.date);
+      return transactionDate >= cashierOpenTime;
+    })
+  : [];
+
+const cashierSalesTotal = cashierSessionTransactions.reduce(
+  (total, transaction) => total + Number(transaction.total || 0),
+  0
+);
+
+const cashierProfitTotal = cashierSessionTransactions.reduce(
+  (total, transaction) => total + Number(transaction.profit || 0),
+  0
+);
+
+const cashierDiscountTotal = cashierSessionTransactions.reduce(
+  (total, transaction) => total + Number(transaction.discount || 0),
+  0
+);
+
+const cashierCashInTotal = (cashierSession.cashIn || []).reduce(
+  (total, item) => total + Number(item.amount || 0),
+  0
+);
+
+const cashierCashOutTotal = (cashierSession.cashOut || []).reduce(
+  (total, item) => total + Number(item.amount || 0),
+  0
+);
+
+const estimatedClosingCash =
+  Number(cashierSession.openingCash || 0) +
+  cashierSalesTotal +
+  cashierCashInTotal -
+  cashierCashOutTotal;
+
+  const actualClosingCashNumber = Number(actualClosingCash || 0);
+
+const closingCashDifference =
+  actualClosingCash === ""
+    ? 0
+    : actualClosingCashNumber - estimatedClosingCash;
+
+const closingCashStatus =
+  actualClosingCash === ""
+    ? "Belum dicek"
+    : closingCashDifference === 0
+      ? "Pas"
+      : closingCashDifference > 0
+        ? "Lebih"
+        : "Kurang";
+
 function closeCashierSession() {
   if (!cashierSession.isOpen) {
     alert("Kasir belum dibuka.");
     return;
   }
 
-  const confirmation = confirm("Tutup kasir hari ini?");
-  if (!confirmation) {
+  setActualClosingCash("");
+  setIsCloseCashierPreviewOpen(true);
+}
+
+function confirmCloseCashierSession() {
+  if (actualClosingCash === "") {
+    alert("Isi dulu jumlah uang fisik di laci kasir.");
     return;
   }
 
@@ -1167,9 +1233,20 @@ function closeCashierSession() {
     ...currentSession,
     isOpen: false,
     closedAt: new Date().toISOString(),
+    actualClosingCash: actualClosingCashNumber,
+    estimatedClosingCash: estimatedClosingCash,
+    closingCashDifference: closingCashDifference,
+    closingCashStatus: closingCashStatus,
   }));
 
+  setIsCloseCashierPreviewOpen(false);
+  setActualClosingCash("");
   alert("Kasir berhasil ditutup.");
+}
+
+function cancelCloseCashierPreview() {
+  setIsCloseCashierPreviewOpen(false);
+  setActualClosingCash("");
 }
 
 if (isUnlocked === false) {
@@ -1365,6 +1442,128 @@ async function lockPos() {
   onRefreshAllDataFromSupabase={refreshAllDataFromSupabase}
 />
           ) : null}
+
+          {isCloseCashierPreviewOpen ? (
+  <div className="modal-backdrop">
+    <div className="close-cashier-modal">
+      <div className="modal-header">
+        <div>
+          <h3>Preview Tutup Kasir</h3>
+          <p>Periksa rekap kasir sebelum sesi ditutup.</p>
+        </div>
+
+        <button
+          type="button"
+          className="modal-close"
+          onClick={cancelCloseCashierPreview}
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="close-cashier-summary">
+  <div>
+    <span>Modal Awal</span>
+    <strong>{formatRupiah(cashierSession.openingCash || 0)}</strong>
+  </div>
+
+  <div>
+    <span>Penjualan Cash</span>
+    <strong>{formatRupiah(cashierSalesTotal)}</strong>
+  </div>
+
+  <div>
+    <span>Pemasukan Lain</span>
+    <strong>{formatRupiah(cashierCashInTotal)}</strong>
+  </div>
+
+  <div>
+    <span>Pengeluaran</span>
+    <strong>{formatRupiah(cashierCashOutTotal)}</strong>
+  </div>
+
+  <div>
+    <span>Diskon</span>
+    <strong>{formatRupiah(cashierDiscountTotal)}</strong>
+  </div>
+
+  <div>
+    <span>Profit FIFO</span>
+    <strong>{formatRupiah(cashierProfitTotal)}</strong>
+  </div>
+
+  <div>
+    <span>Total Transaksi</span>
+    <strong>{cashierSessionTransactions.length}</strong>
+  </div>
+</div>
+
+<div className="closing-cash-total">
+  <span>Estimasi Uang Akhir Kasir</span>
+  <strong>{formatRupiah(estimatedClosingCash)}</strong>
+</div>
+
+<div className="actual-cash-input-box">
+  <label>
+    Uang Fisik di Laci Kasir
+    <input
+      type="number"
+      min="0"
+      value={actualClosingCash}
+      onChange={(event) => setActualClosingCash(event.target.value)}
+      placeholder="Masukkan jumlah uang di laci"
+    />
+  </label>
+</div>
+
+<div
+  className={
+    closingCashStatus === "Pas"
+      ? "cash-difference-box match"
+      : closingCashStatus === "Lebih"
+        ? "cash-difference-box over"
+        : closingCashStatus === "Kurang"
+          ? "cash-difference-box short"
+          : "cash-difference-box"
+  }
+>
+  <span>Status Selisih</span>
+  <strong>{closingCashStatus}</strong>
+  <p>
+    {actualClosingCash === ""
+      ? "Isi jumlah uang fisik untuk melihat selisih."
+      : "Selisih: " + formatRupiah(Math.abs(closingCashDifference))}
+  </p>
+</div>
+
+<div className="close-cashier-note">
+  <strong>Catatan:</strong>
+  <p>
+    Cocokkan angka estimasi ini dengan uang fisik di laci kasir sebelum
+    menutup sesi.
+  </p>
+</div>
+
+      <div className="payment-actions">
+        <button
+          type="button"
+          className="secondary-button"
+          onClick={cancelCloseCashierPreview}
+        >
+          Batal
+        </button>
+
+        <button
+          type="button"
+          className="danger-button"
+          onClick={confirmCloseCashierSession}
+        >
+          Tutup Kasir
+        </button>
+      </div>
+    </div>
+  </div>
+) : null}
         </section>
       </main>
     </div>
