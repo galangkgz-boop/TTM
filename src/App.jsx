@@ -22,7 +22,8 @@ import {
   fetchCurrentProfileFromSupabase,
   saveCashierSessionToSupabase,
   createCashFlowInSupabase,
-  createCashierClosingInSupabase
+  createCashierClosingInSupabase,
+  fetchCashierClosingsFromSupabase,
 } from "./services/supabaseDataService";
 import { supabase } from "./lib/supabaseClient";
 
@@ -256,6 +257,26 @@ function mapSupabaseSettings(settings) {
       settings.low_stock_threshold || defaultSettings.lowStockThreshold
     ),
     autoLoadSupabase: true,
+  };
+}
+
+function mapSupabaseCashierClosing(closing) {
+  return {
+    id: closing.id,
+    cashierSessionId: closing.cashier_session_id,
+    openedAt: closing.opened_at,
+    closedAt: closing.closed_at,
+    openingCash: Number(closing.opening_cash || 0),
+    salesTotal: Number(closing.sales_total || 0),
+    cashInTotal: Number(closing.cash_in_total || 0),
+    cashOutTotal: Number(closing.cash_out_total || 0),
+    discountTotal: Number(closing.discount_total || 0),
+    profitTotal: Number(closing.profit_total || 0),
+    transactionCount: Number(closing.transaction_count || 0),
+    estimatedClosingCash: Number(closing.estimated_closing_cash || 0),
+    actualClosingCash: Number(closing.actual_closing_cash || 0),
+    difference: Number(closing.difference || 0),
+    status: closing.status || "Belum dicek",
   };
 }
 
@@ -970,6 +991,7 @@ async function loadAllDataFromSupabaseSilently() {
     const supabaseStockBatches = await fetchStockBatchesFromSupabase();
     const supabaseSettings = await fetchStoreSettingsFromSupabase();
     const supabaseTransactions = await fetchTransactionsFromSupabase();
+    const supabaseCashierClosings = await fetchCashierClosingsFromSupabase();
 
     setProducts(supabaseProducts.map(mapSupabaseProduct));
     setProductVariants(supabaseProductVariants.map(mapSupabaseProductVariant));
@@ -980,6 +1002,10 @@ async function loadAllDataFromSupabaseSilently() {
         currentTransactions
       )
     );
+
+    setCashierClosings(
+  supabaseCashierClosings.map(mapSupabaseCashierClosing)
+);
 
     setStockBatches((currentStockBatches) => {
       const mappedSupabaseStockBatches = supabaseStockBatches.map(
@@ -1534,7 +1560,6 @@ async function lockPos() {
   stockBatches={stockBatches}
   settings={settings}
   cashierSession={cashierSession}
-  cashierClosings={cashierClosings}
   onOpenCashierSession={openCashierSession}
   onCloseCashierSession={closeCashierSession}
   onOpenCashierPage={() => setActivePage("cashier")}
@@ -1589,9 +1614,10 @@ async function lockPos() {
           ) : null}
 
           {activePage === "reports" ? (
-            <ReportsPage 
-              transactions={transactions} 
-            />
+  <ReportsPage
+    transactions={transactions}
+    cashierClosings={cashierClosings}
+  />
           ) : null}
 
           {activePage === "settings" ? (
@@ -2418,7 +2444,6 @@ function DashboardPage({
   stockBatches,
   settings,
   cashierSession,
-  cashierClosings,
   onOpenCashierSession,
   onCloseCashierSession,
   onOpenCashierPage,
@@ -2665,62 +2690,6 @@ const pendingTransactions = transactions.filter(
     </button>
   </div>
 ) : null}
-
-<div className="dashboard-section close-history-section">
-  <div className="section-title">
-    <h4>Riwayat Tutup Kasir</h4>
-    <p>5 sesi kasir terakhir yang sudah ditutup.</p>
-  </div>
-
-  <div className="close-history-list">
-    {(cashierClosings || []).slice(0, 5).map((closing) => (
-      <div key={closing.id} className="close-history-item">
-        <div>
-          <strong>
-            {new Date(closing.closedAt).toLocaleDateString("id-ID", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            })}
-          </strong>
-          <p>
-            {new Date(closing.openedAt).toLocaleTimeString("id-ID", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-            {" - "}
-            {new Date(closing.closedAt).toLocaleTimeString("id-ID", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </p>
-        </div>
-
-        <div>
-          <span>Estimasi</span>
-          <strong>{formatRupiah(closing.estimatedClosingCash || 0)}</strong>
-        </div>
-
-        <div>
-          <span>Fisik</span>
-          <strong>{formatRupiah(closing.actualClosingCash || 0)}</strong>
-        </div>
-
-        <div>
-          <span>Status</span>
-          <strong>{closing.status}</strong>
-          <p>Selisih {formatRupiah(Math.abs(closing.difference || 0))}</p>
-        </div>
-      </div>
-    ))}
-
-    {(cashierClosings || []).length === 0 ? (
-      <div className="empty-state">
-        Belum ada riwayat tutup kasir.
-      </div>
-    ) : null}
-  </div>
-</div>
 
       <div className="dashboard-grid">
         <div className="dashboard-section">
@@ -4303,7 +4272,7 @@ function ReceiptModal({ transaction, settings, onClose }) {
   );
 }
 
-function ReportsPage({ transactions }) {
+function ReportsPage({ transactions, cashierClosings }) {
   const [reportPeriod, setReportPeriod] = useState("all")
   function isTransactionInPeriod(transactionDate, period) {
   const date = new Date(transactionDate);
@@ -4354,6 +4323,25 @@ function ReportsPage({ transactions }) {
 
 const filteredTransactions = transactions.filter((transaction) =>
   isTransactionInPeriod(transaction.date, reportPeriod)
+);
+
+const filteredCashierClosings = (cashierClosings || []).filter((closing) =>
+  isTransactionInPeriod(closing.closedAt, reportPeriod)
+);
+
+const totalClosingCashIn = filteredCashierClosings.reduce(
+  (total, closing) => total + Number(closing.cashInTotal || 0),
+  0
+);
+
+const totalClosingCashOut = filteredCashierClosings.reduce(
+  (total, closing) => total + Number(closing.cashOutTotal || 0),
+  0
+);
+
+const totalClosingDifference = filteredCashierClosings.reduce(
+  (total, closing) => total + Number(closing.difference || 0),
+  0
 );
 
   const totalRevenue = filteredTransactions.reduce(
@@ -4525,10 +4513,103 @@ const filteredTransactions = transactions.filter((transaction) =>
           <span>Qty FIFO Keluar</span>
           <strong>{totalFifoQtySold}</strong>
         </div>
+        <div>
+  <span>Sesi Kasir Ditutup</span>
+  <strong>{filteredCashierClosings.length}</strong>
+</div>
+
+<div>
+  <span>Pemasukan Kasir</span>
+  <strong>{formatRupiah(totalClosingCashIn)}</strong>
+</div>
+
+<div>
+  <span>Pengeluaran Kasir</span>
+  <strong>{formatRupiah(totalClosingCashOut)}</strong>
+</div>
+
+<div>
+  <span>Total Selisih Kasir</span>
+  <strong>{formatRupiah(Math.abs(totalClosingDifference))}</strong>
+</div>
       </div>
 
       <div className="reports-section">
         <div className="section-title">
+          <div className="reports-section">
+  <div className="section-title">
+    <h4>Riwayat Tutup Kasir</h4>
+    <p>Rekap sesi kasir berdasarkan periode laporan yang dipilih.</p>
+  </div>
+
+  <div className="reports-table-wrap">
+    <table className="reports-table">
+      <thead>
+        <tr>
+          <th>Tanggal</th>
+          <th>Jam</th>
+          <th>Modal Awal</th>
+          <th>Penjualan</th>
+          <th>Pemasukan</th>
+          <th>Pengeluaran</th>
+          <th>Estimasi</th>
+          <th>Fisik</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {filteredCashierClosings.slice(0, 20).map((closing) => (
+          <tr key={closing.id}>
+            <td>
+              {new Date(closing.closedAt).toLocaleDateString("id-ID", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                timeZone: "Asia/Jakarta",
+              })}
+            </td>
+
+            <td>
+              {new Date(closing.openedAt).toLocaleTimeString("id-ID", {
+                hour: "2-digit",
+                minute: "2-digit",
+                timeZone: "Asia/Jakarta",
+              })}
+              {" - "}
+              {new Date(closing.closedAt).toLocaleTimeString("id-ID", {
+                hour: "2-digit",
+                minute: "2-digit",
+                timeZone: "Asia/Jakarta",
+              })}
+            </td>
+
+            <td>{formatRupiah(closing.openingCash || 0)}</td>
+            <td>{formatRupiah(closing.salesTotal || 0)}</td>
+            <td>{formatRupiah(closing.cashInTotal || 0)}</td>
+            <td>{formatRupiah(closing.cashOutTotal || 0)}</td>
+            <td>{formatRupiah(closing.estimatedClosingCash || 0)}</td>
+            <td>{formatRupiah(closing.actualClosingCash || 0)}</td>
+
+            <td>
+              <strong>{closing.status}</strong>
+              <br />
+              <span>
+                Selisih {formatRupiah(Math.abs(closing.difference || 0))}
+              </span>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+
+    {filteredCashierClosings.length === 0 ? (
+      <div className="empty-state">
+        Belum ada riwayat tutup kasir pada periode ini.
+      </div>
+    ) : null}
+  </div>
+</div>
           <h4>Produk / Varian Terlaris</h4>
           <p>Diurutkan berdasarkan qty jual. Qty FIFO menunjukkan stok asli yang keluar.</p>
         </div>
