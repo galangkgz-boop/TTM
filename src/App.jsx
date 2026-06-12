@@ -20,6 +20,7 @@ import {
   updateProductVariantInSupabase,
   createStockBatchInSupabase,
   fetchCurrentProfileFromSupabase,
+  saveCashierSessionToSupabase,
 } from "./services/supabaseDataService";
 import { supabase } from "./lib/supabaseClient";
 
@@ -389,6 +390,7 @@ function App() {
 
   if (!savedSession) {
     return {
+      id: null,
       isOpen: false,
       openedAt: null,
       closedAt: null,
@@ -1154,7 +1156,7 @@ async function retrySingleTransactionSync(transaction) {
   }
 }
 
-function openCashierSession() {
+async function openCashierSession() {
   if (cashierSession.isOpen) {
     alert("Kasir sudah dibuka.");
     return;
@@ -1168,16 +1170,30 @@ function openCashierSession() {
     return;
   }
 
-  setCashierSession({
+  const openedAt = new Date().toISOString();
+
+  const newSession = {
+    id: Date.now(),
     isOpen: true,
-    openedAt: new Date().toISOString(),
+    openedAt: openedAt,
     closedAt: null,
     openingCash: openingCash,
     cashIn: [],
     cashOut: [],
-  });
+  };
 
-  alert("Kasir berhasil dibuka.");
+  setCashierSession(newSession);
+
+  try {
+    await saveCashierSessionToSupabase(newSession);
+    alert("Kasir berhasil dibuka dan tersimpan ke Supabase.");
+  } catch (error) {
+    console.error(error);
+    alert(
+      "Kasir berhasil dibuka lokal, tapi gagal tersimpan ke Supabase: " +
+        error.message
+    );
+  }
 }
 
 function openCashFlowModal(type) {
