@@ -3580,3 +3580,264 @@
     flex-direction: column;
   }
 }
+
+/* =========================
+   UI Upgrade: Products Page
+========================= */
+
+.products-header {
+  align-items: center;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background:
+    linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(34, 197, 94, 0.08)),
+    #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.products-header h3 {
+  margin: 0 0 6px;
+  color: #0f172a;
+  font-size: 24px;
+  letter-spacing: -0.03em;
+}
+
+.products-header .muted {
+  margin: 0;
+  color: #64748b;
+  font-weight: 650;
+}
+
+.products-header .primary-action-button {
+  min-width: 150px;
+  border-radius: 999px;
+  box-shadow: 0 12px 26px rgba(22, 163, 74, 0.20);
+}
+
+.products-summary {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.products-summary div {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 18px;
+  background: #ffffff;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
+}
+
+.products-summary div::after {
+  content: "";
+  position: absolute;
+  right: -34px;
+  top: -34px;
+  width: 92px;
+  height: 92px;
+  border-radius: 999px;
+  background: rgba(251, 191, 36, 0.14);
+}
+
+.products-summary span {
+  display: block;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.products-summary strong {
+  display: block;
+  color: #0f172a;
+  font-size: 26px;
+  letter-spacing: -0.04em;
+}
+
+.products-table-wrap {
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  overflow: auto;
+  background: #ffffff;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
+}
+
+.products-table {
+  min-width: 840px;
+}
+
+.products-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.products-table td {
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.products-table tbody tr:hover td {
+  background: #f8fafc;
+}
+
+.products-table td strong {
+  color: #0f172a;
+  font-weight: 950;
+}
+
+.inactive-product-row {
+  opacity: 0.54;
+}
+
+.product-status,
+.variant-count-pill {
+  border-radius: 999px;
+  padding: 7px 10px;
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.product-status.active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.product-status.inactive {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.variant-count-pill {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.table-actions {
+  gap: 7px;
+}
+
+.small-edit-button,
+.small-danger-button,
+.small-activate-button,
+.small-variant-button {
+  border-radius: 999px;
+  padding: 8px 11px;
+  font-size: 12px;
+  font-weight: 950;
+  transition: 0.16s ease;
+}
+
+.small-edit-button:hover,
+.small-danger-button:hover,
+.small-activate-button:hover,
+.small-variant-button:hover {
+  transform: translateY(-1px);
+}
+
+.small-edit-button {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.small-variant-button {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.small-activate-button {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.small-danger-button {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.product-modal,
+.variant-modal {
+  border-radius: 28px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 28px 90px rgba(15, 23, 42, 0.30);
+}
+
+.product-form,
+.variant-form {
+  gap: 15px;
+}
+
+.product-form label,
+.variant-form label {
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.product-form input,
+.variant-form input {
+  border-color: #cbd5e1;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.product-form input:focus,
+.variant-form input:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.13);
+}
+
+.variant-list {
+  gap: 10px;
+}
+
+.variant-item {
+  border-color: #e2e8f0;
+  border-radius: 20px;
+  background: #f8fafc;
+}
+
+.variant-item strong {
+  color: #0f172a;
+  font-weight: 950;
+}
+
+.variant-item p {
+  color: #64748b;
+  font-weight: 650;
+}
+
+.variant-actions {
+  gap: 7px;
+}
+
+@media (max-width: 760px) {
+  .products-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .products-header .primary-action-button {
+    width: 100%;
+  }
+
+  .products-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .product-modal,
+  .variant-modal {
+    padding: 18px;
+    border-radius: 24px;
+  }
+}
