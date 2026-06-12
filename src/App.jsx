@@ -21,6 +21,7 @@ import {
   createStockBatchInSupabase,
   fetchCurrentProfileFromSupabase,
   saveCashierSessionToSupabase,
+  createCashFlowInSupabase
 } from "./services/supabaseDataService";
 import { supabase } from "./lib/supabaseClient";
 
@@ -1213,7 +1214,7 @@ function closeCashFlowModal() {
   setCashFlowAmount("");
 }
 
-function submitCashFlow(event) {
+async function submitCashFlow(event) {
   event.preventDefault();
 
   const note = cashFlowNote.trim();
@@ -1236,6 +1237,7 @@ function submitCashFlow(event) {
 
   const newCashFlow = {
     id: Date.now(),
+    cashierSessionId: cashierSession.id,
     type: cashFlowModalType,
     note: note,
     amount: amount,
@@ -1256,11 +1258,23 @@ function submitCashFlow(event) {
     };
   });
 
-  alert(
-    cashFlowModalType === "in"
-      ? "Pemasukan berhasil dicatat."
-      : "Pengeluaran berhasil dicatat."
-  );
+  try {
+    await createCashFlowInSupabase(newCashFlow);
+
+    alert(
+      cashFlowModalType === "in"
+        ? "Pemasukan berhasil dicatat dan tersimpan ke Supabase."
+        : "Pengeluaran berhasil dicatat dan tersimpan ke Supabase."
+    );
+  } catch (error) {
+    console.error(error);
+
+    alert(
+      cashFlowModalType === "in"
+        ? "Pemasukan tersimpan lokal, tapi gagal masuk Supabase: " + error.message
+        : "Pengeluaran tersimpan lokal, tapi gagal masuk Supabase: " + error.message
+    );
+  }
 
   closeCashFlowModal();
 }
