@@ -362,6 +362,13 @@ function App() {
   const activeMenu = menus.find((menu) => menu.id === activePage);
   const pageTitle = activeMenu ? activeMenu.label : "Kasir";
 
+  const todayLabel = new Date().toLocaleDateString("id-ID", {
+  weekday: "long",
+  day: "2-digit",
+  month: "long",
+  year: "numeric",
+});
+
   const supabaseStatusLabel =
   supabaseStatus === "connected"
     ? "Supabase Terhubung"
@@ -1169,6 +1176,7 @@ async function lockPos() {
       </aside>
 
       <main className="main-content">
+        <div className="date-pill">{todayLabel}</div>
         <header className="topbar">
           <div>
             <p className="eyebrow">POS Toko</p>
@@ -1176,13 +1184,14 @@ async function lockPos() {
           </div>
 
           <div className="topbar-status-group">
-  <div className={isOnline ? "connection-pill online" : "connection-pill offline"}>
-    {isOnline ? "Online" : "Offline"}
-  </div>
 
-  <div className={"supabase-pill " + supabaseStatus}>
-    {supabaseStatusLabel}
-  </div>
+            <div className={isOnline ? "connection-pill online" : "connection-pill offline"}>
+          {isOnline ? "Online" : "Offline"}
+            </div>
+
+          <div className={"supabase-pill " + supabaseStatus}>
+           {supabaseStatusLabel}
+          </div>
 
   <div
     className={
@@ -1326,9 +1335,17 @@ function CashierPage({ products, productVariants, stockBatches, transactions, se
 }, [productVariants]);
 
   const categories = useMemo(() => {
-    const uniqueCategories = activeProducts.map((product) => product.category);
-    return ["Semua", ...new Set(uniqueCategories)];
-  }, [activeProducts]);
+  const uniqueCategories = activeProducts
+    .map((product) => product.category)
+    .filter(Boolean);
+
+  return [
+    "Semua",
+    ...Array.from(new Set(uniqueCategories)).sort((a, b) =>
+      a.localeCompare(b, "id-ID")
+    ),
+  ];
+}, [activeProducts]);
 
   const filteredProducts = useMemo(() => {
     const keyword = search.trim().toLowerCase();
@@ -1361,7 +1378,24 @@ function CashierPage({ products, productVariants, stockBatches, transactions, se
     !isDiscountTooLarge &&
     numericCashReceived >= cartTotal;
 
-  function addToCart(product, variant) {
+function getCartReservedQty(productId) {
+  return cart
+    .filter((item) => item.productId === productId || item.id === productId)
+    .reduce(
+      (total, item) =>
+        total + Number(item.qty || 0) * Number(item.qtyMultiplier || 1),
+      0
+    );
+}
+
+function getDisplayStock(productId) {
+  const realStock = getProductStockFromBatches(productId, stockBatches);
+  const reservedStock = getCartReservedQty(productId);
+
+  return Math.max(0, realStock - reservedStock);
+}
+
+function addToCart(product, variant) {
   const selectedVariant = variant || null;
   const qtyMultiplier = selectedVariant ? Number(selectedVariant.qtyMultiplier || 1) : 1;
 
@@ -1391,13 +1425,14 @@ function CashierPage({ products, productVariants, stockBatches, transactions, se
   );
 
 const nextFifoQty = currentFifoQty + qtyMultiplier;
+const displayStock = getDisplayStock(product.id, product.stock);
 
 if (nextFifoQty > Number(product.stock || 0)) {
   alert("Stok tidak cukup untuk pilihan ini.");
   return currentCart;
 }
 
-    if (existingItem) {
+if (existingItem) {
       return currentCart.map((item) =>
         item.cartItemId === cartItemId
           ? {
@@ -1406,7 +1441,7 @@ if (nextFifoQty > Number(product.stock || 0)) {
             }
           : item
       );
-    }
+}
 
     return [
       ...currentCart,
@@ -1429,7 +1464,7 @@ if (nextFifoQty > Number(product.stock || 0)) {
   });
 }
 
-  function increaseQty(cartItemId) {
+function increaseQty(cartItemId) {
   setCart((currentCart) => {
     const selectedItem = currentCart.find(
       (item) => item.cartItemId === cartItemId
@@ -1597,13 +1632,29 @@ function finishTransaction() {
           <div className="product-grid">
             {filteredProducts.map((product) => {
   const productVariantsForCashier = activeVariantsByProductId[product.id] || [];
+  const reservedQty = cart
+  .filter((item) => item.productId === product.id)
+  .reduce(
+    (total, item) =>
+      total + Number(item.qty || 0) * Number(item.qtyMultiplier || 1),
+    0
+  );
+
+const displayStock = Math.max(0, Number(product.stock || 0) - reservedQty);
 
   return (
-    <div key={product.id} className="product-card">
+    <div
+  key={product.id}
+  className={
+    productVariantsForCashier.length > 0
+      ? "product-card has-variants"
+      : "product-card no-variants"
+  }
+>
       <button
   type="button"
   className="product-main-button"
-  disabled={Number(product.stock || 0) <= 0}
+  disabled={Number(displayStock || 0) <= 0}
   onClick={() => addToCart(product, null)}
 >
         <div>
@@ -1612,9 +1663,13 @@ function finishTransaction() {
         </div>
 
         <div className="product-card-footer">
-          <strong>{formatRupiah(product.price)}</strong>
+          <strong>
+  {productVariantsForCashier.length > 0
+    ? productVariantsForCashier.length + " varian"
+    : formatRupiah(product.price)}
+</strong>
 <span>
-  {Number(product.stock || 0) <= 0 ? "Stok habis" : "Stok " + product.stock}
+  {Number(displayStock || 0) <= 0 ? "Stok habis" : "Stok " + displayStock}
 </span>
         </div>
       </button>
@@ -1623,7 +1678,7 @@ function finishTransaction() {
         <div className="cashier-variant-list">
           {productVariantsForCashier.map((variant) => {
   const variantStockNeeded = Number(variant.qtyMultiplier || 1);
-  const isVariantOutOfStock = Number(product.stock || 0) < variantStockNeeded;
+  const isVariantOutOfStock = Number(displayStock || 0) < variantStockNeeded;
 
   return (
     <button
@@ -2148,9 +2203,7 @@ function ProductsPage({
   const [variantQtyMultiplier, setVariantQtyMultiplier] = useState("");
   const [variantPrice, setVariantPrice] = useState("");
 
-  const sortedProducts = [...products].sort((a, b) =>
-    a.name.localeCompare(b.name)
-  );
+  const sortedProducts = [...products].sort((a, b) => a.name.localeCompare(b.name, "id-ID"));
 
   const activeProductCount = products.filter((product) => product.active).length;
   const inactiveProductCount = products.length - activeProductCount;
