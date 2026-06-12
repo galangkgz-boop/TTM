@@ -359,3 +359,81 @@ export async function fetchCurrentProfileFromSupabase(userId) {
   return data;
 }
 
+export async function saveCashierSessionToSupabase(session) {
+  const row = {
+    id: session.id,
+    opened_at: session.openedAt,
+    closed_at: session.closedAt || null,
+    opening_cash: Number(session.openingCash || 0),
+    actual_closing_cash:
+      session.actualClosingCash === undefined ? null : Number(session.actualClosingCash || 0),
+    estimated_closing_cash:
+      session.estimatedClosingCash === undefined ? null : Number(session.estimatedClosingCash || 0),
+    closing_cash_difference:
+      session.closingCashDifference === undefined ? null : Number(session.closingCashDifference || 0),
+    closing_cash_status: session.closingCashStatus || null,
+    is_open: session.isOpen === true,
+  };
+
+  const { error } = await supabase.from("cashier_sessions").upsert(row);
+
+  if (error) {
+    throw error;
+  }
+}
+
+export async function createCashFlowInSupabase(cashFlow) {
+  const row = {
+    id: cashFlow.id,
+    cashier_session_id: cashFlow.cashierSessionId || null,
+    type: cashFlow.type,
+    note: cashFlow.note,
+    amount: Number(cashFlow.amount || 0),
+    created_at: cashFlow.createdAt,
+  };
+
+  const { error } = await supabase.from("cash_flows").upsert(row);
+
+  if (error) {
+    throw error;
+  }
+}
+
+export async function createCashierClosingInSupabase(closing) {
+  const row = {
+    id: closing.id,
+    cashier_session_id: closing.cashierSessionId || null,
+    opened_at: closing.openedAt || null,
+    closed_at: closing.closedAt,
+    opening_cash: Number(closing.openingCash || 0),
+    sales_total: Number(closing.salesTotal || 0),
+    cash_in_total: Number(closing.cashInTotal || 0),
+    cash_out_total: Number(closing.cashOutTotal || 0),
+    discount_total: Number(closing.discountTotal || 0),
+    profit_total: Number(closing.profitTotal || 0),
+    transaction_count: Number(closing.transactionCount || 0),
+    estimated_closing_cash: Number(closing.estimatedClosingCash || 0),
+    actual_closing_cash: Number(closing.actualClosingCash || 0),
+    difference: Number(closing.difference || 0),
+    status: closing.status || "Belum dicek",
+  };
+
+  const { error } = await supabase.from("cashier_closings").upsert(row);
+
+  if (error) {
+    throw error;
+  }
+}
+
+export async function fetchCashierClosingsFromSupabase() {
+  const { data, error } = await supabase
+    .from("cashier_closings")
+    .select("*")
+    .order("closed_at", { ascending: false });
+
+  if (error) {
+    throw error;
+  }
+
+  return data || [];
+}
