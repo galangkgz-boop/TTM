@@ -256,6 +256,9 @@ function mapSupabaseSettings(settings) {
 function App() {
   const [activePage, setActivePage] = useState("cashier");
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [pinInput, setPinInput] = useState("");
+    const appPin = import.meta.env.VITE_APP_PIN || "123456";
   const [supabaseStatus, setSupabaseStatus] = useState("idle");
   const [products, setProducts] = useState(() => {
   const savedProducts = localStorage.getItem(PRODUCTS_STORAGE_KEY);
@@ -421,6 +424,19 @@ useEffect(() => {
     window.removeEventListener("offline", handleOffline);
   };
 }, [transactions, stockBatches]);
+
+function submitPin(event) {
+  event.preventDefault();
+
+  if (pinInput === appPin) {
+    setIsUnlocked(true);
+    setPinInput("");
+    return;
+  }
+
+  alert("PIN salah.");
+  setPinInput("");
+}
 
 function reduceProductStock(cartItems) {
   setProducts((currentProducts) =>
@@ -1028,6 +1044,33 @@ async function retrySingleTransactionSync(transaction) {
 
     alert("Gagal sinkron ulang transaksi: " + error.message);
   }
+}
+
+if (isUnlocked === false) {
+  return (
+    <div className="lock-screen">
+      <form className="lock-card" onSubmit={submitPin}>
+        <div className="brand-logo">TTM</div>
+
+        <div>
+          <h1>{settings.storeName}</h1>
+          <p>Masukkan PIN untuk membuka POS.</p>
+        </div>
+
+        <input
+          type="password"
+          value={pinInput}
+          onChange={(event) => setPinInput(event.target.value)}
+          placeholder="PIN"
+          autoFocus
+        />
+
+        <button type="submit" className="finish-button">
+          Masuk
+        </button>
+      </form>
+    </div>
+  );
 }
 
   return (
