@@ -19,7 +19,9 @@ import {
   createProductVariantInSupabase,
   updateProductVariantInSupabase,
   createStockBatchInSupabase,
+  fetchCurrentProfileFromSupabase,
 } from "./services/supabaseDataService";
+import { supabase } from "./lib/supabaseClient";
 
 const TRANSACTIONS_STORAGE_KEY = "ttm_pos_transactions";
 const STOCK_BATCHES_STORAGE_KEY = "ttm_pos_stock_batches";
@@ -257,8 +259,10 @@ function App() {
   const [activePage, setActivePage] = useState("cashier");
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isUnlocked, setIsUnlocked] = useState(false);
-  const [pinInput, setPinInput] = useState("");
-    const appPin = import.meta.env.VITE_APP_PIN || "123456";
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [currentProfile, setCurrentProfile] = useState(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [supabaseStatus, setSupabaseStatus] = useState("idle");
   const [products, setProducts] = useState(() => {
   const savedProducts = localStorage.getItem(PRODUCTS_STORAGE_KEY);
@@ -338,15 +342,22 @@ function App() {
     transaction.syncStatus === "failed" || transaction.syncStatus === "pending"
 ).length;
 
+  const currentRole = currentProfile ? currentProfile.role : "cashier";
+
   const menus = [
-  { id: "dashboard", label: "Dashboard" },
-  { id: "cashier", label: "Kasir" },
-  { id: "products", label: "Produk" },
-  { id: "inventory", label: "Stok" },
-  { id: "transactions", label: "Riwayat", badge: unsyncedTransactionCount, },
-  { id: "reports", label: "Laporan" },
-  { id: "settings", label: "Pengaturan" },
-];
+  { id: "dashboard", label: "Dashboard", roles: ["admin"] },
+  { id: "cashier", label: "Kasir", roles: ["admin", "cashier"] },
+  { id: "products", label: "Produk", roles: ["admin"] },
+  { id: "inventory", label: "Stok", roles: ["admin"] },
+  {
+    id: "transactions",
+    label: "Riwayat",
+    badge: unsyncedTransactionCount,
+    roles: ["admin", "cashier"],
+  },
+  { id: "reports", label: "Laporan", roles: ["admin"] },
+  { id: "settings", label: "Pengaturan", roles: ["admin"] },
+].filter((menu) => menu.roles.includes(currentRole));
 
   const activeMenu = menus.find((menu) => menu.id === activePage);
   const pageTitle = activeMenu ? activeMenu.label : "Kasir";
@@ -425,17 +436,58 @@ useEffect(() => {
   };
 }, [transactions, stockBatches]);
 
-function submitPin(event) {
-  event.preventDefault();
-
-  if (pinInput === appPin) {
-    setIsUnlocked(true);
-    setPinInput("");
+useEffect(() => {
+  if (menus.length === 0) {
     return;
   }
 
-  alert("PIN salah.");
-  setPinInput("");
+  const canAccessCurrentPage = menus.some((menu) => menu.id === activePage);
+
+  if (canAccessCurrentPage === false) {
+    setActivePage("cashier");
+  }
+}, [currentRole, activePage]);
+
+async function submitLogin(event) {
+  event.preventDefault();
+
+  if (!loginEmail.trim() || !loginPassword.trim()) {
+    alert("Email dan password wajib diisi.");
+    return;
+  }
+
+  setIsAuthLoading(true);
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: loginEmail.trim(),
+    password: loginPassword,
+  });
+
+  if (error) {
+    setIsAuthLoading(false);
+    alert("Login gagal: " + error.message);
+    return;
+  }
+
+  try {
+    const profile = await fetchCurrentProfileFromSupabase(data.user.id);
+
+    if (profile.active !== true) {
+      await supabase.auth.signOut();
+      setIsAuthLoading(false);
+      alert("Akun ini tidak aktif.");
+      return;
+    }
+
+    setCurrentProfile(profile);
+    setIsUnlocked(true);
+    setLoginPassword("");
+  } catch (profileError) {
+    await supabase.auth.signOut();
+    alert("Gagal membaca role user: " + profileError.message);
+  }
+
+  setIsAuthLoading(false);
 }
 
 function reduceProductStock(cartItems) {
@@ -1049,33 +1101,42 @@ async function retrySingleTransactionSync(transaction) {
 if (isUnlocked === false) {
   return (
     <div className="lock-screen">
-      <form className="lock-card" onSubmit={submitPin}>
+      <form className="lock-card" onSubmit={submitLogin}>
         <div className="brand-logo">TTM</div>
 
         <div>
           <h1>{settings.storeName}</h1>
-          <p>Masukkan PIN untuk membuka POS.</p>
+          <p>Login sesuai akun Admin atau Kasir.</p>
         </div>
 
         <input
-          type="password"
-          value={pinInput}
-          onChange={(event) => setPinInput(event.target.value)}
-          placeholder="PIN"
+          type="email"
+          value={loginEmail}
+          onChange={(event) => setLoginEmail(event.target.value)}
+          placeholder="Email"
           autoFocus
         />
 
-        <button type="submit" className="finish-button">
-          Masuk
+        <input
+          type="password"
+          value={loginPassword}
+          onChange={(event) => setLoginPassword(event.target.value)}
+          placeholder="Password"
+        />
+
+        <button type="submit" className="finish-button" disabled={isAuthLoading}>
+          {isAuthLoading ? "Masuk..." : "Masuk"}
         </button>
       </form>
     </div>
   );
 }
 
-function lockPos() {
+async function lockPos() {
+  await supabase.auth.signOut();
   setIsUnlocked(false);
-  setPinInput("");
+  setCurrentProfile(null);
+  setLoginPassword("");
 }
 
   return (
@@ -1134,6 +1195,10 @@ function lockPos() {
   </div>
 
   <div className="status-pill">POS Online</div>
+
+  <div className="status-pill">
+  {currentProfile ? currentProfile.name + " - " + currentProfile.role : "User"}
+</div>
 
   <button type="button" className="lock-button" onClick={lockPos}>
   Lock

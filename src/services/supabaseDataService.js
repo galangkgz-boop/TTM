@@ -345,3 +345,17 @@ export async function fetchTransactionsFromSupabase() {
   return data || [];
 }
 
+export async function fetchCurrentProfileFromSupabase(userId) {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", userId)
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
