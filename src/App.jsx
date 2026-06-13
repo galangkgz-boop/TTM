@@ -2565,79 +2565,165 @@ const pendingTransactions = transactions.filter(
   (transaction) => transaction.syncStatus === "pending"
 );
 
+const dashboardCashierOpenTime = cashierSession.openedAt
+  ? new Date(cashierSession.openedAt)
+  : null;
+
+const dashboardCashierTransactions = dashboardCashierOpenTime
+  ? transactions.filter((transaction) => {
+      const transactionDate = new Date(transaction.date);
+      return transactionDate >= dashboardCashierOpenTime;
+    })
+  : [];
+
+const dashboardCashierSalesTotal = dashboardCashierTransactions.reduce(
+  (total, transaction) => total + Number(transaction.total || 0),
+  0
+);
+
+const dashboardCashierProfitTotal = dashboardCashierTransactions.reduce(
+  (total, transaction) => total + Number(transaction.profit || 0),
+  0
+);
+
+const dashboardCashInTotal = (cashierSession.cashIn || []).reduce(
+  (total, item) => total + Number(item.amount || 0),
+  0
+);
+
+const dashboardCashOutTotal = (cashierSession.cashOut || []).reduce(
+  (total, item) => total + Number(item.amount || 0),
+  0
+);
+
+const dashboardEstimatedCash =
+  Number(cashierSession.openingCash || 0) +
+  dashboardCashierSalesTotal +
+  dashboardCashInTotal -
+  dashboardCashOutTotal;
+
   return (
     <div>
       <div className="dashboard-header">
+  <div className="dashboard-hero-grid">
+    <div className="cashier-command-panel">
+      <div>
+        <span>Status Kasir</span>
+        <strong>{cashierSession.isOpen ? "Kasir Dibuka" : "Kasir Ditutup"}</strong>
+        <p>
+          {cashierSession.isOpen && cashierSession.openedAt
+            ? "Dibuka " +
+              new Date(cashierSession.openedAt).toLocaleTimeString("id-ID", {
+                hour: "2-digit",
+                minute: "2-digit",
+                timeZone: "Asia/Jakarta",
+              })
+            : "Buka kasir sebelum mulai transaksi."}
+        </p>
+      </div>
+
+      <div className="cashier-command-actions">
+        <button
+          type="button"
+          className="primary-action-button"
+          onClick={onOpenCashierSession}
+          disabled={cashierSession.isOpen}
+        >
+          Buka Kasir
+        </button>
+
+        <button
+          type="button"
+          className="secondary-button"
+          onClick={onOpenCashierPage}
+          disabled={!cashierSession.isOpen}
+        >
+          Ke Kasir
+        </button>
+
+        <button
+          type="button"
+          className="secondary-button"
+          onClick={onOpenCashInModal}
+          disabled={!cashierSession.isOpen}
+        >
+          Pemasukan
+        </button>
+
+        <button
+          type="button"
+          className="secondary-button"
+          onClick={onOpenCashOutModal}
+          disabled={!cashierSession.isOpen}
+        >
+          Pengeluaran
+        </button>
+
+        <button
+          type="button"
+          className="danger-button"
+          onClick={onCloseCashierSession}
+          disabled={!cashierSession.isOpen}
+        >
+          Tutup Kasir
+        </button>
+      </div>
+    </div>
+
+    <div className="cashier-today-panel">
+      <div className="cashier-today-panel-header">
         <div>
-          <div className="cashier-command-panel">
-  <div>
-    <span>Status Kasir</span>
-    <strong>{cashierSession.isOpen ? "Kasir Dibuka" : "Kasir Ditutup"}</strong>
-    <p>
-      {cashierSession.isOpen && cashierSession.openedAt
-        ? "Dibuka " +
-          new Date(cashierSession.openedAt).toLocaleTimeString("id-ID", {
-  hour: "2-digit",
-  minute: "2-digit",
-  timeZone: "Asia/Jakarta",
-})
-        : "Buka kasir sebelum mulai transaksi."}
-    </p>
-  </div>
+          <span>Ringkasan Kasir Hari Ini</span>
+          <strong>{formatRupiah(dashboardEstimatedCash)}</strong>
+          <p>Estimasi uang akhir kasir saat ini.</p>
+        </div>
 
-  <div className="cashier-command-actions">
-    <button
-      type="button"
-      className="primary-action-button"
-      onClick={onOpenCashierSession}
-      disabled={cashierSession.isOpen}
-    >
-      Buka Kasir
-    </button>
-
-    <button
-      type="button"
-      className="secondary-button"
-      onClick={onOpenCashierPage}
-      disabled={!cashierSession.isOpen}
-    >
-      Ke Kasir
-    </button>
-
-    <button
-  type="button"
-  className="secondary-button"
-  onClick={onOpenCashInModal}
-  disabled={!cashierSession.isOpen}
->
-  Pemasukan
-</button>
-
-    <button
-  type="button"
-  className="secondary-button"
-  onClick={onOpenCashOutModal}
-  disabled={!cashierSession.isOpen}
->
-  Pengeluaran
-</button>
-
-    <button
-      type="button"
-      className="danger-button"
-      onClick={onCloseCashierSession}
-      disabled={!cashierSession.isOpen}
-    >
-      Tutup Kasir
-    </button>
-  </div>
-</div>
-          <h3>Dashboard</h3>
-          <p className="muted">
-            Ringkasan performa toko hari ini berdasarkan transaksi dan stok FIFO.
-          </p>
+        <div className={cashierSession.isOpen ? "cashier-today-status open" : "cashier-today-status closed"}>
+          {cashierSession.isOpen ? "Aktif" : "Tutup"}
         </div>
       </div>
+
+      <div className="cashier-today-metrics">
+        <div>
+          <span>Modal Awal</span>
+          <strong>{formatRupiah(cashierSession.openingCash || 0)}</strong>
+        </div>
+
+        <div>
+          <span>Penjualan</span>
+          <strong>{formatRupiah(dashboardCashierSalesTotal)}</strong>
+        </div>
+
+        <div>
+          <span>Pemasukan</span>
+          <strong>{formatRupiah(dashboardCashInTotal)}</strong>
+        </div>
+
+        <div>
+          <span>Pengeluaran</span>
+          <strong>{formatRupiah(dashboardCashOutTotal)}</strong>
+        </div>
+
+        <div>
+          <span>Transaksi Sesi</span>
+          <strong>{dashboardCashierTransactions.length}</strong>
+        </div>
+
+        <div>
+          <span>Profit Sesi</span>
+          <strong>{formatRupiah(dashboardCashierProfitTotal)}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div className="dashboard-title-row">
+    <h3>Dashboard</h3>
+    <p className="muted">
+      Ringkasan performa toko hari ini berdasarkan transaksi dan stok FIFO.
+    </p>
+  </div>
+</div>
 
       <div className="dashboard-summary">
         <div>
