@@ -2277,7 +2277,7 @@ const displayStock = Math.max(0, Number(product.stock || 0) - reservedQty);
           </div>
         </div>
 
-        <div className="cart-area">
+        <div className="cart-panel">
           <div className="cart-header">
             <div>
               <h4>Keranjang</h4>
@@ -2291,11 +2291,11 @@ const displayStock = Math.max(0, Number(product.stock || 0) - reservedQty);
             ) : null}
           </div>
 
-          <div className="cart-list">
+          <div className="cart-items">
             {cart.map((item) => (
               <div key={item.cartItemId} className="cart-item">
-                <div>
-                  <h5>{item.name}</h5>
+  <div className="cart-item-main">
+    <h5>{item.name}</h5>
                   <p>
   {formatRupiah(item.price)} / {item.unit}
   {Number(item.qtyMultiplier || 1) > 1

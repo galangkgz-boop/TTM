@@ -523,7 +523,7 @@
   }
 }
 
-/* KASIR FINAL - kanan naik, produk scroll, tombol bayar aman */
+/* KASIR VIEWPORT FIX - target wrapper asli CashierPage */
 @media (min-width: 1100px) {
   .main-content:has(.cashier-layout) {
     height: 100dvh !important;
@@ -545,8 +545,15 @@
     margin-top: 8px !important;
     padding: 10px !important;
     overflow: hidden !important;
-    display: grid !important;
-    grid-template-rows: auto minmax(0, 1fr) !important;
+    display: block !important;
+  }
+
+  .page-card:has(.cashier-layout) > div {
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 
   .cashier-header {
@@ -554,25 +561,28 @@
   }
 
   .cashier-layout {
+    flex: 1 1 auto !important;
     height: 100% !important;
     min-height: 0 !important;
     overflow: hidden !important;
-    align-items: stretch !important;
-    grid-template-columns: minmax(0, 1fr) 300px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 360px !important;
     gap: 12px !important;
+    align-items: stretch !important;
   }
 
   .product-area {
     height: 100% !important;
     min-height: 0 !important;
     overflow: hidden !important;
-    display: grid !important;
-    grid-template-rows: auto auto minmax(0, 1fr) !important;
+    display: flex !important;
+    flex-direction: column !important;
     padding: 10px !important;
     border-radius: 20px !important;
   }
 
   .product-toolbar {
+    flex: 0 0 auto !important;
     margin-bottom: 8px !important;
   }
 
@@ -581,6 +591,7 @@
   }
 
   .category-tabs {
+    flex: 0 0 auto !important;
     margin-bottom: 8px !important;
   }
 
@@ -591,7 +602,7 @@
   }
 
   .product-grid {
-    height: 100% !important;
+    flex: 1 1 auto !important;
     min-height: 0 !important;
     max-height: none !important;
     overflow-y: auto !important;
@@ -602,14 +613,16 @@
     height: 100% !important;
     min-height: 0 !important;
     overflow: hidden !important;
-    display: grid !important;
-    grid-template-rows: auto minmax(0, 1fr) auto !important;
+    display: flex !important;
+    flex-direction: column !important;
     align-self: stretch !important;
+    margin-top: 0 !important;
     padding: 0 !important;
     border-radius: 20px !important;
   }
 
   .cart-area .cart-header {
+    flex: 0 0 auto !important;
     padding: 12px 14px !important;
   }
 
@@ -624,17 +637,15 @@
   }
 
   .cart-list {
+    flex: 1 1 auto !important;
     min-height: 0 !important;
     overflow-y: auto !important;
     padding: 10px !important;
   }
 
-  .empty-cart {
-    min-height: 110px !important;
-  }
-
   .cart-summary {
-    padding: 10px 12px !important;
+    flex: 0 0 auto !important;
+    padding: 10px 12px 16px !important;
     background: #ffffff !important;
     border-top: 1px solid rgba(226, 232, 240, 0.95) !important;
   }
@@ -656,5 +667,72 @@
     width: 100% !important;
     min-height: 38px !important;
     margin-top: 8px !important;
+    margin-bottom: 4px !important;
+  }
+}
+
+/* Step 2: cart-panel isi penuh area kanan */
+@media (min-width: 1100px) {
+  .cart-panel {
+    position: relative !important;
+    top: 0 !important;
+    align-self: stretch !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .cart-header {
+    flex: 0 0 auto !important;
+    padding-top: 8px !important;
+    padding-bottom: 10px !important;
+  }
+
+  .cart-items {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+  }
+
+  .cart-summary {
+    flex: 0 0 auto !important;
+    margin-top: auto !important;
+    padding-bottom: 22px !important;
+  }
+}
+
+/* Tune kasir: total belanja lebih jelas, search naik */
+@media (min-width: 1100px) {
+  .product-area {
+    padding-top: 0 !important;
+  }
+
+  .product-toolbar {
+    margin-bottom: 15px !important;
+  }
+
+  .product-toolbar input {
+    min-height: 34px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  .category-tabs {
+    margin-bottom: 8px !important;
+  }
+
+  .cart-summary > div:nth-of-type(3) {
+    padding: 12px 14px !important;
+  }
+
+  .cart-summary > div:nth-of-type(3) span {
+    font-size: 13px !important;
+  }
+
+  .cart-summary > div:nth-of-type(3) strong {
+    font-size: 24px !important;
+    font-weight: 950 !important;
   }
 }
