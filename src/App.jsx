@@ -2768,6 +2768,14 @@ const dashboardEstimatedCash =
       : "Semua transaksi lokal aman"}
   </small>
 </div>
+
+<div>
+  <span>Produk Stok Rendah</span>
+  <strong>{lowStockProducts.length}</strong>
+  <small>
+    Batas stok {settings.lowStockThreshold} atau kurang
+  </small>
+</div>
       </div>
 
       {unsyncedTransactions.length > 0 ? (
