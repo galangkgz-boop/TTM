@@ -1,0 +1,322 @@
+/* =========================
+   TTM Modern POS Skin
+   Target desktop: 1920 x 1080
+========================= */
+
+:root {
+  --ttm-bg: #f3f7fb;
+  --ttm-surface: rgba(255, 255, 255, 0.92);
+  --ttm-surface-solid: #ffffff;
+  --ttm-border: rgba(148, 163, 184, 0.26);
+  --ttm-text: #0f172a;
+  --ttm-muted: #64748b;
+  --ttm-green: #16a34a;
+  --ttm-green-dark: #15803d;
+  --ttm-blue: #2563eb;
+  --ttm-amber: #f59e0b;
+  --ttm-red: #dc2626;
+  --ttm-shadow-soft: 0 20px 60px rgba(15, 23, 42, 0.08);
+  --ttm-shadow-card: 0 16px 40px rgba(15, 23, 42, 0.07);
+  --ttm-radius-xl: 28px;
+  --ttm-radius-lg: 22px;
+  --ttm-radius-md: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(34, 197, 94, 0.12), transparent 34%),
+    radial-gradient(circle at top right, rgba(37, 99, 235, 0.12), transparent 30%),
+    linear-gradient(135deg, #f8fafc 0%, var(--ttm-bg) 100%);
+  color: var(--ttm-text);
+}
+
+/* Main shell */
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 0;
+  background: transparent;
+}
+
+/* Sidebar */
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 22px 18px;
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.94)),
+    radial-gradient(circle at top, rgba(34, 197, 94, 0.22), transparent 44%);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.brand {
+  padding: 14px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+}
+
+.brand-logo {
+  background: linear-gradient(135deg, #22c55e, #84cc16);
+  color: #052e16;
+  box-shadow: 0 12px 28px rgba(34, 197, 94, 0.28);
+}
+
+.brand h1 {
+  color: #ffffff;
+  letter-spacing: -0.04em;
+}
+
+.brand p {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.menu-list {
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.menu-item {
+  border-radius: 16px;
+  color: rgba(255, 255, 255, 0.72);
+  background: transparent;
+  border: 1px solid transparent;
+  transition:
+    transform 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.menu-item:hover {
+  transform: translateX(3px);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.menu-item.active {
+  color: #052e16;
+  background: linear-gradient(135deg, #bbf7d0, #86efac);
+  box-shadow: 0 14px 34px rgba(34, 197, 94, 0.22);
+}
+
+/* Main content */
+.main-content {
+  min-width: 0;
+  padding: 22px 26px;
+  max-width: 1660px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.topbar {
+  min-height: 74px;
+  padding: 16px 18px;
+  border-radius: var(--ttm-radius-xl);
+  background: var(--ttm-surface);
+  border: 1px solid var(--ttm-border);
+  box-shadow: var(--ttm-shadow-soft);
+  backdrop-filter: blur(18px);
+}
+
+.topbar h2 {
+  font-size: 28px;
+  letter-spacing: -0.06em;
+}
+
+.eyebrow {
+  color: var(--ttm-green-dark);
+  font-weight: 950;
+}
+
+.date-pill {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: rgba(15, 23, 42, 0.08);
+  color: #334155;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  box-shadow: none;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+/* Page container */
+.page-card {
+  margin-top: 18px;
+  padding: 22px;
+  min-height: calc(100vh - 132px);
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid var(--ttm-border);
+  box-shadow: var(--ttm-shadow-soft);
+  backdrop-filter: blur(20px);
+}
+
+/* Universal cards */
+.dashboard-summary > div,
+.history-summary > div,
+.reports-summary > div,
+.products-summary > div,
+.inventory-summary > div,
+.payment-summary > div,
+.detail-info-grid > div,
+.detail-total-list > div {
+  border: 1px solid var(--ttm-border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.92));
+  border-radius: var(--ttm-radius-lg);
+  box-shadow: var(--ttm-shadow-card);
+}
+
+.dashboard-summary strong,
+.history-summary strong,
+.reports-summary strong,
+.products-summary strong,
+.inventory-summary strong {
+  letter-spacing: -0.05em;
+}
+
+/* Buttons */
+.primary-action-button,
+.finish-button {
+  border: 0;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #ffffff;
+  box-shadow: 0 14px 30px rgba(22, 163, 74, 0.26);
+}
+
+.primary-action-button:hover,
+.finish-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 38px rgba(22, 163, 74, 0.32);
+}
+
+.secondary-button {
+  border: 1px solid var(--ttm-border);
+  background: #ffffff;
+  color: var(--ttm-text);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.secondary-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(22, 163, 74, 0.34);
+}
+
+.danger-button {
+  border: 0;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #ffffff;
+  box-shadow: 0 14px 30px rgba(220, 38, 38, 0.24);
+}
+
+/* Tables */
+.products-table-wrap,
+.inventory-table-wrap,
+.reports-table-wrap {
+  border-radius: 24px;
+  border: 1px solid var(--ttm-border);
+  box-shadow: var(--ttm-shadow-card);
+  overflow: hidden;
+}
+
+.products-table th,
+.inventory-table th,
+.reports-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.products-table td,
+.inventory-table td,
+.reports-table td {
+  border-color: rgba(226, 232, 240, 0.78);
+}
+
+/* Modals */
+.modal-backdrop {
+  backdrop-filter: blur(12px);
+  background: rgba(15, 23, 42, 0.38);
+}
+
+.payment-modal,
+.product-modal,
+.variant-modal,
+.stock-batch-modal,
+.transaction-detail-modal,
+.receipt-modal,
+.cash-flow-modal,
+.close-cashier-modal {
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 28px 90px rgba(15, 23, 42, 0.28);
+}
+
+/* Desktop 1920 comfort */
+@media (min-width: 1500px) {
+  .main-content {
+    padding: 24px 30px;
+  }
+
+  .page-card {
+    padding: 24px;
+  }
+
+  .dashboard-summary,
+  .reports-summary {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Tablet and mobile safety */
+@media (max-width: 1100px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: relative;
+    height: auto;
+  }
+
+  .main-content {
+    padding: 14px;
+  }
+
+  .page-card {
+    min-height: auto;
+    padding: 16px;
+    border-radius: 24px;
+  }
+}
+
+@media (max-width: 700px) {
+  .topbar {
+    border-radius: 22px;
+  }
+
+  .topbar h2 {
+    font-size: 23px;
+  }
+
+  .page-card {
+    padding: 14px;
+  }
+}
