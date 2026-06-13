@@ -372,3 +372,115 @@
     justify-content: flex-start;
   }
 }
+
+/* Compact detail transaksi, posisi modal tidak disentuh */
+.transaction-detail-modal {
+  width: min(520px, calc(100vw - 40px)) !important;
+  max-height: calc(100vh - 44px) !important;
+  padding: 16px !important;
+  border-radius: 20px !important;
+}
+
+.transaction-detail-modal .modal-header {
+  margin-bottom: 10px !important;
+  padding-bottom: 8px !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+.transaction-detail-modal .modal-header h3 {
+  font-size: 16px !important;
+  margin: 0 0 2px !important;
+}
+
+.transaction-detail-modal .modal-header p {
+  font-size: 11px !important;
+}
+
+.transaction-detail-modal .modal-close {
+  width: 30px !important;
+  height: 30px !important;
+  font-size: 20px !important;
+}
+
+.transaction-detail-modal .detail-info-grid {
+  gap: 8px !important;
+  margin-bottom: 10px !important;
+}
+
+.transaction-detail-modal .detail-info-grid div {
+  padding: 9px 10px !important;
+  border-radius: 12px !important;
+}
+
+.transaction-detail-modal .detail-info-grid span,
+.transaction-detail-modal .detail-total-list span {
+  font-size: 10.5px !important;
+  margin-bottom: 3px !important;
+}
+
+.transaction-detail-modal .detail-info-grid strong {
+  font-size: 12px !important;
+}
+
+.transaction-detail-modal .detail-item-list {
+  padding: 10px !important;
+  margin-bottom: 10px !important;
+  border-radius: 14px !important;
+}
+
+.transaction-detail-modal .detail-item-list h4 {
+  font-size: 13px !important;
+  margin: 0 0 8px !important;
+}
+
+.transaction-detail-modal .detail-item {
+  padding: 7px 0 !important;
+  gap: 10px !important;
+}
+
+.transaction-detail-modal .detail-item strong {
+  font-size: 12px !important;
+}
+
+.transaction-detail-modal .detail-item p {
+  font-size: 10.5px !important;
+  line-height: 1.25 !important;
+  margin: 2px 0 0 !important;
+}
+
+.transaction-detail-modal .fifo-batch-list {
+  margin-top: 5px !important;
+  padding: 6px !important;
+  border-radius: 10px !important;
+}
+
+.transaction-detail-modal .fifo-batch-list span,
+.transaction-detail-modal .fifo-batch-list small {
+  font-size: 9.5px !important;
+  line-height: 1.25 !important;
+}
+
+.transaction-detail-modal .detail-total-list {
+  gap: 8px !important;
+}
+
+.transaction-detail-modal .detail-total-list div {
+  padding: 9px 10px !important;
+  border-radius: 12px !important;
+}
+
+.transaction-detail-modal .detail-total-list strong {
+  font-size: 12.5px !important;
+}
+
+.transaction-detail-modal .detail-actions {
+  margin-top: 10px !important;
+  gap: 8px !important;
+}
+
+.transaction-detail-modal .secondary-button,
+.transaction-detail-modal .finish-button {
+  padding: 8px 10px !important;
+  border-radius: 10px !important;
+  font-size: 11px !important;
+}

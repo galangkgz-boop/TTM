@@ -164,7 +164,6 @@ body {
   background: rgba(255, 255, 255, 0.84);
   border: 1px solid var(--ttm-border);
   box-shadow: var(--ttm-shadow-soft);
-  backdrop-filter: blur(20px);
 }
 
 /* Universal cards */
