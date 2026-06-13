@@ -746,3 +746,37 @@
 .product-main-button {
   height: auto !important;
 }
+
+.quick-cash-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: -4px;
+}
+
+.quick-cash-button {
+  min-height: 38px;
+  border-radius: 14px;
+  border: 1px solid rgba(34, 197, 94, 0.22);
+  background: #f0fdf4;
+  color: #166534;
+  font-size: 13px;
+  font-weight: 950;
+  cursor: pointer;
+  transition:
+    transform 140ms ease,
+    background 140ms ease,
+    border-color 140ms ease;
+}
+
+.quick-cash-button:hover {
+  transform: translateY(-1px);
+  background: #dcfce7;
+  border-color: rgba(34, 197, 94, 0.42);
+}
+
+.quick-cash-button.active {
+  background: #16a34a;
+  color: #ffffff;
+  border-color: #16a34a;
+}

@@ -428,7 +428,7 @@ const todayLabel = currentTime.toLocaleString("id-ID", {
     ? "Auto Sync: " + unsyncedTransactionCount + " menunggu"
     : "Auto Sync Aktif";
 
-    const [cashierSession, setCashierSession] = useState(() => {
+const [cashierSession, setCashierSession] = useState(() => {
   const savedSession = localStorage.getItem("ttm-cashier-session");
 
   if (!savedSession) {
@@ -445,12 +445,16 @@ const todayLabel = currentTime.toLocaleString("id-ID", {
 
   return JSON.parse(savedSession);
 });
-
 const [isCloseCashierPreviewOpen, setIsCloseCashierPreviewOpen] = useState(false);
 const [actualClosingCash, setActualClosingCash] = useState("");
+const [cashModal, setCashModal] = useState(null);
+const [cashModalAmount, setCashModalAmount] = useState("");
+const [cashModalNote, setCashModalNote] = useState("");
 const [cashFlowModalType, setCashFlowModalType] = useState(null);
 const [cashFlowNote, setCashFlowNote] = useState("");
 const [cashFlowAmount, setCashFlowAmount] = useState("");
+const [isOpenCashierModalOpen, setIsOpenCashierModalOpen] = useState(false);
+const [openingCashInput, setOpeningCashInput] = useState("");
 const [cashierClosings, setCashierClosings] = useState(() => {
   const savedClosings = localStorage.getItem(CASHIER_CLOSINGS_STORAGE_KEY);
 
@@ -1204,24 +1208,18 @@ async function retrySingleTransactionSync(transaction) {
   }
 }
 
-async function openCashierSession() {
+async function openCashierSession(openingCashInput) {
   if (cashierSession.isOpen) {
     alert("Kasir sudah dibuka.");
-    return;
+    return false;
   }
 
-  const input = prompt("Masukkan modal awal kasir");
+  const openingCash = Number(openingCashInput || 0);
 
-if (input === null) {
-  return;
-}
-
-const openingCash = Number(input);
-
-if (!Number.isFinite(openingCash) || openingCash <= 0) {
-  alert("Modal awal kasir harus lebih dari 0.");
-  return;
-}
+  if (!Number.isFinite(openingCash) || openingCash <= 0) {
+    alert("Modal awal kasir harus lebih dari 0.");
+    return false;
+  }
 
   const openedAt = new Date().toISOString();
 
@@ -1239,13 +1237,39 @@ if (!Number.isFinite(openingCash) || openingCash <= 0) {
 
   try {
     await saveCashierSessionToSupabase(newSession);
-    alert("Kasir berhasil dibuka dan tersimpan ke Supabase.");
+    return true;
   } catch (error) {
     console.error(error);
     alert(
       "Kasir berhasil dibuka lokal, tapi gagal tersimpan ke Supabase: " +
         error.message
     );
+    return true;
+  }
+}
+
+function openOpenCashierModal() {
+  if (cashierSession.isOpen) {
+    alert("Kasir sudah dibuka.");
+    return;
+  }
+
+  setOpeningCashInput("");
+  setIsOpenCashierModalOpen(true);
+}
+
+function closeOpenCashierModal() {
+  setOpeningCashInput("");
+  setIsOpenCashierModalOpen(false);
+}
+
+async function submitOpenCashierModal(event) {
+  event.preventDefault();
+
+  const success = await openCashierSession(openingCashInput);
+
+  if (success) {
+    closeOpenCashierModal();
   }
 }
 
@@ -1508,6 +1532,18 @@ async function lockPos() {
   setLoginPassword("");
 }
 
+function openCashModal(type) {
+  setCashModal(type);
+  setCashModalAmount("");
+  setCashModalNote("");
+}
+
+function closeCashModal() {
+  setCashModal(null);
+  setCashModalAmount("");
+  setCashModalNote("");
+}
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -1582,7 +1618,7 @@ async function lockPos() {
   stockBatches={stockBatches}
   settings={settings}
   cashierSession={cashierSession}
-  onOpenCashierSession={openCashierSession}
+  onOpenCashierSession={openOpenCashierModal}
   onCloseCashierSession={closeCashierSession}
   onOpenCashierPage={() => setActivePage("cashier")}
   onOpenCashInModal={() => openCashFlowModal("in")}
@@ -1660,6 +1696,47 @@ async function lockPos() {
   onRefreshAllDataFromSupabase={refreshAllDataFromSupabase}
 />
           ) : null}
+
+{isOpenCashierModalOpen ? (
+  <div className="modal-backdrop">
+    <form className="cash-flow-modal open-cashier-modal" onSubmit={submitOpenCashierModal}>
+      <div className="modal-header">
+        <div>
+          <h3>Buka Kasir</h3>
+          <p>Masukkan modal awal kasir untuk memulai sesi hari ini.</p>
+        </div>
+
+        <button type="button" className="modal-close" onClick={closeOpenCashierModal}>
+          ×
+        </button>
+      </div>
+
+      <div className="cash-flow-form">
+        <label>
+          Modal Awal
+          <input
+            type="number"
+            min="1"
+            value={openingCashInput}
+            onChange={(event) => setOpeningCashInput(event.target.value)}
+            placeholder="Contoh: 100000"
+            autoFocus
+          />
+        </label>
+      </div>
+
+      <div className="payment-actions">
+        <button type="button" className="secondary-button" onClick={closeOpenCashierModal}>
+          Batal
+        </button>
+
+        <button type="submit" className="finish-button">
+          Buka Kasir
+        </button>
+      </div>
+    </form>
+  </div>
+) : null}
 
           {cashFlowModalType ? (
   <div className="modal-backdrop">
@@ -1845,6 +1922,112 @@ async function lockPos() {
 ) : null}
         </section>
       </main>
+
+      {cashModal ? (
+  <div className="modal-backdrop">
+    <div className="cash-modal">
+      <div className="modal-header">
+        <div>
+          <h3>
+            {cashModal === "open"
+              ? "Buka Kasir"
+              : cashModal === "cash-in"
+                ? "Tambah Pemasukan"
+                : cashModal === "cash-out"
+                  ? "Tambah Pengeluaran"
+                  : "Tutup Kasir"}
+          </h3>
+
+          <p>
+            {cashModal === "open"
+              ? "Masukkan modal awal kasir hari ini."
+              : cashModal === "cash-in"
+                ? "Catat uang masuk selain penjualan."
+                : cashModal === "cash-out"
+                  ? "Catat uang keluar dari kasir."
+                  : "Masukkan uang fisik akhir di laci kasir."}
+          </p>
+        </div>
+
+        <button type="button" className="modal-close" onClick={closeCashModal}>
+          ×
+        </button>
+      </div>
+
+      <form
+        className="cash-modal-form"
+        onSubmit={(event) => {
+          event.preventDefault();
+
+          const amount = Number(cashModalAmount || 0);
+
+          if (!Number.isFinite(amount) || amount <= 0) {
+            alert("Nominal harus lebih dari 0.");
+            return;
+          }
+
+          if (cashModal === "open") {
+            openCashierSession(amount);
+          }
+
+          if (cashModal === "cash-in") {
+            addCashIn(amount, cashModalNote.trim());
+          }
+
+          if (cashModal === "cash-out") {
+            addCashOut(amount, cashModalNote.trim());
+          }
+
+          if (cashModal === "close") {
+            closeCashierSession(amount);
+          }
+
+          closeCashModal();
+        }}
+      >
+        <label>
+          Nominal
+          <input
+            type="number"
+            min="1"
+            value={cashModalAmount}
+            onChange={(event) => setCashModalAmount(event.target.value)}
+            placeholder="Contoh: 100000"
+            autoFocus
+          />
+        </label>
+
+        {cashModal === "cash-in" || cashModal === "cash-out" ? (
+          <label>
+            Catatan
+            <input
+              type="text"
+              value={cashModalNote}
+              onChange={(event) => setCashModalNote(event.target.value)}
+              placeholder="Contoh: tambah uang kecil"
+            />
+          </label>
+        ) : null}
+
+        <div className="cash-modal-actions">
+          <button type="button" className="secondary-button" onClick={closeCashModal}>
+            Batal
+          </button>
+
+          <button type="submit" className="finish-button">
+            {cashModal === "open"
+              ? "Buka Kasir"
+              : cashModal === "cash-in"
+                ? "Simpan Pemasukan"
+                : cashModal === "cash-out"
+                  ? "Simpan Pengeluaran"
+                  : "Tutup Kasir"}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+) : null}
     </div>
   );
 }
@@ -1935,6 +2118,42 @@ function CashierPage({
     cart.length > 0 &&
     !isDiscountTooLarge &&
     numericCashReceived >= cartTotal;
+
+    const paymentQuickAmounts = useMemo(() => {
+  const total = Number(cartTotal || 0);
+
+  if (total <= 0) {
+    return [];
+  }
+
+  const candidates = [
+    total,
+    Math.ceil(total / 5000) * 5000,
+    Math.ceil(total / 10000) * 10000,
+    Math.ceil(total / 50000) * 50000,
+    Math.ceil(total / 100000) * 100000,
+  ];
+
+  const uniqueAmounts = [];
+
+  candidates.forEach((amount) => {
+    if (amount >= total && !uniqueAmounts.includes(amount)) {
+      uniqueAmounts.push(amount);
+    }
+  });
+
+  let nextAmount = uniqueAmounts[uniqueAmounts.length - 1] || total;
+
+  while (uniqueAmounts.length < 4) {
+    nextAmount = nextAmount + 5000;
+
+    if (!uniqueAmounts.includes(nextAmount)) {
+      uniqueAmounts.push(nextAmount);
+    }
+  }
+
+  return uniqueAmounts.slice(0, 4);
+}, [cartTotal]);
 
 function getCartReservedQty(productId) {
   return cart
@@ -2416,6 +2635,23 @@ const displayStock = Math.max(0, Number(product.stock || 0) - reservedQty);
       autoFocus
     />
   </label>
+
+  <div className="quick-cash-buttons">
+  {paymentQuickAmounts.map((amount) => (
+    <button
+      key={amount}
+      type="button"
+      className={
+        Number(cashReceived || 0) === amount
+          ? "quick-cash-button active"
+          : "quick-cash-button"
+      }
+      onClick={() => setCashReceived(String(amount))}
+    >
+      {formatRupiah(amount)}
+    </button>
+  ))}
+</div>
 
   <div>
     <span>Kembalian</span>
@@ -4803,8 +5039,6 @@ const totalClosingDifference = filteredCashierClosings.reduce(
       </div>
 
       <div className="reports-section">
-        <div className="section-title">
-          <div className="reports-section">
   <div className="section-title">
     <h4>Riwayat Tutup Kasir</h4>
     <p>Rekap sesi kasir berdasarkan periode laporan yang dipilih.</p>
@@ -4878,44 +5112,47 @@ const totalClosingDifference = filteredCashierClosings.reduce(
     ) : null}
   </div>
 </div>
-          <h4>Produk / Varian Terlaris</h4>
-          <p>Diurutkan berdasarkan qty jual. Qty FIFO menunjukkan stok asli yang keluar.</p>
-        </div>
 
-        <div className="reports-table-wrap">
-          <table className="reports-table">
-            <thead>
-              <tr>
-                <th>Produk / Varian</th>
-                <th>Qty Jual</th>
-                <th>Qty FIFO Keluar</th>
-                <th>Omzet</th>
-                <th>Profit FIFO</th>
-              </tr>
-            </thead>
+<div className="reports-section">
+  <div className="section-title">
+    <h4>Produk / Varian Terlaris</h4>
+    <p>Diurutkan berdasarkan qty jual. Qty FIFO menunjukkan stok asli yang keluar.</p>
+  </div>
 
-            <tbody>
-              {topProducts.map((product) => (
-                <tr key={product.name}>
-                  <td>
-                    <strong>{product.name}</strong>
-                  </td>
-                  <td>{product.qty}</td>
-                  <td>{product.fifoQty}</td>
-                  <td>{formatRupiah(product.revenue)}</td>
-                  <td>{formatRupiah(product.profit)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+  <div className="reports-table-wrap">
+    <table className="reports-table">
+      <thead>
+        <tr>
+          <th>Produk / Varian</th>
+          <th>Qty Jual</th>
+          <th>Qty FIFO Keluar</th>
+          <th>Omzet</th>
+          <th>Profit FIFO</th>
+        </tr>
+      </thead>
 
-          {topProducts.length === 0 ? (
-            <div className="empty-state">
-              Belum ada data transaksi.
-            </div>
-          ) : null}
-        </div>
+      <tbody>
+        {topProducts.map((product) => (
+          <tr key={product.name}>
+            <td>
+              <strong>{product.name}</strong>
+            </td>
+            <td>{product.qty}</td>
+            <td>{product.fifoQty}</td>
+            <td>{formatRupiah(product.revenue)}</td>
+            <td>{formatRupiah(product.profit)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+
+    {topProducts.length === 0 ? (
+      <div className="empty-state">
+        Belum ada data transaksi.
       </div>
+    ) : null}
+  </div>
+</div>
 
       <div className="reports-section">
         <div className="section-title">
