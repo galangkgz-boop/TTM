@@ -96,6 +96,11 @@ receiptLines.push(
     })
 );
 receiptLines.push("Bayar : " + (transaction.paymentMethod || "Cash"));
+
+if (transaction.cashierName) {
+  receiptLines.push("Kasir : " + transaction.cashierName);
+}
+
 receiptLines.push(line());
 
   transaction.items.forEach(function (item) {

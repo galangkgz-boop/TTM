@@ -46,6 +46,21 @@ const defaultSettings = {
   printerName: "EPPOS",
 };
 
+const pinLoginUsers = {
+  admin: {
+    label: "Admin",
+    email: import.meta.env.VITE_ADMIN_LOGIN_EMAIL || "",
+    password: import.meta.env.VITE_ADMIN_LOGIN_PASSWORD || "",
+    pin: import.meta.env.VITE_ADMIN_LOGIN_PIN || "",
+  },
+  cashier: {
+    label: "Kasir",
+    email: import.meta.env.VITE_CASHIER_LOGIN_EMAIL || "",
+    password: import.meta.env.VITE_CASHIER_LOGIN_PASSWORD || "",
+    pin: import.meta.env.VITE_CASHIER_LOGIN_PIN || "",
+  },
+};
+
 function createTransactionCode() {
   const now = new Date();
 
@@ -314,8 +329,8 @@ function App() {
   const [activePage, setActivePage] = useState("cashier");
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isUnlocked, setIsUnlocked] = useState(false);
-  const [loginEmail, setLoginEmail] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
+  const [selectedLoginRole, setSelectedLoginRole] = useState("cashier");
+  const [loginPin, setLoginPin] = useState("");
   const [currentProfile, setCurrentProfile] = useState(null);
   const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [supabaseStatus, setSupabaseStatus] = useState("idle");
@@ -577,16 +592,34 @@ useEffect(() => {
 async function submitLogin(event) {
   event.preventDefault();
 
-  if (!loginEmail.trim() || !loginPassword.trim()) {
-    alert("Email dan password wajib diisi.");
+  const loginUser = pinLoginUsers[selectedLoginRole];
+
+  if (!loginUser) {
+    alert("Pilih user login terlebih dahulu.");
+    return;
+  }
+
+  if (!loginUser.email || !loginUser.password || !loginUser.pin) {
+    alert("Konfigurasi login PIN belum lengkap. Cek file .env.local.");
+    return;
+  }
+
+  if (!loginPin.trim()) {
+    alert("PIN wajib diisi.");
+    return;
+  }
+
+  if (loginPin.trim() !== loginUser.pin) {
+    alert("PIN salah.");
+    setLoginPin("");
     return;
   }
 
   setIsAuthLoading(true);
 
   const { data, error } = await supabase.auth.signInWithPassword({
-    email: loginEmail.trim(),
-    password: loginPassword,
+    email: loginUser.email,
+    password: loginUser.password,
   });
 
   if (error) {
@@ -605,9 +638,23 @@ async function submitLogin(event) {
       return;
     }
 
+    if (profile.role !== selectedLoginRole) {
+      await supabase.auth.signOut();
+      setIsAuthLoading(false);
+      setLoginPin("");
+      alert("Role akun tidak sesuai dengan tombol login yang dipilih.");
+      return;
+    }
+
     setCurrentProfile(profile);
     setIsUnlocked(true);
-    setLoginPassword("");
+    setLoginPin("");
+
+    if (profile.role === "admin") {
+      setActivePage("dashboard");
+    } else {
+      setActivePage("dashboard");
+    }
   } catch (profileError) {
     await supabase.auth.signOut();
     alert("Gagal membaca role user: " + profileError.message);
@@ -876,19 +923,21 @@ function mapSupabaseTransaction(transaction) {
   }));
 
   return {
-    id: transaction.id,
-    code: transaction.code,
-    date: transaction.transaction_date,
-    items: items,
-    subtotal: Number(transaction.subtotal || 0),
-    discount: Number(transaction.discount || 0),
-    total: Number(transaction.total || 0),
-    cashReceived: Number(transaction.cash_received || 0),
-    change: Number(transaction.change_amount || 0),
-    paymentMethod: transaction.payment_method || "Cash",
-    profit: Number(transaction.profit || 0),
-    syncStatus: "synced"
-  };
+  id: transaction.id,
+  code: transaction.code,
+  date: transaction.transaction_date,
+  items: items,
+  subtotal: Number(transaction.subtotal || 0),
+  discount: Number(transaction.discount || 0),
+  total: Number(transaction.total || 0),
+  cashReceived: Number(transaction.cash_received || 0),
+  change: Number(transaction.change_amount || 0),
+  paymentMethod: transaction.payment_method || "Cash",
+  profit: Number(transaction.profit || 0),
+  cashierName: transaction.cashier_name || "",
+  cashierRole: transaction.cashier_role || "",
+  syncStatus: "synced"
+};
 }
 
 function mergeSupabaseTransactionsWithLocalFailed(
@@ -1519,22 +1568,41 @@ if (isUnlocked === false) {
 
         <div>
           <h1>{settings.storeName}</h1>
-          <p>Login sesuai akun Admin atau Kasir.</p>
+          <p>Pilih user, lalu masukkan PIN.</p>
+        </div>
+
+        <div className="pin-role-tabs">
+          <button
+            type="button"
+            className={selectedLoginRole === "admin" ? "pin-role-tab active" : "pin-role-tab"}
+            onClick={() => {
+              setSelectedLoginRole("admin");
+              setLoginPin("");
+            }}
+          >
+            Admin
+          </button>
+
+          <button
+            type="button"
+            className={selectedLoginRole === "cashier" ? "pin-role-tab active" : "pin-role-tab"}
+            onClick={() => {
+              setSelectedLoginRole("cashier");
+              setLoginPin("");
+            }}
+          >
+            Kasir
+          </button>
         </div>
 
         <input
-          type="email"
-          value={loginEmail}
-          onChange={(event) => setLoginEmail(event.target.value)}
-          placeholder="Email"
-          autoFocus
-        />
-
-        <input
           type="password"
-          value={loginPassword}
-          onChange={(event) => setLoginPassword(event.target.value)}
-          placeholder="Password"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          value={loginPin}
+          onChange={(event) => setLoginPin(event.target.value.replace(/\D/g, ""))}
+          placeholder="Masukkan PIN"
+          autoFocus
         />
 
         <button type="submit" className="finish-button" disabled={isAuthLoading}>
@@ -1549,7 +1617,8 @@ async function lockPos() {
   await supabase.auth.signOut();
   setIsUnlocked(false);
   setCurrentProfile(null);
-  setLoginPassword("");
+  setLoginPin("");
+  setSelectedLoginRole("cashier");
 }
 
   return (
@@ -1643,6 +1712,7 @@ async function lockPos() {
   transactions={transactions}
   settings={settings}
   cashierSession={cashierSession}
+  currentProfile={currentProfile}
   onAddTransaction={addTransaction} 
 />
           ) : null}
@@ -1942,6 +2012,7 @@ function CashierPage({
   transactions,
   settings,
   cashierSession,
+  currentProfile,
   onAddTransaction,
 }) {
   const [search, setSearch] = useState("");
@@ -2247,18 +2318,20 @@ function finishTransaction() {
   );
 
   const transaction = {
-    id: transactionId,
-    code: transactionCode,
-    date: now.toISOString(),
-    items: fifoResult.items,
-    subtotal: cartSubtotal,
-    discount: safeDiscountAmount,
-    total: cartTotal,
-    cashReceived: numericCashReceived,
-    change: changeAmount,
-    paymentMethod: "Cash",
-    profit: totalProfitBeforeDiscount - safeDiscountAmount,
-  };
+  id: transactionId,
+  code: transactionCode,
+  date: now.toISOString(),
+  items: fifoResult.items,
+  subtotal: cartSubtotal,
+  discount: safeDiscountAmount,
+  total: cartTotal,
+  cashReceived: numericCashReceived,
+  change: changeAmount,
+  paymentMethod: "Cash",
+  profit: totalProfitBeforeDiscount - safeDiscountAmount,
+  cashierName: currentProfile ? currentProfile.name : "",
+  cashierRole: currentProfile ? currentProfile.role : "",
+};
 
   onAddTransaction(transaction, fifoResult.updatedBatches);
 
@@ -4607,6 +4680,13 @@ function ReceiptModal({ transaction, settings, onClose }) {
               <span>Bayar</span>
               <strong>{transaction.paymentMethod}</strong>
             </div>
+
+            {transaction.cashierName ? (
+  <div>
+    <span>Kasir</span>
+    <strong>{transaction.cashierName}</strong>
+  </div>
+) : null}
           </div>
 
           <div className="receipt-line" />

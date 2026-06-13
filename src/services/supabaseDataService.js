@@ -179,16 +179,18 @@ export async function createTransactionInSupabase(transaction) {
   }
 
   const transactionRow = {
-    code: transaction.code,
-    transaction_date: transaction.date,
-    subtotal: transaction.subtotal,
-    discount: transaction.discount,
-    total: transaction.total,
-    cash_received: transaction.cashReceived,
-    change_amount: transaction.change,
-    payment_method: transaction.paymentMethod,
-    profit: transaction.profit,
-  };
+  code: transaction.code,
+  transaction_date: transaction.date,
+  subtotal: transaction.subtotal,
+  discount: transaction.discount,
+  total: transaction.total,
+  cash_received: transaction.cashReceived,
+  change_amount: transaction.change,
+  payment_method: transaction.paymentMethod,
+  profit: transaction.profit,
+  cashier_name: transaction.cashierName || "",
+  cashier_role: transaction.cashierRole || "",
+};
 
   const { data: createdTransaction, error: transactionError } = await supabase
     .from("transactions")
