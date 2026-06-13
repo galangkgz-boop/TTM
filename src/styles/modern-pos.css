@@ -139,15 +139,20 @@ body {
 }
 
 .date-pill {
-  position: fixed;
-  right: 28px;
-  bottom: 22px;
-  z-index: 10;
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  width: fit-content;
   border-radius: 999px;
-  padding: 10px 14px;
-  background: rgba(15, 23, 42, 0.88);
-  color: #ffffff;
-  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.22);
+  padding: 8px 12px;
+  background: rgba(15, 23, 42, 0.08);
+  color: #334155;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  box-shadow: none;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
 }
 
 /* Page container */
@@ -293,12 +298,6 @@ body {
 
   .main-content {
     padding: 14px;
-  }
-
-  .date-pill {
-    position: static;
-    margin-bottom: 10px;
-    width: fit-content;
   }
 
   .page-card {
@@ -699,5 +698,21 @@ body {
 
   .dashboard-summary > div {
     min-height: 104px;
+  }
+}
+
+.topbar-status-group {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1200px) {
+  .date-pill {
+    order: 10;
+    width: 100%;
+    justify-content: center;
   }
 }

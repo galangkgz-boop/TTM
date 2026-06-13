@@ -388,11 +388,25 @@ function App() {
   const activeMenu = menus.find((menu) => menu.id === activePage);
   const pageTitle = activeMenu ? activeMenu.label : "Kasir";
 
-  const todayLabel = new Date().toLocaleDateString("id-ID", {
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+useEffect(() => {
+  const timer = setInterval(() => {
+    setCurrentTime(new Date());
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, []);
+
+const todayLabel = currentTime.toLocaleString("id-ID", {
   weekday: "long",
   day: "2-digit",
   month: "long",
   year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  timeZone: "Asia/Jakarta",
 });
 
   const supabaseStatusLabel =
@@ -1514,7 +1528,6 @@ async function lockPos() {
       </aside>
 
       <main className="main-content">
-        <div className="date-pill">{todayLabel}</div>
         <header className="topbar">
           <div>
             <p className="eyebrow">POS Toko</p>
@@ -1522,24 +1535,22 @@ async function lockPos() {
           </div>
 
           <div className="topbar-status-group">
-
+            <div className="date-pill">{todayLabel}</div>
             <div className={isOnline ? "connection-pill online" : "connection-pill offline"}>
           {isOnline ? "Online" : "Offline"}
             </div>
-
-          <div className={"supabase-pill " + supabaseStatus}>
+            <div className={"supabase-pill " + supabaseStatus}>
            {supabaseStatusLabel}
-          </div>
+            </div>
 
-  <div
-    className={
-      unsyncedTransactionCount > 0
-        ? "auto-sync-pill waiting"
-        : "auto-sync-pill active"
-    }
-  >
-    {autoSyncLabel}
-  </div>
+          <div className={
+            unsyncedTransactionCount > 0
+            ? "auto-sync-pill waiting"
+            : "auto-sync-pill active"
+          }
+        >
+          {autoSyncLabel}
+          </div>
 
   <div className="status-pill">POS Online</div>
 
