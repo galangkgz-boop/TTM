@@ -112,15 +112,15 @@ body {
 /* Main content */
 .main-content {
   min-width: 0;
-  padding: 22px 26px;
-  max-width: 1660px;
   width: 100%;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
+  padding: 22px 28px;
 }
 
 .topbar {
   min-height: 74px;
-  padding: 16px 18px;
+  padding: 16px 22px;
   border-radius: var(--ttm-radius-xl);
   background: var(--ttm-surface);
   border: 1px solid var(--ttm-border);
@@ -276,7 +276,8 @@ body {
   }
 
   .page-card {
-    padding: 24px;
+    margin-top: 18px;
+    padding: 24px 28px;
   }
 
   .dashboard-summary,
