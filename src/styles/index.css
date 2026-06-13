@@ -1,8 +1,4 @@
 @import "./base.css";
-
-/* Temporary legacy modern file, nanti kita kosongkan bertahap */
-@import "./modern-pos.css";
-
 @import "./pages/dashboard.css";
 @import "./pages/cashier.css";
 @import "./pages/products.css";
