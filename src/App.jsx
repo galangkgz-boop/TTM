@@ -2837,8 +2837,25 @@ function ProductsPage({
   const [variantName, setVariantName] = useState("");
   const [variantQtyMultiplier, setVariantQtyMultiplier] = useState("");
   const [variantPrice, setVariantPrice] = useState("");
+const [productSearch, setProductSearch] = useState("");
 
-  const sortedProducts = [...products].sort((a, b) => a.name.localeCompare(b.name, "id-ID"));
+const sortedProducts = [...products].sort((a, b) =>
+  a.name.localeCompare(b.name, "id-ID")
+);
+
+const filteredProducts = sortedProducts.filter((product) => {
+  const keyword = productSearch.trim().toLowerCase();
+
+  if (!keyword) {
+    return true;
+  }
+
+  return (
+    product.name.toLowerCase().includes(keyword) ||
+    product.category.toLowerCase().includes(keyword) ||
+    product.unit.toLowerCase().includes(keyword)
+  );
+});
 
   const activeProductCount = products.filter((product) => product.active).length;
   const inactiveProductCount = products.length - activeProductCount;
@@ -3011,40 +3028,58 @@ function submitVariantForm(event) {
   return (
     <div>
       <div className="products-header">
-        <div>
-          <h3>Produk</h3>
-          <p className="muted">
-            Kelola data produk. Stok tetap dikelola dari batch FIFO di menu Stok.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          className="primary-action-button"
-          onClick={openAddProductForm}
-        >
-          Tambah Produk
-        </button>
-      </div>
+  <div>
+    <h3>Produk</h3>
+    <p className="muted">
+      Kelola data produk. Stok tetap dikelola dari batch FIFO di menu Stok.
+    </p>
+  </div>
+</div>
 
       <div className="products-summary">
-        <div>
-          <span>Total Produk</span>
-          <strong>{products.length}</strong>
-        </div>
+  <div>
+    <span>Total Produk</span>
+    <strong>{products.length}</strong>
+  </div>
 
-        <div>
-          <span>Produk Aktif</span>
-          <strong>{activeProductCount}</strong>
-        </div>
+  <div>
+    <span>Produk Aktif</span>
+    <strong>{activeProductCount}</strong>
+  </div>
 
-        <div>
-          <span>Produk Nonaktif</span>
-          <strong>{inactiveProductCount}</strong>
-        </div>
-      </div>
+  <div>
+    <span>Produk Nonaktif</span>
+    <strong>{inactiveProductCount}</strong>
+  </div>
+</div>
 
-      <div className="products-table-wrap">
+<div className="products-sticky-tools">
+  <div className="products-search-box">
+    <span>🔎</span>
+    <input
+      type="text"
+      value={productSearch}
+      onChange={(event) => setProductSearch(event.target.value)}
+      placeholder="Cari nama produk, kategori, atau satuan..."
+    />
+  </div>
+
+  <div className="products-tool-actions">
+    <span className="products-result-count">
+      {filteredProducts.length} dari {products.length} produk
+    </span>
+
+    <button
+      type="button"
+      className="primary-action-button"
+      onClick={openAddProductForm}
+    >
+      Tambah Produk
+    </button>
+  </div>
+</div>
+
+<div className="products-table-wrap">
         <table className="products-table">
           <thead>
             <tr>
@@ -3059,7 +3094,7 @@ function submitVariantForm(event) {
           </thead>
 
           <tbody>
-            {sortedProducts.map((product) => {
+            {filteredProducts.map((product) => {
   const activeVariantCount = productVariants.filter(
     (variant) => variant.productId === product.id && variant.active
   ).length;
@@ -3126,10 +3161,16 @@ function submitVariantForm(event) {
         </table>
 
         {products.length === 0 ? (
-          <div className="empty-state">
-            Belum ada produk.
-          </div>
-        ) : null}
+  <div className="empty-state">
+    Belum ada produk.
+  </div>
+) : null}
+
+{products.length > 0 && filteredProducts.length === 0 ? (
+  <div className="empty-state">
+    Tidak ada produk yang cocok dengan pencarian.
+  </div>
+) : null}
       </div>
 
       {isProductFormOpen ? (
