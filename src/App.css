@@ -4935,3 +4935,12 @@
   border-color: #22c55e;
   box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.13);
 }
+
+.receipt-business-type {
+  margin: 0 0 2px;
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}

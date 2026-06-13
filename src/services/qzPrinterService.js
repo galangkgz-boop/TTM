@@ -74,6 +74,7 @@ export function buildThermalReceipt(transaction, settings) {
 
   const receiptLines = [];
 
+  receiptLines.push(centerText("AGEN SOSIS DAN ES KRISTAL"));
   receiptLines.push(centerText(storeName.toUpperCase()));
 
 if (address) {
@@ -122,14 +123,13 @@ receiptLines.push(line());
   receiptLines.push(padLine("Kembali", money(transaction.change)));
   receiptLines.push(line());
 
-  receiptLines.push(centerText("Terima kasih sudah belanja"));
+  receiptLines.push(centerText(receiptNote));
 
-receiptLines.push("");
-receiptLines.push(centerText("Pemesanan / info produk:"));
-
-if (phone) {
-  receiptLines.push(centerText(phone));
-}
+  if (phone) {
+    receiptLines.push("");
+    receiptLines.push(centerText("Pemesanan / info produk:"));
+    receiptLines.push(centerText(phone));
+  }
 
 receiptLines.push("");
 receiptLines.push("");

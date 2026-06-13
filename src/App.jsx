@@ -1,9 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import "./styles/index.css";
-import { dummyProducts } from "./db/dummyProducts";
-import { dummyStockBatches } from "./db/dummyStockBatches";
-import { dummyProductVariants } from "./db/dummyProductVariants";
 import { formatRupiah } from "./lib/format";
 import {
   fetchProductsFromSupabase,
@@ -49,24 +46,29 @@ const defaultSettings = {
   printerName: "EPPOS",
 };
 
-function createTransactionCode(existingTransactions) {
+function createTransactionCode() {
   const now = new Date();
 
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
   const day = String(now.getDate()).padStart(2, "0");
 
-  const dateCode = String(year) + month + day;
-  const prefix = "TRX-" + dateCode + "-";
+  const hour = String(now.getHours()).padStart(2, "0");
+  const minute = String(now.getMinutes()).padStart(2, "0");
+  const second = String(now.getSeconds()).padStart(2, "0");
+  const millisecond = String(now.getMilliseconds()).padStart(3, "0");
 
-  const todayTransactions = existingTransactions.filter((transaction) =>
-    transaction.code.startsWith(prefix)
+  return (
+    "TRX-" +
+    year +
+    month +
+    day +
+    "-" +
+    hour +
+    minute +
+    second +
+    millisecond
   );
-
-  const nextNumber = todayTransactions.length + 1;
-  const sequence = String(nextNumber).padStart(4, "0");
-
-  return prefix + sequence;
 }
 
 function getProductStockFromBatches(productId, stockBatches) {
@@ -218,6 +220,28 @@ function downloadCsvFile(filename, rows) {
   URL.revokeObjectURL(url);
 }
 
+function formatWhatsAppNumber(phone) {
+  if (!phone) {
+    return "";
+  }
+
+  const cleanedPhone = String(phone).replace(/\D/g, "");
+
+  if (!cleanedPhone) {
+    return "";
+  }
+
+  if (cleanedPhone.startsWith("62")) {
+    return "+" + cleanedPhone;
+  }
+
+  if (cleanedPhone.startsWith("0")) {
+    return "+62" + cleanedPhone.slice(1);
+  }
+
+  return "+62" + cleanedPhone;
+}
+
 function mapSupabaseProduct(product) {
   return {
     id: product.id,
@@ -296,31 +320,31 @@ function App() {
   const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [supabaseStatus, setSupabaseStatus] = useState("idle");
   const [products, setProducts] = useState(() => {
-  const savedProducts = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+    const savedProducts = localStorage.getItem(PRODUCTS_STORAGE_KEY);
 
   if (!savedProducts) {
-    return dummyProducts;
-  }
+  return [];
+}
 
-  try {
-    return JSON.parse(savedProducts);
-  } catch {
-    return dummyProducts;
-  }
-});
+try {
+  return JSON.parse(savedProducts);
+} catch {
+  return [];
+}
+  });
 
   const [productVariants, setProductVariants] = useState(() => {
   const savedVariants = localStorage.getItem(PRODUCT_VARIANTS_STORAGE_KEY);
 
   if (!savedVariants) {
-    return dummyProductVariants;
-  }
+  return [];
+}
 
-  try {
-    return JSON.parse(savedVariants);
-  } catch {
-    return dummyProductVariants;
-  }
+try {
+  return JSON.parse(savedVariants);
+} catch {
+  return [];
+}
 });
 
   const [settings, setSettings] = useState(() => {
@@ -344,14 +368,14 @@ function App() {
   const savedStockBatches = localStorage.getItem(STOCK_BATCHES_STORAGE_KEY);
 
   if (!savedStockBatches) {
-    return dummyStockBatches;
-  }
+  return [];
+}
 
-  try {
-    return JSON.parse(savedStockBatches);
-  } catch {
-    return dummyStockBatches;
-  }
+try {
+  return JSON.parse(savedStockBatches);
+} catch {
+  return [];
+}
 });
 
   const [transactions, setTransactions] = useState(() => {
@@ -376,7 +400,7 @@ function App() {
   const currentRole = currentProfile ? currentProfile.role : "cashier";
 
   const menus = [
-  { id: "dashboard", label: "Dashboard", roles: ["admin"] },
+  { id: "dashboard", label: "Dashboard", roles: ["admin", "cashier"] },
   { id: "cashier", label: "Kasir", roles: ["admin", "cashier"] },
   { id: "products", label: "Produk", roles: ["admin"] },
   { id: "inventory", label: "Stok", roles: ["admin"] },
@@ -447,9 +471,6 @@ const [cashierSession, setCashierSession] = useState(() => {
 });
 const [isCloseCashierPreviewOpen, setIsCloseCashierPreviewOpen] = useState(false);
 const [actualClosingCash, setActualClosingCash] = useState("");
-const [cashModal, setCashModal] = useState(null);
-const [cashModalAmount, setCashModalAmount] = useState("");
-const [cashModalNote, setCashModalNote] = useState("");
 const [cashFlowModalType, setCashFlowModalType] = useState(null);
 const [cashFlowNote, setCashFlowNote] = useState("");
 const [cashFlowAmount, setCashFlowAmount] = useState("");
@@ -614,7 +635,7 @@ function reduceProductStock(cartItems) {
 
 function clearTransactions() {
   const confirmClear = window.confirm(
-    "Hapus semua riwayat transaksi sementara dan reset stok FIFO?"
+    "Hapus riwayat transaksi lokal di browser ini? Stok FIFO, produk, varian, pengaturan, dan data Supabase tidak akan dihapus."
   );
 
   if (confirmClear === false) {
@@ -622,10 +643,9 @@ function clearTransactions() {
   }
 
   setTransactions([]);
-  setStockBatches(dummyStockBatches);
-
   localStorage.removeItem(TRANSACTIONS_STORAGE_KEY);
-  localStorage.removeItem(STOCK_BATCHES_STORAGE_KEY);
+
+  alert("Riwayat transaksi lokal berhasil dihapus. Stok dan data produk tetap aman.");
 }
 
 async function addProduct(newProduct) {
@@ -1081,7 +1101,7 @@ async function retryFailedTransactionSync(showAlert = true) {
     if (showAlert) {
     alert("Tidak ada transaksi gagal/pending untuk disinkron ulang.");
     }
-    s
+    
     return;
   }
 
@@ -1532,18 +1552,6 @@ async function lockPos() {
   setLoginPassword("");
 }
 
-function openCashModal(type) {
-  setCashModal(type);
-  setCashModalAmount("");
-  setCashModalNote("");
-}
-
-function closeCashModal() {
-  setCashModal(null);
-  setCashModalAmount("");
-  setCashModalNote("");
-}
-
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -1664,11 +1672,12 @@ function closeCashModal() {
 
           {activePage === "transactions" ? ( 
             <TransactionsPage 
-              transactions={transactions}
-              settings={settings}
-              onClearTransactions={clearTransactions} 
-              onRetrySingleTransactionSync={retrySingleTransactionSync}
-            /> 
+  transactions={transactions}
+  settings={settings}
+  currentRole={currentRole}
+  onClearTransactions={clearTransactions} 
+  onRetrySingleTransactionSync={retrySingleTransactionSync}
+/>
           ) : null}
 
           {activePage === "reports" ? (
@@ -1922,112 +1931,6 @@ function closeCashModal() {
 ) : null}
         </section>
       </main>
-
-      {cashModal ? (
-  <div className="modal-backdrop">
-    <div className="cash-modal">
-      <div className="modal-header">
-        <div>
-          <h3>
-            {cashModal === "open"
-              ? "Buka Kasir"
-              : cashModal === "cash-in"
-                ? "Tambah Pemasukan"
-                : cashModal === "cash-out"
-                  ? "Tambah Pengeluaran"
-                  : "Tutup Kasir"}
-          </h3>
-
-          <p>
-            {cashModal === "open"
-              ? "Masukkan modal awal kasir hari ini."
-              : cashModal === "cash-in"
-                ? "Catat uang masuk selain penjualan."
-                : cashModal === "cash-out"
-                  ? "Catat uang keluar dari kasir."
-                  : "Masukkan uang fisik akhir di laci kasir."}
-          </p>
-        </div>
-
-        <button type="button" className="modal-close" onClick={closeCashModal}>
-          ×
-        </button>
-      </div>
-
-      <form
-        className="cash-modal-form"
-        onSubmit={(event) => {
-          event.preventDefault();
-
-          const amount = Number(cashModalAmount || 0);
-
-          if (!Number.isFinite(amount) || amount <= 0) {
-            alert("Nominal harus lebih dari 0.");
-            return;
-          }
-
-          if (cashModal === "open") {
-            openCashierSession(amount);
-          }
-
-          if (cashModal === "cash-in") {
-            addCashIn(amount, cashModalNote.trim());
-          }
-
-          if (cashModal === "cash-out") {
-            addCashOut(amount, cashModalNote.trim());
-          }
-
-          if (cashModal === "close") {
-            closeCashierSession(amount);
-          }
-
-          closeCashModal();
-        }}
-      >
-        <label>
-          Nominal
-          <input
-            type="number"
-            min="1"
-            value={cashModalAmount}
-            onChange={(event) => setCashModalAmount(event.target.value)}
-            placeholder="Contoh: 100000"
-            autoFocus
-          />
-        </label>
-
-        {cashModal === "cash-in" || cashModal === "cash-out" ? (
-          <label>
-            Catatan
-            <input
-              type="text"
-              value={cashModalNote}
-              onChange={(event) => setCashModalNote(event.target.value)}
-              placeholder="Contoh: tambah uang kecil"
-            />
-          </label>
-        ) : null}
-
-        <div className="cash-modal-actions">
-          <button type="button" className="secondary-button" onClick={closeCashModal}>
-            Batal
-          </button>
-
-          <button type="submit" className="finish-button">
-            {cashModal === "open"
-              ? "Buka Kasir"
-              : cashModal === "cash-in"
-                ? "Simpan Pemasukan"
-                : cashModal === "cash-out"
-                  ? "Simpan Pengeluaran"
-                  : "Tutup Kasir"}
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-) : null}
     </div>
   );
 }
@@ -2336,7 +2239,7 @@ function finishTransaction() {
 
   const now = new Date();
   const transactionId = "TRX-" + now.getTime();
-  const transactionCode = createTransactionCode(transactions);
+  const transactionCode = createTransactionCode();
 
   const totalProfitBeforeDiscount = fifoResult.items.reduce(
     (total, item) => total + item.profit,
@@ -4172,7 +4075,13 @@ function exportStockBatchesCsv() {
   );
 }
 
-function TransactionsPage({ transactions, settings, onClearTransactions, onRetrySingleTransactionSync }) {
+function TransactionsPage({
+  transactions,
+  settings,
+  currentRole,
+  onClearTransactions,
+  onRetrySingleTransactionSync,
+}) {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [historyPeriod, setHistoryPeriod] = useState("all");
 
@@ -4317,13 +4226,15 @@ const totalProfit = filteredTransactions.reduce(
         Export CSV
       </button>
 
-      <button
-        type="button"
-        className="danger-button"
-        onClick={onClearTransactions}
-      >
-        Hapus Riwayat
-      </button>
+      {currentRole === "admin" ? (
+  <button
+    type="button"
+    className="danger-button"
+    onClick={onClearTransactions}
+  >
+    Hapus Riwayat
+  </button>
+) : null}
     </div>
   ) : null}
 </div>
@@ -4668,10 +4579,10 @@ function ReceiptModal({ transaction, settings, onClose }) {
 
         <div className="receipt-paper printable-receipt">
           <div className="receipt-store">
-            <h4>{settings.storeName}</h4>
+  <p className="receipt-business-type">AGEN SOSIS DAN ES KRISTAL</p>
+  <h4>{settings.storeName}</h4>
 
-            {settings.address ? <p>{settings.address}</p> : null}
-            {settings.phone ? <p>WA: {settings.phone}</p> : null}
+  {settings.address ? <p>{settings.address}</p> : null}
           </div>
 
           <div className="receipt-line" />
@@ -4747,8 +4658,15 @@ function ReceiptModal({ transaction, settings, onClose }) {
           <div className="receipt-line" />
 
           <div className="receipt-note">
-            <p>{settings.receiptNote}</p>
-          </div>
+  <p>{settings.receiptNote || "Terima kasih sudah belanja."}</p>
+
+  {settings.phone ? (
+    <>
+      <p>Pemesanan / info produk:</p>
+      <p>{formatWhatsAppNumber(settings.phone)}</p>
+    </>
+  ) : null}
+</div>
         </div>
 
         <div className="receipt-actions">
