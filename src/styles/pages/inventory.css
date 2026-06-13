@@ -260,3 +260,49 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Stok FIFO: header tetap, isi tabel saja scroll */
+@media (min-width: 1100px) {
+  .page-card:has(.inventory-table-wrap) {
+    height: calc(100dvh - 96px) !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .page-card:has(.inventory-table-wrap) > div {
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .inventory-header,
+  .inventory-summary {
+    flex: 0 0 auto !important;
+  }
+
+  .inventory-section {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .inventory-section .section-title {
+    flex: 0 0 auto !important;
+  }
+
+  .inventory-table-wrap {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: auto !important;
+  }
+
+  .inventory-table thead th {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 5 !important;
+  }
+}

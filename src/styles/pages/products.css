@@ -376,3 +376,37 @@
     flex: 1;
   }
 }
+
+/* Produk: header/search tetap, tabel saja scroll */
+@media (min-width: 1100px) {
+  .page-card:has(.products-table-wrap) {
+    height: calc(100dvh - 96px) !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .page-card:has(.products-table-wrap) > div {
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .products-header,
+  .products-summary {
+    flex: 0 0 auto !important;
+  }
+
+  .products-table-wrap {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: auto !important;
+  }
+
+  .products-table thead th {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 5 !important;
+  }
+}

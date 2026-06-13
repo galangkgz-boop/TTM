@@ -1210,13 +1210,18 @@ async function openCashierSession() {
     return;
   }
 
-  const openingCashInput = prompt("Masukkan modal awal kasir:", "0");
-  const openingCash = Number(openingCashInput || 0);
+  const input = prompt("Masukkan modal awal kasir");
 
-  if (Number.isNaN(openingCash) || openingCash < 0) {
-    alert("Modal awal tidak valid.");
-    return;
-  }
+if (input === null) {
+  return;
+}
+
+const openingCash = Number(input);
+
+if (!Number.isFinite(openingCash) || openingCash <= 0) {
+  alert("Modal awal kasir harus lebih dari 0.");
+  return;
+}
 
   const openedAt = new Date().toISOString();
 

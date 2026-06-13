@@ -1,7 +1,7 @@
 import * as qz from "qz-tray";
 
 const DEFAULT_PRINTER_NAME = "EPPOS";
-const RECEIPT_WIDTH = 30;
+const RECEIPT_WIDTH = 32;
 
 function money(value) {
   return Number(value || 0).toLocaleString("id-ID");
@@ -15,8 +15,10 @@ function centerText(text, width) {
     return safeText.slice(0, safeWidth);
   }
 
-  const leftPadding = Math.floor((safeWidth - safeText.length) / 2);
-  return " ".repeat(leftPadding) + safeText;
+  const leftPadding = Math.max(0, Math.floor((safeWidth - safeText.length) / 2));
+  const rightPadding = Math.max(0, safeWidth - safeText.length - leftPadding);
+
+  return " ".repeat(leftPadding) + safeText + " ".repeat(rightPadding);
 }
 
 function line(char) {
@@ -74,32 +76,29 @@ export function buildThermalReceipt(transaction, settings) {
 
   receiptLines.push(centerText(storeName.toUpperCase()));
 
-  if (address) {
-    wrapText(address).forEach(function (text) {
-      receiptLines.push(centerText(text));
-    });
-  }
+if (address) {
+  wrapText(address, RECEIPT_WIDTH).forEach(function (text) {
+    receiptLines.push(centerText(text));
+  });
+}
 
-  if (phone) {
-    receiptLines.push(centerText("WA: " + phone));
-  }
-
-  receiptLines.push(line());
-  receiptLines.push("No: " + (transaction.code || "-"));
-  receiptLines.push(
-    "Tgl: " +
-      new Date(transaction.date).toLocaleString("id-ID", {
-        dateStyle: "short",
-        timeStyle: "short",
-      })
-  );
-  receiptLines.push("Bayar: " + (transaction.paymentMethod || "Cash"));
-  receiptLines.push(line());
+receiptLines.push(line());
+receiptLines.push("No    : " + (transaction.code || "-"));
+receiptLines.push(
+  "Tgl   : " +
+    new Date(transaction.date).toLocaleString("id-ID", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+);
+receiptLines.push("Bayar : " + (transaction.paymentMethod || "Cash"));
+receiptLines.push(line());
 
   transaction.items.forEach(function (item) {
-  const itemNameLines = wrapText(item.name, RECEIPT_WIDTH);
-
-  itemNameLines.forEach(function (text) {
+  wrapText(item.name, RECEIPT_WIDTH).forEach(function (text) {
     receiptLines.push(text);
   });
 
@@ -123,21 +122,25 @@ export function buildThermalReceipt(transaction, settings) {
   receiptLines.push(padLine("Kembali", money(transaction.change)));
   receiptLines.push(line());
 
-  if (receiptNote) {
-    wrapText(receiptNote).forEach(function (text) {
-      receiptLines.push(centerText(text));
-    });
-  }
+  receiptLines.push(centerText("Terima kasih sudah belanja"));
 
-  receiptLines.push("");
-  receiptLines.push("");
-  receiptLines.push("");
+receiptLines.push("");
+receiptLines.push(centerText("Pemesanan / info produk:"));
+
+if (phone) {
+  receiptLines.push(centerText(phone));
+}
+
+receiptLines.push("");
+receiptLines.push("");
+receiptLines.push("");
+receiptLines.push("");
 
   return [
     {
       type: "raw",
       format: "plain",
-      data: receiptLines.join("\n"),
+      data: receiptLines.join("\n") +"\n\n\n\n",
     },
   ];
 }

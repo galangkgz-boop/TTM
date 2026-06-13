@@ -736,3 +736,13 @@
     font-weight: 950 !important;
   }
 }
+
+/* Kasir: produk sedikit jangan memanjang ke bawah */
+.product-grid {
+  align-content: start !important;
+}
+
+.product-card,
+.product-main-button {
+  height: auto !important;
+}
