@@ -3834,6 +3834,7 @@ function exportStockBatchesCsv() {
 
 function TransactionsPage({ transactions, settings, onClearTransactions, onRetrySingleTransactionSync }) {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [historyPeriod, setHistoryPeriod] = useState("all");
 
   function exportTransactionsCsv() {
   if (transactions.length === 0) {
@@ -3898,15 +3899,62 @@ function TransactionsPage({ transactions, settings, onClearTransactions, onRetry
   downloadCsvFile(filename, rows);
 }
 
-  const totalOmzet = transactions.reduce(
-    (total, transaction) => total + transaction.total,
-    0
+  function isHistoryTransactionInPeriod(transactionDate, period) {
+  const date = new Date(transactionDate);
+  const now = new Date();
+
+  const startOfToday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
   );
 
-  const totalProfit = transactions.reduce(
-    (total, transaction) => total + transaction.profit,
-    0
-  );
+  const startOfTomorrow = new Date(startOfToday);
+  startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
+
+  if (period === "daily") {
+    return date >= startOfToday && date < startOfTomorrow;
+  }
+
+  if (period === "weekly") {
+    const startOfWeek = new Date(startOfToday);
+    const day = startOfWeek.getDay();
+    const diff = day === 0 ? 6 : day - 1;
+    startOfWeek.setDate(startOfWeek.getDate() - diff);
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(endOfWeek.getDate() + 7);
+
+    return date >= startOfWeek && date < endOfWeek;
+  }
+
+  if (period === "monthly") {
+    return (
+      date.getFullYear() === now.getFullYear() &&
+      date.getMonth() === now.getMonth()
+    );
+  }
+
+  if (period === "yearly") {
+    return date.getFullYear() === now.getFullYear();
+  }
+
+  return true;
+}
+
+const filteredTransactions = transactions.filter((transaction) =>
+  isHistoryTransactionInPeriod(transaction.date, historyPeriod)
+);
+
+const totalOmzet = filteredTransactions.reduce(
+  (total, transaction) => total + Number(transaction.total || 0),
+  0
+);
+
+const totalProfit = filteredTransactions.reduce(
+  (total, transaction) => total + Number(transaction.profit || 0),
+  0
+);
 
   return (
     <div>
@@ -3918,46 +3966,94 @@ function TransactionsPage({ transactions, settings, onClearTransactions, onRetry
           </p>
         </div>
 
-        {transactions.length > 0 ? (
-  <div className="transaction-header-actions">
-    <button
-      type="button"
-      className="secondary-button"
-      onClick={exportTransactionsCsv}
-    >
-      Export CSV
-    </button>
+        <div className="transaction-header-actions">
+  {transactions.length > 0 ? (
+    <div className="history-export-actions">
+      <button
+        type="button"
+        className="secondary-button"
+        onClick={exportTransactionsCsv}
+      >
+        Export CSV
+      </button>
 
-    <button
-      type="button"
-      className="danger-button"
-      onClick={onClearTransactions}
-    >
-      Hapus Riwayat
-    </button>
-  </div>
-) : null}
+      <button
+        type="button"
+        className="danger-button"
+        onClick={onClearTransactions}
+      >
+        Hapus Riwayat
+      </button>
+    </div>
+  ) : null}
+</div>
       </div>
 
       <div className="history-summary">
-        <div>
-          <span>Total Transaksi</span>
-          <strong>{transactions.length}</strong>
-        </div>
+  <div>
+    <span>Total Transaksi</span>
+    <strong>{filteredTransactions.length}</strong>
+  </div>
 
-        <div>
-          <span>Total Omzet</span>
-          <strong>{formatRupiah(totalOmzet)}</strong>
-        </div>
+  <div>
+    <span>Total Omzet</span>
+    <strong>{formatRupiah(totalOmzet)}</strong>
+  </div>
 
-        <div>
-          <span>Total Profit</span>
-          <strong>{formatRupiah(totalProfit)}</strong>
-        </div>
-      </div>
+  <div>
+    <span>Total Profit</span>
+    <strong>{formatRupiah(totalProfit)}</strong>
+  </div>
+
+  <div className="history-period-card">
+    <span>Filter Periode</span>
+
+    <div className="history-filter">
+      <button
+        type="button"
+        className={historyPeriod === "daily" ? "active" : ""}
+        onClick={() => setHistoryPeriod("daily")}
+      >
+        Harian
+      </button>
+
+      <button
+        type="button"
+        className={historyPeriod === "weekly" ? "active" : ""}
+        onClick={() => setHistoryPeriod("weekly")}
+      >
+        Mingguan
+      </button>
+
+      <button
+        type="button"
+        className={historyPeriod === "monthly" ? "active" : ""}
+        onClick={() => setHistoryPeriod("monthly")}
+      >
+        Bulanan
+      </button>
+
+      <button
+        type="button"
+        className={historyPeriod === "yearly" ? "active" : ""}
+        onClick={() => setHistoryPeriod("yearly")}
+      >
+        Tahunan
+      </button>
+
+      <button
+        type="button"
+        className={historyPeriod === "all" ? "active" : ""}
+        onClick={() => setHistoryPeriod("all")}
+      >
+        Semua
+      </button>
+    </div>
+  </div>
+</div>
 
       <div className="transaction-list">
-        {transactions.map((transaction) => (
+        {filteredTransactions.map((transaction) => (
           <div key={transaction.id} className="transaction-card">
             <div className="transaction-card-header">
               <div>
@@ -4034,10 +4130,16 @@ function TransactionsPage({ transactions, settings, onClearTransactions, onRetry
         ))}
 
         {transactions.length === 0 ? (
-          <div className="empty-state">
-            Belum ada transaksi. Coba lakukan transaksi dari halaman Kasir.
-          </div>
-        ) : null}
+  <div className="empty-state">
+    Belum ada transaksi. Coba lakukan transaksi dari halaman Kasir.
+  </div>
+) : null}
+
+{transactions.length > 0 && filteredTransactions.length === 0 ? (
+  <div className="empty-state">
+    Tidak ada transaksi pada periode ini.
+  </div>
+) : null}
       </div>
 
       {selectedTransaction ? (
