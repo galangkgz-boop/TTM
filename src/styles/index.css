@@ -1,0 +1,10 @@
+@import "./modern-pos.css";
+
+/* Next split target */
+@import "./base.css";
+@import "./pages/dashboard.css";
+@import "./pages/cashier.css";
+@import "./pages/products.css";
+@import "./pages/inventory.css";
+@import "./pages/history.css";
+@import "./pages/reports.css";
