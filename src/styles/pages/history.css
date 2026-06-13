@@ -484,3 +484,110 @@
   border-radius: 10px !important;
   font-size: 11px !important;
 }
+
+/* Laptop/Desktop history layout refinement */
+@media (min-width: 1200px) {
+  .transaction-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .transaction-card {
+    padding: 16px 18px !important;
+    border-radius: 20px !important;
+  }
+
+  .transaction-card-header {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 12px !important;
+    align-items: start !important;
+    padding-bottom: 12px !important;
+  }
+
+  .transaction-card-header h4 {
+    font-size: 16px !important;
+    margin-bottom: 5px !important;
+  }
+
+  .transaction-card-header p {
+    font-size: 12px !important;
+  }
+
+  .transaction-header-actions {
+    align-items: flex-end !important;
+    gap: 7px !important;
+  }
+
+  .transaction-items {
+    padding: 12px 0 !important;
+    gap: 7px !important;
+  }
+
+  .transaction-items div {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+
+  .transaction-items span {
+    font-size: 13px !important;
+    line-height: 1.35 !important;
+  }
+
+  .transaction-items strong {
+    font-size: 13px !important;
+    white-space: nowrap !important;
+  }
+
+  .transaction-payment {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    padding-top: 12px !important;
+  }
+
+  .transaction-payment div {
+    padding: 10px 12px !important;
+    border-radius: 14px !important;
+    min-height: 58px !important;
+  }
+
+  .transaction-payment span {
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+  }
+
+  .transaction-payment strong {
+    font-size: 14px !important;
+  }
+
+  .detail-button {
+    min-height: 32px !important;
+    padding: 0 12px !important;
+    font-size: 11px !important;
+  }
+}
+
+/* Rapikan jarak kiri item transaksi di card riwayat */
+.transaction-items {
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+}
+
+.transaction-items div,
+.transaction-items li {
+  padding-left: 8px !important;
+}
+
+.transaction-items ul {
+  padding-left: 22px !important;
+  margin-left: 0 !important;
+}
+
+.transaction-items li::marker {
+  font-size: 0.8em;
+}

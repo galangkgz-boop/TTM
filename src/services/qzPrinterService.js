@@ -1,56 +1,51 @@
 import * as qz from "qz-tray";
 
 const DEFAULT_PRINTER_NAME = "EPPOS";
-const RECEIPT_WIDTH = 32;
+const RECEIPT_WIDTH = 30;
 
 function money(value) {
   return Number(value || 0).toLocaleString("id-ID");
 }
 
-function centerText(text, width = RECEIPT_WIDTH) {
-  const cleanText = String(text || "").trim();
+function centerText(text, width) {
+  const safeWidth = width || RECEIPT_WIDTH;
+  const safeText = String(text || "").trim();
 
-  if (cleanText.length >= width) {
-    return cleanText.slice(0, width);
+  if (safeText.length >= safeWidth) {
+    return safeText.slice(0, safeWidth);
   }
 
-  const leftPadding = Math.floor((width - cleanText.length) / 2);
-  return " ".repeat(leftPadding) + cleanText;
+  const leftPadding = Math.floor((safeWidth - safeText.length) / 2);
+  return " ".repeat(leftPadding) + safeText;
 }
 
-function padReceiptLine(left, right, width = RECEIPT_WIDTH) {
-  const leftText = String(left || "");
-  const rightText = String(right || "");
-  const spaceCount = Math.max(1, width - leftText.length - rightText.length);
-
-  return leftText + " ".repeat(spaceCount) + rightText;
+function line(char) {
+  return String(char || "-").repeat(RECEIPT_WIDTH);
 }
 
-function padThreeColumns(left, middle, right, width = RECEIPT_WIDTH) {
-  const leftText = String(left || "");
-  const middleText = String(middle || "");
-  const rightText = String(right || "");
+function padLine(left, right, width) {
+  const safeWidth = width || RECEIPT_WIDTH;
+  const safeLeft = String(left || "");
+  const safeRight = String(right || "");
+  const space = safeWidth - safeLeft.length - safeRight.length;
 
-  const leftWidth = 10;
-  const middleWidth = 8;
-  const rightWidth = width - leftWidth - middleWidth;
+  if (space <= 1) {
+    return safeLeft.slice(0, safeWidth - safeRight.length - 1) + " " + safeRight;
+  }
 
-  return (
-    leftText.padEnd(leftWidth, " ").slice(0, leftWidth) +
-    middleText.padEnd(middleWidth, " ").slice(0, middleWidth) +
-    rightText.padStart(rightWidth, " ").slice(-rightWidth)
-  );
+  return safeLeft + " ".repeat(space) + safeRight;
 }
 
-function wrapReceiptText(text, maxLength = RECEIPT_WIDTH) {
-  const words = String(text || "").trim().split(/\s+/).filter(Boolean);
+function wrapText(text, maxLength) {
+  const safeMaxLength = maxLength || RECEIPT_WIDTH;
+  const words = String(text || "").split(" ");
   const lines = [];
   let currentLine = "";
 
-  words.forEach((word) => {
+  for (const word of words) {
     const nextLine = currentLine ? currentLine + " " + word : word;
 
-    if (nextLine.length > maxLength) {
+    if (nextLine.length > safeMaxLength) {
       if (currentLine) {
         lines.push(currentLine);
       }
@@ -59,80 +54,91 @@ function wrapReceiptText(text, maxLength = RECEIPT_WIDTH) {
     } else {
       currentLine = nextLine;
     }
-  });
+  }
 
   if (currentLine) {
     lines.push(currentLine);
   }
 
-  return lines;
+  return lines.length > 0 ? lines : [""];
 }
 
-function buildReceiptHeader(settings) {
-  const storeName = String(settings?.storeName || "TOKO TELON MINDI").toUpperCase();
-  const address = String(settings?.address || "").toUpperCase();
-  const phone = String(settings?.phone || "");
+export function buildThermalReceipt(transaction, settings) {
+  const safeSettings = settings || {};
+  const storeName = safeSettings.storeName || "Toko Telon Mindi";
+  const address = safeSettings.address || "";
+  const phone = safeSettings.phone || "";
+  const receiptNote = safeSettings.receiptNote || "Terima kasih sudah belanja.";
 
-  return [
-    centerText(storeName),
-    ...wrapReceiptText(address, RECEIPT_WIDTH).map(centerText),
-    phone ? centerText("WA: " + phone) : "",
-  ].filter(Boolean);
-}
+  const receiptLines = [];
 
-export function buildThermalReceipt(transaction, settings = {}) {
-  const line = "--------------------------------\n";
-  const note = settings.receiptNote || "Terima kasih sudah belanja.";
+  receiptLines.push(centerText(storeName.toUpperCase()));
 
-  const itemLines = (transaction.items || [])
-    .map((item) => {
-      const name = String(item.name || item.productName || "-")
-        .toUpperCase()
-        .slice(0, RECEIPT_WIDTH);
+  if (address) {
+    wrapText(address).forEach(function (text) {
+      receiptLines.push(centerText(text));
+    });
+  }
 
-      const qty = Number(item.qty || 0);
-      const price = Number(item.price || 0);
-      const subtotal = Number(item.subtotal || qty * price);
+  if (phone) {
+    receiptLines.push(centerText("WA: " + phone));
+  }
 
-      return (
-        name +
-        "\n" +
-        padThreeColumns(money(price), "x " + qty, money(subtotal)) +
-        "\n"
-      );
-    })
-    .join("");
-
-  return [
-    "\x1B\x40",
-    "\x1B\x61\x01",
-    ...buildReceiptHeader(settings).map((text) => text + "\n"),
-    "\x1B\x61\x00",
-    line,
-    "No: " + (transaction.code || "-") + "\n",
+  receiptLines.push(line());
+  receiptLines.push("No: " + (transaction.code || "-"));
+  receiptLines.push(
     "Tgl: " +
       new Date(transaction.date).toLocaleString("id-ID", {
         dateStyle: "short",
         timeStyle: "short",
-        timeZone: "Asia/Jakarta",
-      }) +
-      "\n",
-    "Bayar: " + (transaction.paymentMethod || "Cash") + "\n",
-    line,
-    itemLines,
-    line,
-    padReceiptLine("Subtotal", money(transaction.subtotal || 0)) + "\n",
-    Number(transaction.discount || 0) > 0
-      ? padReceiptLine("Diskon", "-" + money(transaction.discount || 0)) + "\n"
-      : "",
-    padReceiptLine("TOTAL", money(transaction.total || 0)) + "\n",
-    padReceiptLine("Tunai", money(transaction.cashReceived || 0)) + "\n",
-    padReceiptLine("Kembali", money(transaction.change || 0)) + "\n",
-    line,
-    "\x1B\x61\x01",
-    note + "\n",
-    "\n\n\n",
-    "\x1D\x56\x00",
+      })
+  );
+  receiptLines.push("Bayar: " + (transaction.paymentMethod || "Cash"));
+  receiptLines.push(line());
+
+  transaction.items.forEach(function (item) {
+  const itemNameLines = wrapText(item.name, RECEIPT_WIDTH);
+
+  itemNameLines.forEach(function (text) {
+    receiptLines.push(text);
+  });
+
+  receiptLines.push(
+    padLine(
+      String(item.qty || 0) + " x " + money(item.price),
+      money(item.subtotal)
+    )
+  );
+
+  if (item.variantName) {
+    receiptLines.push("Varian: " + item.variantName);
+  }
+});
+
+  receiptLines.push(line());
+  receiptLines.push(padLine("Subtotal", money(transaction.subtotal)));
+  receiptLines.push(padLine("Diskon", money(transaction.discount)));
+  receiptLines.push(padLine("TOTAL", money(transaction.total)));
+  receiptLines.push(padLine("Tunai", money(transaction.cashReceived)));
+  receiptLines.push(padLine("Kembali", money(transaction.change)));
+  receiptLines.push(line());
+
+  if (receiptNote) {
+    wrapText(receiptNote).forEach(function (text) {
+      receiptLines.push(centerText(text));
+    });
+  }
+
+  receiptLines.push("");
+  receiptLines.push("");
+  receiptLines.push("");
+
+  return [
+    {
+      type: "raw",
+      format: "plain",
+      data: receiptLines.join("\n"),
+    },
   ];
 }
 
@@ -142,40 +148,37 @@ export async function connectQzTray() {
   }
 }
 
-export async function testQzConnection() {
-  await connectQzTray();
-  return qz.websocket.isActive();
-}
-
-export async function printThermalReceiptQz(transaction, settings = {}) {
+export async function printThermalReceiptQz(transaction, settings) {
   await connectQzTray();
 
-  const printerName = settings.printerName || DEFAULT_PRINTER_NAME;
+  const safeSettings = settings || {};
+  const printerName = safeSettings.printerName || DEFAULT_PRINTER_NAME;
   const config = qz.configs.create(printerName);
-  const data = buildThermalReceipt(transaction, settings);
+  const data = buildThermalReceipt(transaction, safeSettings);
 
   await qz.print(config, data);
 }
 
-export async function printTestReceiptQz(settings = {}) {
+export async function printTestReceiptQz(settings) {
   const testTransaction = {
     code: "TEST-PRINT-QZ",
     date: new Date().toISOString(),
     paymentMethod: "Cash",
-    subtotal: 10000,
+    subtotal: 1000,
     discount: 0,
-    total: 10000,
-    cashReceived: 10000,
+    total: 1000,
+    cashReceived: 1000,
     change: 0,
     items: [
       {
+        id: "test",
         name: "TEST PRINT THERMAL",
         qty: 1,
-        price: 10000,
-        subtotal: 10000,
+        price: 1000,
+        subtotal: 1000,
       },
     ],
   };
 
-  await printThermalReceiptQz(testTransaction, settings);
+  await printThermalReceiptQz(testTransaction, settings || {});
 }

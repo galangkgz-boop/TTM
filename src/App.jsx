@@ -27,6 +27,10 @@ import {
   fetchCashierClosingsFromSupabase,
 } from "./services/supabaseDataService";
 import { supabase } from "./lib/supabaseClient";
+import {
+  printThermalReceiptQz,
+  printTestReceiptQz,
+} from "./services/qzPrinterService";
 
 const TRANSACTIONS_STORAGE_KEY = "ttm_pos_transactions";
 const STOCK_BATCHES_STORAGE_KEY = "ttm_pos_stock_batches";
@@ -41,7 +45,8 @@ const defaultSettings = {
   phone: "",
   receiptNote: "Terima kasih sudah belanja.",
   lowStockThreshold: 10,
-  autoLoadSupabase: true
+  autoLoadSupabase: true,
+  printerName: "EPPOS",
 };
 
 function createTransactionCode(existingTransactions) {
@@ -4511,12 +4516,19 @@ function ReceiptModal({ transaction, settings, onClose }) {
   </button>
 
   <button
-    type="button"
-    className="finish-button"
-    onClick={() => window.print()}
-  >
-    Cetak Struk
-  </button>
+  type="button"
+  className="finish-button"
+  onClick={async () => {
+    try {
+      await printThermalReceiptQz(transaction, settings);
+      onClose();
+    } catch (error) {
+      alert("Gagal cetak QZ: " + (error?.message || error));
+    }
+  }}
+>
+  Cetak Struk
+</button>
 </div>
       </div>
     </div>
@@ -5234,6 +5246,24 @@ if (importConfirmation !== "IMPORT") {
     <h4>Backup Lokal</h4>
     <p>Export dan import data lokal browser dalam format JSON.</p>
   </div>
+
+  <button
+  type="button"
+  className="secondary-button"
+  onClick={async () => {
+    try {
+      await printTestReceiptQz({
+        ...settings,
+        printerName: settings.printerName || "EPPOS",
+      });
+      alert("Test print QZ berhasil dikirim.");
+    } catch (error) {
+      alert("Gagal test print QZ: " + (error?.message || error));
+    }
+  }}
+>
+  Test Print QZ
+</button>
 
   <div className="settings-button-grid">
     <button
