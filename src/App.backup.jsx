@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import "./styles/index.css";
+import { dummyProducts } from "./db/dummyProducts";
+import { dummyStockBatches } from "./db/dummyStockBatches";
+import { dummyProductVariants } from "./db/dummyProductVariants";
 import { formatRupiah } from "./lib/format";
 import {
   fetchProductsFromSupabase,
@@ -46,44 +49,24 @@ const defaultSettings = {
   printerName: "EPPOS",
 };
 
-const pinLoginUsers = {
-  admin: {
-    label: "Admin",
-    email: import.meta.env.VITE_ADMIN_LOGIN_EMAIL || "",
-    password: import.meta.env.VITE_ADMIN_LOGIN_PASSWORD || "",
-    pin: import.meta.env.VITE_ADMIN_LOGIN_PIN || "",
-  },
-  cashier: {
-    label: "Kasir",
-    email: import.meta.env.VITE_CASHIER_LOGIN_EMAIL || "",
-    password: import.meta.env.VITE_CASHIER_LOGIN_PASSWORD || "",
-    pin: import.meta.env.VITE_CASHIER_LOGIN_PIN || "",
-  },
-};
-
-function createTransactionCode() {
+function createTransactionCode(existingTransactions) {
   const now = new Date();
 
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
   const day = String(now.getDate()).padStart(2, "0");
 
-  const hour = String(now.getHours()).padStart(2, "0");
-  const minute = String(now.getMinutes()).padStart(2, "0");
-  const second = String(now.getSeconds()).padStart(2, "0");
-  const millisecond = String(now.getMilliseconds()).padStart(3, "0");
+  const dateCode = String(year) + month + day;
+  const prefix = "TRX-" + dateCode + "-";
 
-  return (
-    "TRX-" +
-    year +
-    month +
-    day +
-    "-" +
-    hour +
-    minute +
-    second +
-    millisecond
+  const todayTransactions = existingTransactions.filter((transaction) =>
+    transaction.code.startsWith(prefix)
   );
+
+  const nextNumber = todayTransactions.length + 1;
+  const sequence = String(nextNumber).padStart(4, "0");
+
+  return prefix + sequence;
 }
 
 function getProductStockFromBatches(productId, stockBatches) {
@@ -235,28 +218,6 @@ function downloadCsvFile(filename, rows) {
   URL.revokeObjectURL(url);
 }
 
-function formatWhatsAppNumber(phone) {
-  if (!phone) {
-    return "";
-  }
-
-  const cleanedPhone = String(phone).replace(/\D/g, "");
-
-  if (!cleanedPhone) {
-    return "";
-  }
-
-  if (cleanedPhone.startsWith("62")) {
-    return "+" + cleanedPhone;
-  }
-
-  if (cleanedPhone.startsWith("0")) {
-    return "+62" + cleanedPhone.slice(1);
-  }
-
-  return "+62" + cleanedPhone;
-}
-
 function mapSupabaseProduct(product) {
   return {
     id: product.id,
@@ -329,37 +290,37 @@ function App() {
   const [activePage, setActivePage] = useState("cashier");
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isUnlocked, setIsUnlocked] = useState(false);
-  const [selectedLoginRole, setSelectedLoginRole] = useState("cashier");
-  const [loginPin, setLoginPin] = useState("");
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
   const [currentProfile, setCurrentProfile] = useState(null);
   const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [supabaseStatus, setSupabaseStatus] = useState("idle");
   const [products, setProducts] = useState(() => {
-    const savedProducts = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+  const savedProducts = localStorage.getItem(PRODUCTS_STORAGE_KEY);
 
   if (!savedProducts) {
-  return [];
-}
+    return dummyProducts;
+  }
 
-try {
-  return JSON.parse(savedProducts);
-} catch {
-  return [];
-}
-  });
+  try {
+    return JSON.parse(savedProducts);
+  } catch {
+    return dummyProducts;
+  }
+});
 
   const [productVariants, setProductVariants] = useState(() => {
   const savedVariants = localStorage.getItem(PRODUCT_VARIANTS_STORAGE_KEY);
 
   if (!savedVariants) {
-  return [];
-}
+    return dummyProductVariants;
+  }
 
-try {
-  return JSON.parse(savedVariants);
-} catch {
-  return [];
-}
+  try {
+    return JSON.parse(savedVariants);
+  } catch {
+    return dummyProductVariants;
+  }
 });
 
   const [settings, setSettings] = useState(() => {
@@ -383,14 +344,14 @@ try {
   const savedStockBatches = localStorage.getItem(STOCK_BATCHES_STORAGE_KEY);
 
   if (!savedStockBatches) {
-  return [];
-}
+    return dummyStockBatches;
+  }
 
-try {
-  return JSON.parse(savedStockBatches);
-} catch {
-  return [];
-}
+  try {
+    return JSON.parse(savedStockBatches);
+  } catch {
+    return dummyStockBatches;
+  }
 });
 
   const [transactions, setTransactions] = useState(() => {
@@ -415,7 +376,7 @@ try {
   const currentRole = currentProfile ? currentProfile.role : "cashier";
 
   const menus = [
-  { id: "dashboard", label: "Dashboard", roles: ["admin", "cashier"] },
+  { id: "dashboard", label: "Dashboard", roles: ["admin"] },
   { id: "cashier", label: "Kasir", roles: ["admin", "cashier"] },
   { id: "products", label: "Produk", roles: ["admin"] },
   { id: "inventory", label: "Stok", roles: ["admin"] },
@@ -486,6 +447,9 @@ const [cashierSession, setCashierSession] = useState(() => {
 });
 const [isCloseCashierPreviewOpen, setIsCloseCashierPreviewOpen] = useState(false);
 const [actualClosingCash, setActualClosingCash] = useState("");
+const [cashModal, setCashModal] = useState(null);
+const [cashModalAmount, setCashModalAmount] = useState("");
+const [cashModalNote, setCashModalNote] = useState("");
 const [cashFlowModalType, setCashFlowModalType] = useState(null);
 const [cashFlowNote, setCashFlowNote] = useState("");
 const [cashFlowAmount, setCashFlowAmount] = useState("");
@@ -592,34 +556,16 @@ useEffect(() => {
 async function submitLogin(event) {
   event.preventDefault();
 
-  const loginUser = pinLoginUsers[selectedLoginRole];
-
-  if (!loginUser) {
-    alert("Pilih user login terlebih dahulu.");
-    return;
-  }
-
-  if (!loginUser.email || !loginUser.password || !loginUser.pin) {
-    alert("Konfigurasi login PIN belum lengkap. Cek file .env.local.");
-    return;
-  }
-
-  if (!loginPin.trim()) {
-    alert("PIN wajib diisi.");
-    return;
-  }
-
-  if (loginPin.trim() !== loginUser.pin) {
-    alert("PIN salah.");
-    setLoginPin("");
+  if (!loginEmail.trim() || !loginPassword.trim()) {
+    alert("Email dan password wajib diisi.");
     return;
   }
 
   setIsAuthLoading(true);
 
   const { data, error } = await supabase.auth.signInWithPassword({
-    email: loginUser.email,
-    password: loginUser.password,
+    email: loginEmail.trim(),
+    password: loginPassword,
   });
 
   if (error) {
@@ -638,23 +584,9 @@ async function submitLogin(event) {
       return;
     }
 
-    if (profile.role !== selectedLoginRole) {
-      await supabase.auth.signOut();
-      setIsAuthLoading(false);
-      setLoginPin("");
-      alert("Role akun tidak sesuai dengan tombol login yang dipilih.");
-      return;
-    }
-
     setCurrentProfile(profile);
     setIsUnlocked(true);
-    setLoginPin("");
-
-    if (profile.role === "admin") {
-      setActivePage("dashboard");
-    } else {
-      setActivePage("dashboard");
-    }
+    setLoginPassword("");
   } catch (profileError) {
     await supabase.auth.signOut();
     alert("Gagal membaca role user: " + profileError.message);
@@ -682,7 +614,7 @@ function reduceProductStock(cartItems) {
 
 function clearTransactions() {
   const confirmClear = window.confirm(
-    "Hapus riwayat transaksi lokal di browser ini? Stok FIFO, produk, varian, pengaturan, dan data Supabase tidak akan dihapus."
+    "Hapus semua riwayat transaksi sementara dan reset stok FIFO?"
   );
 
   if (confirmClear === false) {
@@ -690,9 +622,10 @@ function clearTransactions() {
   }
 
   setTransactions([]);
-  localStorage.removeItem(TRANSACTIONS_STORAGE_KEY);
+  setStockBatches(dummyStockBatches);
 
-  alert("Riwayat transaksi lokal berhasil dihapus. Stok dan data produk tetap aman.");
+  localStorage.removeItem(TRANSACTIONS_STORAGE_KEY);
+  localStorage.removeItem(STOCK_BATCHES_STORAGE_KEY);
 }
 
 async function addProduct(newProduct) {
@@ -923,28 +856,19 @@ function mapSupabaseTransaction(transaction) {
   }));
 
   return {
-  id: transaction.id,
-  code: transaction.code,
-  date: transaction.transaction_date,
-  items: items,
-  subtotal: Number(transaction.subtotal || 0),
-  discount: Number(transaction.discount || 0),
-  total: Number(transaction.total || 0),
-  cashReceived: Number(transaction.cash_received || 0),
-  change: Number(transaction.change_amount || 0),
-  paymentMethod: transaction.payment_method || "Cash",
-  profit: Number(transaction.profit || 0),
-  cashierName: transaction.cashier_name || "",
-  cashierRole: transaction.cashier_role || "",
-  paymentStatus: transaction.payment_status || "paid",
-  paidAmount: Number(transaction.paid_amount || transaction.cash_received || 0),
-  debtAmount: Number(transaction.debt_amount || 0),
-  customerName: transaction.customer_name || "",
-  customerPhone: transaction.customer_phone || "",
-  debtNote: transaction.debt_note || "",
-  dueDate: transaction.due_date || "",
-  syncStatus: "synced"
-};
+    id: transaction.id,
+    code: transaction.code,
+    date: transaction.transaction_date,
+    items: items,
+    subtotal: Number(transaction.subtotal || 0),
+    discount: Number(transaction.discount || 0),
+    total: Number(transaction.total || 0),
+    cashReceived: Number(transaction.cash_received || 0),
+    change: Number(transaction.change_amount || 0),
+    paymentMethod: transaction.payment_method || "Cash",
+    profit: Number(transaction.profit || 0),
+    syncStatus: "synced"
+  };
 }
 
 function mergeSupabaseTransactionsWithLocalFailed(
@@ -1157,7 +1081,7 @@ async function retryFailedTransactionSync(showAlert = true) {
     if (showAlert) {
     alert("Tidak ada transaksi gagal/pending untuk disinkron ulang.");
     }
-    
+    s
     return;
   }
 
@@ -1575,41 +1499,22 @@ if (isUnlocked === false) {
 
         <div>
           <h1>{settings.storeName}</h1>
-          <p>Pilih user, lalu masukkan PIN.</p>
-        </div>
-
-        <div className="pin-role-tabs">
-          <button
-            type="button"
-            className={selectedLoginRole === "admin" ? "pin-role-tab active" : "pin-role-tab"}
-            onClick={() => {
-              setSelectedLoginRole("admin");
-              setLoginPin("");
-            }}
-          >
-            Admin
-          </button>
-
-          <button
-            type="button"
-            className={selectedLoginRole === "cashier" ? "pin-role-tab active" : "pin-role-tab"}
-            onClick={() => {
-              setSelectedLoginRole("cashier");
-              setLoginPin("");
-            }}
-          >
-            Kasir
-          </button>
+          <p>Login sesuai akun Admin atau Kasir.</p>
         </div>
 
         <input
-          type="password"
-          inputMode="numeric"
-          pattern="[0-9]*"
-          value={loginPin}
-          onChange={(event) => setLoginPin(event.target.value.replace(/\D/g, ""))}
-          placeholder="Masukkan PIN"
+          type="email"
+          value={loginEmail}
+          onChange={(event) => setLoginEmail(event.target.value)}
+          placeholder="Email"
           autoFocus
+        />
+
+        <input
+          type="password"
+          value={loginPassword}
+          onChange={(event) => setLoginPassword(event.target.value)}
+          placeholder="Password"
         />
 
         <button type="submit" className="finish-button" disabled={isAuthLoading}>
@@ -1624,8 +1529,19 @@ async function lockPos() {
   await supabase.auth.signOut();
   setIsUnlocked(false);
   setCurrentProfile(null);
-  setLoginPin("");
-  setSelectedLoginRole("cashier");
+  setLoginPassword("");
+}
+
+function openCashModal(type) {
+  setCashModal(type);
+  setCashModalAmount("");
+  setCashModalNote("");
+}
+
+function closeCashModal() {
+  setCashModal(null);
+  setCashModalAmount("");
+  setCashModalNote("");
 }
 
   return (
@@ -1719,7 +1635,6 @@ async function lockPos() {
   transactions={transactions}
   settings={settings}
   cashierSession={cashierSession}
-  currentProfile={currentProfile}
   onAddTransaction={addTransaction} 
 />
           ) : null}
@@ -1749,12 +1664,11 @@ async function lockPos() {
 
           {activePage === "transactions" ? ( 
             <TransactionsPage 
-  transactions={transactions}
-  settings={settings}
-  currentRole={currentRole}
-  onClearTransactions={clearTransactions} 
-  onRetrySingleTransactionSync={retrySingleTransactionSync}
-/>
+              transactions={transactions}
+              settings={settings}
+              onClearTransactions={clearTransactions} 
+              onRetrySingleTransactionSync={retrySingleTransactionSync}
+            /> 
           ) : null}
 
           {activePage === "reports" ? (
@@ -2008,6 +1922,112 @@ async function lockPos() {
 ) : null}
         </section>
       </main>
+
+      {cashModal ? (
+  <div className="modal-backdrop">
+    <div className="cash-modal">
+      <div className="modal-header">
+        <div>
+          <h3>
+            {cashModal === "open"
+              ? "Buka Kasir"
+              : cashModal === "cash-in"
+                ? "Tambah Pemasukan"
+                : cashModal === "cash-out"
+                  ? "Tambah Pengeluaran"
+                  : "Tutup Kasir"}
+          </h3>
+
+          <p>
+            {cashModal === "open"
+              ? "Masukkan modal awal kasir hari ini."
+              : cashModal === "cash-in"
+                ? "Catat uang masuk selain penjualan."
+                : cashModal === "cash-out"
+                  ? "Catat uang keluar dari kasir."
+                  : "Masukkan uang fisik akhir di laci kasir."}
+          </p>
+        </div>
+
+        <button type="button" className="modal-close" onClick={closeCashModal}>
+          ×
+        </button>
+      </div>
+
+      <form
+        className="cash-modal-form"
+        onSubmit={(event) => {
+          event.preventDefault();
+
+          const amount = Number(cashModalAmount || 0);
+
+          if (!Number.isFinite(amount) || amount <= 0) {
+            alert("Nominal harus lebih dari 0.");
+            return;
+          }
+
+          if (cashModal === "open") {
+            openCashierSession(amount);
+          }
+
+          if (cashModal === "cash-in") {
+            addCashIn(amount, cashModalNote.trim());
+          }
+
+          if (cashModal === "cash-out") {
+            addCashOut(amount, cashModalNote.trim());
+          }
+
+          if (cashModal === "close") {
+            closeCashierSession(amount);
+          }
+
+          closeCashModal();
+        }}
+      >
+        <label>
+          Nominal
+          <input
+            type="number"
+            min="1"
+            value={cashModalAmount}
+            onChange={(event) => setCashModalAmount(event.target.value)}
+            placeholder="Contoh: 100000"
+            autoFocus
+          />
+        </label>
+
+        {cashModal === "cash-in" || cashModal === "cash-out" ? (
+          <label>
+            Catatan
+            <input
+              type="text"
+              value={cashModalNote}
+              onChange={(event) => setCashModalNote(event.target.value)}
+              placeholder="Contoh: tambah uang kecil"
+            />
+          </label>
+        ) : null}
+
+        <div className="cash-modal-actions">
+          <button type="button" className="secondary-button" onClick={closeCashModal}>
+            Batal
+          </button>
+
+          <button type="submit" className="finish-button">
+            {cashModal === "open"
+              ? "Buka Kasir"
+              : cashModal === "cash-in"
+                ? "Simpan Pemasukan"
+                : cashModal === "cash-out"
+                  ? "Simpan Pengeluaran"
+                  : "Tutup Kasir"}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+) : null}
     </div>
   );
 }
@@ -2019,21 +2039,15 @@ function CashierPage({
   transactions,
   settings,
   cashierSession,
-  currentProfile,
   onAddTransaction,
 }) {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [cart, setCart] = useState([]);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("Cash");
-const [cashReceived, setCashReceived] = useState("");
-const [discountAmount, setDiscountAmount] = useState("");
-const [customerName, setCustomerName] = useState("");
-const [customerPhone, setCustomerPhone] = useState("");
-const [debtNote, setDebtNote] = useState("");
-const [dueDate, setDueDate] = useState("");
-const [completedTransaction, setCompletedTransaction] = useState(null);
+  const [cashReceived, setCashReceived] = useState("");
+  const [discountAmount, setDiscountAmount] = useState("");
+  const [completedTransaction, setCompletedTransaction] = useState(null);
 
   const activeProducts = useMemo(() => {
   return products
@@ -2099,17 +2113,11 @@ const [completedTransaction, setCompletedTransaction] = useState(null);
   const cartTotal = Math.max(cartSubtotal - safeDiscountAmount, 0);
 
   const numericCashReceived = Number(cashReceived || 0);
-const isDebtPayment = paymentMethod === "Hutang";
-const debtAmount = isDebtPayment
-  ? Math.max(cartTotal - numericCashReceived, 0)
-  : 0;
-const changeAmount = isDebtPayment ? 0 : numericCashReceived - cartTotal;
-
-const isPaymentValid =
-  cart.length > 0 &&
-  !isDiscountTooLarge &&
-  numericCashReceived >= 0 &&
-  (isDebtPayment ? customerName.trim() !== "" : numericCashReceived >= cartTotal);
+  const changeAmount = numericCashReceived - cartTotal;
+  const isPaymentValid =
+    cart.length > 0 &&
+    !isDiscountTooLarge &&
+    numericCashReceived >= cartTotal;
 
     const paymentQuickAmounts = useMemo(() => {
   const total = Number(cartTotal || 0);
@@ -2291,15 +2299,9 @@ function decreaseQty(cartItemId) {
 }
 
 function clearCart() {
-  setCart([]);
-  setDiscountAmount("");
-  setPaymentMethod("Cash");
-  setCashReceived("");
-  setCustomerName("");
-  setCustomerPhone("");
-  setDebtNote("");
-  setDueDate("");
-}
+    setCart([]);
+    setDiscountAmount("");
+  }
 
 function openPaymentModal() {
    if (!cashierSession.isOpen) {
@@ -2310,23 +2312,13 @@ function openPaymentModal() {
   if (cart.length === 0) return;
   if (isDiscountTooLarge) return;
 
-  setPaymentMethod("Cash");
-setCashReceived(String(cartTotal));
-setCustomerName("");
-setCustomerPhone("");
-setDebtNote("");
-setDueDate("");
-setIsPaymentOpen(true);
+  setCashReceived(String(cartTotal));
+  setIsPaymentOpen(true);
 }
 
 function closePaymentModal() {
   setIsPaymentOpen(false);
-  setPaymentMethod("Cash");
   setCashReceived("");
-  setCustomerName("");
-  setCustomerPhone("");
-  setDebtNote("");
-  setDueDate("");
 }
 
 function finishTransaction() {
@@ -2344,63 +2336,35 @@ function finishTransaction() {
 
   const now = new Date();
   const transactionId = "TRX-" + now.getTime();
-  const transactionCode = createTransactionCode();
+  const transactionCode = createTransactionCode(transactions);
 
   const totalProfitBeforeDiscount = fifoResult.items.reduce(
     (total, item) => total + item.profit,
     0
   );
 
-  const paidAmount = isDebtPayment
-  ? Math.min(numericCashReceived, cartTotal)
-  : cartTotal;
-
-const finalDebtAmount = isDebtPayment
-  ? Math.max(cartTotal - paidAmount, 0)
-  : 0;
-
-const paymentStatus = finalDebtAmount > 0
-  ? paidAmount > 0
-    ? "partial"
-    : "unpaid"
-  : "paid";
-
-const transaction = {
-  id: transactionId,
-  code: transactionCode,
-  date: now.toISOString(),
-  items: fifoResult.items,
-  subtotal: cartSubtotal,
-  discount: safeDiscountAmount,
-  total: cartTotal,
-  cashReceived: paidAmount,
-  change: changeAmount,
-  paymentMethod: paymentMethod,
-  profit: totalProfitBeforeDiscount - safeDiscountAmount,
-  cashierName: currentProfile ? currentProfile.name : "",
-  cashierRole: currentProfile ? currentProfile.role : "",
-  paymentStatus: paymentStatus,
-  paidAmount: paidAmount,
-  debtAmount: finalDebtAmount,
-  customerName: customerName.trim(),
-  customerPhone: customerPhone.trim(),
-  debtNote: debtNote.trim(),
-  dueDate: dueDate || "",
-};
+  const transaction = {
+    id: transactionId,
+    code: transactionCode,
+    date: now.toISOString(),
+    items: fifoResult.items,
+    subtotal: cartSubtotal,
+    discount: safeDiscountAmount,
+    total: cartTotal,
+    cashReceived: numericCashReceived,
+    change: changeAmount,
+    paymentMethod: "Cash",
+    profit: totalProfitBeforeDiscount - safeDiscountAmount,
+  };
 
   onAddTransaction(transaction, fifoResult.updatedBatches);
 
   setCompletedTransaction(transaction);
 
   setCart([]);
-setPaymentMethod("Cash");
-setCashReceived("");
-setDiscountAmount("");
-setCustomerName("");
-setCustomerPhone("");
-setDebtNote("");
-setDueDate("");
-setIsPaymentOpen(false);
+  setCashReceived("");
+  setDiscountAmount("");
+  setIsPaymentOpen(false);
 }
 
   return (
@@ -2661,36 +2625,8 @@ const displayStock = Math.max(0, Number(product.stock || 0) - reservedQty);
     <strong>{formatRupiah(cartTotal)}</strong>
   </div>
 
-  <div className="payment-method-tabs">
-  <button
-    type="button"
-    className={paymentMethod === "Cash" ? "payment-method-tab active" : "payment-method-tab"}
-    onClick={() => {
-      setPaymentMethod("Cash");
-      setCashReceived(String(cartTotal));
-      setCustomerName("");
-      setCustomerPhone("");
-      setDebtNote("");
-      setDueDate("");
-    }}
-  >
-    Cash
-  </button>
-
-  <button
-    type="button"
-    className={paymentMethod === "Hutang" ? "payment-method-tab active" : "payment-method-tab"}
-    onClick={() => {
-      setPaymentMethod("Hutang");
-      setCashReceived("0");
-    }}
-  >
-    Hutang
-  </button>
-</div>
-
   <label>
-  {paymentMethod === "Hutang" ? "Dibayar Sekarang" : "Uang Diterima"}
+    Uang Diterima
     <input
       type="number"
       min="0"
@@ -2700,90 +2636,31 @@ const displayStock = Math.max(0, Number(product.stock || 0) - reservedQty);
     />
   </label>
 
-  {paymentMethod === "Hutang" ? (
-  <div className="debt-fields">
-  
-  <div className="debt-row">
-  <label>
-    Nama Pelanggan
-    <input
-      type="text"
-      value={customerName}
-      onChange={(event) => setCustomerName(event.target.value)}
-      placeholder="Contoh: Bu Siti"
-    />
-  </label>
-
-  <label>
-    No WA Pelanggan
-    <input
-      type="text"
-      value={customerPhone}
-      onChange={(event) => setCustomerPhone(event.target.value)}
-      placeholder="Opsional"
-    />
-  </label>
-  </div>
-
-<div className="debt-row">
-  <label>
-    Jatuh Tempo
-    <input
-      type="date"
-      value={dueDate}
-      onChange={(event) => setDueDate(event.target.value)}
-    />
-  </label>
-
-  <div className="debt-summary">
-    <span>Sisa Hutang</span>
-    <strong className={debtAmount > 0 ? "danger-text" : ""}>
-      {formatRupiah(debtAmount)}
-    </strong>
-  </div>
-  </div>
-
-  <label className="full-width">
-    Catatan
-    <input
-      type="text"
-      value={debtNote}
-      onChange={(event) => setDebtNote(event.target.value)}
-      placeholder="Opsional"
-    />
-  </label>
-</div>
-  ) : null}
-
-  {paymentMethod === "Cash" ? (
   <div className="quick-cash-buttons">
-    {paymentQuickAmounts.map((amount) => (
-      <button
-        key={amount}
-        type="button"
-        className={
-          Number(cashReceived || 0) === amount
-            ? "quick-cash-button active"
-            : "quick-cash-button"
-        }
-        onClick={() => setCashReceived(String(amount))}
-      >
-        {formatRupiah(amount)}
-      </button>
-    ))}
-  </div>
-) : null}
+  {paymentQuickAmounts.map((amount) => (
+    <button
+      key={amount}
+      type="button"
+      className={
+        Number(cashReceived || 0) === amount
+          ? "quick-cash-button active"
+          : "quick-cash-button"
+      }
+      onClick={() => setCashReceived(String(amount))}
+    >
+      {formatRupiah(amount)}
+    </button>
+  ))}
+</div>
 
-  {paymentMethod === "Cash" ? (
   <div>
     <span>Kembalian</span>
     <strong className={changeAmount < 0 ? "danger-text" : ""}>
       {formatRupiah(changeAmount)}
     </strong>
   </div>
-) : null}
 
-  {paymentMethod === "Cash" && changeAmount < 0 ? (
+  {changeAmount < 0 ? (
     <p className="payment-warning">
       Uang diterima masih kurang {formatRupiah(Math.abs(changeAmount))}.
     </p>
@@ -2946,7 +2823,7 @@ const dashboardCashierTransactions = dashboardCashierOpenTime
   : [];
 
 const dashboardCashierSalesTotal = dashboardCashierTransactions.reduce(
-  (total, transaction) => total + Number(transaction.cashReceived || 0),
+  (total, transaction) => total + Number(transaction.total || 0),
   0
 );
 
@@ -3059,7 +2936,7 @@ const dashboardEstimatedCash =
         </div>
 
         <div>
-          <span>Kas Diterima</span>
+          <span>Penjualan</span>
           <strong>{formatRupiah(dashboardCashierSalesTotal)}</strong>
         </div>
 
@@ -4295,13 +4172,7 @@ function exportStockBatchesCsv() {
   );
 }
 
-function TransactionsPage({
-  transactions,
-  settings,
-  currentRole,
-  onClearTransactions,
-  onRetrySingleTransactionSync,
-}) {
+function TransactionsPage({ transactions, settings, onClearTransactions, onRetrySingleTransactionSync }) {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [historyPeriod, setHistoryPeriod] = useState("all");
 
@@ -4446,15 +4317,13 @@ const totalProfit = filteredTransactions.reduce(
         Export CSV
       </button>
 
-      {currentRole === "admin" ? (
-  <button
-    type="button"
-    className="danger-button"
-    onClick={onClearTransactions}
-  >
-    Hapus Riwayat
-  </button>
-) : null}
+      <button
+        type="button"
+        className="danger-button"
+        onClick={onClearTransactions}
+      >
+        Hapus Riwayat
+      </button>
     </div>
   ) : null}
 </div>
@@ -4799,10 +4668,10 @@ function ReceiptModal({ transaction, settings, onClose }) {
 
         <div className="receipt-paper printable-receipt">
           <div className="receipt-store">
-  <p className="receipt-business-type">AGEN SOSIS DAN ES KRISTAL</p>
-  <h4>{settings.storeName}</h4>
+            <h4>{settings.storeName}</h4>
 
-  {settings.address ? <p>{settings.address}</p> : null}
+            {settings.address ? <p>{settings.address}</p> : null}
+            {settings.phone ? <p>WA: {settings.phone}</p> : null}
           </div>
 
           <div className="receipt-line" />
@@ -4827,13 +4696,6 @@ function ReceiptModal({ transaction, settings, onClose }) {
               <span>Bayar</span>
               <strong>{transaction.paymentMethod}</strong>
             </div>
-
-            {transaction.cashierName ? (
-  <div>
-    <span>Kasir</span>
-    <strong>{transaction.cashierName}</strong>
-  </div>
-) : null}
           </div>
 
           <div className="receipt-line" />
@@ -4885,15 +4747,8 @@ function ReceiptModal({ transaction, settings, onClose }) {
           <div className="receipt-line" />
 
           <div className="receipt-note">
-  <p>{settings.receiptNote || "Terima kasih sudah belanja."}</p>
-
-  {settings.phone ? (
-    <>
-      <p>Pemesanan / info produk:</p>
-      <p>{formatWhatsAppNumber(settings.phone)}</p>
-    </>
-  ) : null}
-</div>
+            <p>{settings.receiptNote}</p>
+          </div>
         </div>
 
         <div className="receipt-actions">

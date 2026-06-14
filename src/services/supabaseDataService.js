@@ -190,6 +190,13 @@ export async function createTransactionInSupabase(transaction) {
   profit: transaction.profit,
   cashier_name: transaction.cashierName || "",
   cashier_role: transaction.cashierRole || "",
+  payment_status: transaction.paymentStatus || "paid",
+  paid_amount: transaction.paidAmount || 0,
+  debt_amount: transaction.debtAmount || 0,
+  customer_name: transaction.customerName || "",
+  customer_phone: transaction.customerPhone || "",
+  debt_note: transaction.debtNote || "",
+  due_date: transaction.dueDate || null,
 };
 
   const { data: createdTransaction, error: transactionError } = await supabase
