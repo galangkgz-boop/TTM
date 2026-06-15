@@ -391,6 +391,40 @@ export async function saveCashierSessionToSupabase(session) {
   }
 }
 
+export async function fetchOpenCashierSessionFromSupabase() {
+  const { data, error } = await supabase
+    .from("cashier_sessions")
+    .select("*")
+    .eq("is_open", true)
+    .order("opened_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data || null;
+}
+
+export async function fetchCashFlowsBySessionFromSupabase(cashierSessionId) {
+  if (!cashierSessionId) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("cash_flows")
+    .select("*")
+    .eq("cashier_session_id", cashierSessionId)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    throw error;
+  }
+
+  return data || [];
+}
+
 export async function createCashFlowInSupabase(cashFlow) {
   const row = {
     id: cashFlow.id,
