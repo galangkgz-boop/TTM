@@ -3005,6 +3005,7 @@
 
 .product-card.no-variants {
   min-height: 132px;
+  height: 100%;
 }
 
 .product-card.no-variants .product-main-button {
@@ -3032,6 +3033,7 @@
   line-height: 1.25;
   font-weight: 900;
   color: #0f172a;
+  text-transform: uppercase;
 }
 
 .product-card p {
@@ -3076,10 +3078,11 @@
   background: #f8fafc;
   padding: 9px 10px;
   min-height: 42px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: start;
-  gap: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px 8px;
 }
 
 .cashier-variant-button:hover {
@@ -3093,6 +3096,9 @@
   font-weight: 900;
   white-space: normal;
   line-height: 1.3;
+  flex: 1 1 auto;
+  min-width: 60%;
+  text-transform: uppercase;
 }
 
 .cashier-variant-button strong {
@@ -3100,6 +3106,7 @@
   font-size: 11px;
   font-weight: 950;
   white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 .cashier-variant-button:disabled {

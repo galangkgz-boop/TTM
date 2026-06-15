@@ -747,6 +747,17 @@
   height: auto !important;
 }
 
+/* Kartu produk tanpa varian: ikuti tinggi baris grid penuh,
+   supaya area klik tidak hanya sebagian saat ada kartu varian
+   yang lebih tinggi di baris yang sama. */
+.product-card.no-variants {
+  height: 100% !important;
+}
+
+.product-card.no-variants .product-main-button {
+  height: 100% !important;
+}
+
 .quick-cash-buttons {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
