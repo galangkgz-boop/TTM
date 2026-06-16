@@ -1,0 +1,165 @@
+/* =========================
+   Payment Modal & Debt Fields
+   payment-modal, payment-summary, payment-actions, payment-method-tabs
+   discount-field, fifo-batch-list, debt-fields
+========================= */
+
+.payment-warning {
+  margin: 0;
+  border-radius: 14px;
+  padding: 12px;
+  background: #fee2e2;
+  color: #991b1b;
+  font-weight: 700;
+}
+
+.payment-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+/* --- Payment Method Tabs --- */
+.payment-method-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.payment-method-tab {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.payment-method-tab.active {
+  border-color: #22c55e;
+  background: #dcfce7;
+  color: #166534;
+}
+
+.discount-warning {
+  margin: 0 0 14px;
+  border-radius: 14px;
+  padding: 12px;
+  background: #fef3c7;
+  color: #92400e;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+/* --- FIFO Batch List (in cart) --- */
+.fifo-batch-list {
+  margin-top: 10px;
+  border-radius: 14px;
+  background: #f9fafb;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fifo-batch-list span {
+  color: #374151;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.fifo-batch-list small {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+/* --- Debt Fields (piutang/utang pelanggan) --- */
+.debt-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.debt-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.debt-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.debt-fields label.full-width {
+  grid-column: 1 / -1;
+}
+
+.debt-fields input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  outline: none;
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.debt-fields input:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.13);
+}
+
+.debt-fields input::placeholder {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.debt-summary {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #f8fafc;
+}
+
+.debt-summary span {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.debt-summary strong {
+  font-size: 18px;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+@media (max-width: 600px) {
+  .payment-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .debt-row {
+    grid-template-columns: 1fr;
+  }
+}

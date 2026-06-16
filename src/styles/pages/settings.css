@@ -1,0 +1,147 @@
+/* =========================
+   Settings Page
+========================= */
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.settings-section {
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 18px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.settings-section label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.settings-section input,
+.settings-section textarea {
+  border: 1px solid #d1d5db;
+  border-radius: 14px;
+  padding: 13px 14px;
+  font: inherit;
+  outline: none;
+  background: white;
+  color: #111827;
+  resize: vertical;
+}
+
+.settings-section input:focus,
+.settings-section textarea:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
+}
+
+.danger-settings-section {
+  border-color: #fecaca;
+  background: #fff7f7;
+}
+
+.settings-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.settings-actions .finish-button {
+  min-width: 220px;
+}
+
+.settings-button-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.reset-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr;
+  gap: 12px;
+}
+
+.import-backup-button {
+  border: 0;
+  border-radius: 14px;
+  padding: 13px 14px;
+  background: #e0f2fe;
+  color: #075985;
+  font-weight: 800;
+  cursor: pointer;
+  text-align: center;
+}
+
+.import-backup-button input {
+  display: none;
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.checkbox-field input {
+  width: 18px;
+  height: 18px;
+}
+
+.toggle-setting-button {
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 13px 14px;
+  background: #f8fafc;
+  color: #334155;
+  font-weight: 800;
+  cursor: pointer;
+  text-align: left;
+}
+
+.toggle-setting-button.active {
+  border-color: #86efac;
+  background: #dcfce7;
+  color: #166534;
+}
+
+@media (max-width: 900px) {
+  .settings-button-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .settings-button-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-actions {
+    justify-content: stretch;
+  }
+
+  .settings-actions .finish-button {
+    width: 100%;
+  }
+
+  .reset-actions {
+    grid-template-columns: 1fr;
+  }
+}

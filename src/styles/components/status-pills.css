@@ -1,0 +1,90 @@
+/* =========================
+   Status Pills & Badges
+   connection-pill, supabase-pill, auto-sync-pill, sync-badge, status-pill
+========================= */
+
+.status-pill,
+.connection-pill,
+.supabase-pill,
+.auto-sync-pill {
+  border-radius: 999px;
+  padding: 8px 13px;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+/* status-pill: generic info */
+.status-pill {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+/* connection-pill */
+.connection-pill.online {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.connection-pill.offline {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* supabase-pill */
+.supabase-pill.idle {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.supabase-pill.checking {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.supabase-pill.connected {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.supabase-pill.failed {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* auto-sync-pill */
+.auto-sync-pill.active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.auto-sync-pill.waiting {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* sync-badge: compact inline badge */
+.sync-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.sync-badge.synced {
+  background: #dcfce7;
+  color: #166634;
+}
+
+.sync-badge.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.sync-badge.failed {
+  background: #fee2e2;
+  color: #991b1b;
+}

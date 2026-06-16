@@ -2081,6 +2081,17 @@ function CashierPage({
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [cart, setCart] = useState([]);
+  const [returData, setReturData] = useState({ 
+  transactionId: null, 
+  isOpen: false, 
+  reason: '' 
+});
+
+const [cancelData, setCancelData] = useState({ 
+  transactionId: null, 
+  isOpen: false, 
+  reason: '' 
+});
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("Cash");
 const [cashReceived, setCashReceived] = useState("");

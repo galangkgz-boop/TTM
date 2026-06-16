@@ -791,3 +791,85 @@
   color: #ffffff;
   border-color: #16a34a;
 }
+
+/* === FIX: Variant Button Styling === */
+/* 
+   Masalah: HTML pakai class "cashier-variant-button" 
+   tapi CSS tidak ada styling untuk class ini.
+   Solusi: Tambahkan styling lengkap di bawah
+*/
+
+.cashier-variant-button {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid rgba(203, 213, 225, 0.86);
+  border-radius: 13px;
+  background: #f8fafc;
+  color: var(--ttm-text);
+  font-size: 12px;
+  font-weight: 850;
+  cursor: pointer;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  transition: all 0.16s ease;
+  text-align: left;
+}
+
+.cashier-variant-button span {
+  display: block;
+  line-height: 1.2;
+  color: #475569;
+}
+
+.cashier-variant-button strong {
+  display: block;
+  color: #22c55e;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.cashier-variant-button:hover:not(:disabled) {
+  border-color: rgba(34, 197, 94, 0.38);
+  background: #f0fdf4;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
+}
+
+.cashier-variant-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.cashier-variant-button:disabled {
+  opacity: 0.52;
+  cursor: not-allowed;
+  background: #f3f4f6;
+}
+
+.cashier-variant-button:disabled span {
+  color: #9ca3af;
+}
+
+.cashier-variant-button:disabled strong {
+  color: #ef4444;
+}
+
+/* Jika ada text "Stok kurang", color merah */
+.cashier-variant-button:disabled strong:contains("Stok kurang") {
+  color: #dc2626;
+}
+
+/* === Responsive Adjustments === */
+@media (max-width: 700px) {
+  .cashier-variant-button {
+    min-height: 40px;
+    padding: 9px 10px;
+    font-size: 11px;
+  }
+
+  .cashier-variant-button strong {
+    font-size: 12px;
+  }
+}

@@ -1,0 +1,22 @@
+/* =========================
+   Empty States
+   empty-state, empty-cart
+========================= */
+
+.empty-state,
+.empty-cart {
+  border: 1px dashed #d1d5db;
+  border-radius: 16px;
+  padding: 24px;
+  color: #6b7280;
+  text-align: center;
+  background: white;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.danger-text {
+  color: #dc2626 !important;
+}

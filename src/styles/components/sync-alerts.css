@@ -1,0 +1,36 @@
+/* =========================
+   Sync Alert Boxes
+   sync-warning-box, sync-error-box
+========================= */
+
+.sync-error-box {
+  border: 1px solid #fecaca;
+  background: #fff1f2;
+  color: #991b1b;
+  border-radius: 20px;
+  padding: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.sync-error-box strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #991b1b;
+  font-size: 13px;
+}
+
+.sync-error-box p {
+  margin: 0;
+  color: #7f1d1d;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+@media (max-width: 700px) {
+}

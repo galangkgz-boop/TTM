@@ -1,0 +1,64 @@
+/* =========================
+   Lock Screen
+   lock-screen, lock-card
+========================= */
+
+.lock-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #f8fafc;
+}
+
+.lock-card {
+  width: min(420px, 100%);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 28px;
+  padding: 28px;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
+  display: grid;
+  gap: 18px;
+}
+
+.lock-card h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.lock-card p {
+  margin: 6px 0 0;
+  color: #64748b;
+}
+
+.lock-card input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 16px;
+  padding: 14px 16px;
+  font-size: 18px;
+}
+
+.pin-role-tabs {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.pin-role-tab {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.pin-role-tab.active {
+  border-color: #22c55e;
+  background: #dcfce7;
+  color: #166534;
+}
