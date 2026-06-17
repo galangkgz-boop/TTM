@@ -493,22 +493,14 @@ const todayLabel = currentTime.toLocaleString("id-ID", {
     ? "Auto Sync: " + unsyncedTransactionCount + " menunggu"
     : "Auto Sync Aktif";
 
-const [cashierSession, setCashierSession] = useState(() => {
-  const savedSession = localStorage.getItem("ttm-cashier-session");
-
-  if (!savedSession) {
-    return {
-      id: null,
-      isOpen: false,
-      openedAt: null,
-      closedAt: null,
-      openingCash: 0,
-      cashIn: [],
-      cashOut: [],
-    };
-  }
-
-  return JSON.parse(savedSession);
+const [cashierSession, setCashierSession] = useState({
+  id: null,
+  isOpen: false,
+  openedAt: null,
+  closedAt: null,
+  openingCash: 0,
+  cashIn: [],
+  cashOut: [],
 });
 const [isCloseCashierPreviewOpen, setIsCloseCashierPreviewOpen] = useState(false);
 const [actualClosingCash, setActualClosingCash] = useState("");
@@ -574,6 +566,27 @@ useEffect(() => {
 }, [isUnlocked]);
 
 useEffect(() => {
+  if (isUnlocked !== true) {
+    return;
+  }
+
+  function refreshOnlineData() {
+    loadAllDataFromSupabaseSilently();
+  }
+
+  window.addEventListener("focus", refreshOnlineData);
+
+  const refreshInterval = setInterval(() => {
+    refreshOnlineData();
+  }, 30000);
+
+  return () => {
+    window.removeEventListener("focus", refreshOnlineData);
+    clearInterval(refreshInterval);
+  };
+}, [isUnlocked]);
+
+useEffect(() => {
   function handleOnline() {
     setIsOnline(true);
     retryFailedTransactionSync(false);
@@ -603,10 +616,6 @@ useEffect(() => {
     setActivePage("cashier");
   }
 }, [currentRole, activePage]);
-
-useEffect(() => {
-  localStorage.setItem("ttm-cashier-session", JSON.stringify(cashierSession));
-}, [cashierSession]);
 
 useEffect(() => {
   localStorage.setItem(
@@ -1298,34 +1307,28 @@ async function loadAllDataFromSupabaseSilently() {
 );
 
     if (supabaseOpenSession) {
-      const supabaseCashFlows = await fetchCashFlowsBySessionFromSupabase(
-        supabaseOpenSession.id
-      );
+  const supabaseCashFlows = await fetchCashFlowsBySessionFromSupabase(
+    supabaseOpenSession.id
+  );
 
-      const mappedCashFlows = supabaseCashFlows.map(mapSupabaseCashFlow);
+  const mappedCashFlows = supabaseCashFlows.map(mapSupabaseCashFlow);
 
-      setCashierSession({
-        ...mapSupabaseCashierSession(supabaseOpenSession),
-        cashIn: mappedCashFlows.filter((flow) => flow.type === "in"),
-        cashOut: mappedCashFlows.filter((flow) => flow.type === "out"),
-      });
-    } else {
-      setCashierSession((currentSession) => {
-        if (currentSession.isOpen === true && currentSession.id) {
-          return currentSession;
-        }
-
-        return {
-          id: null,
-          isOpen: false,
-          openedAt: null,
-          closedAt: null,
-          openingCash: 0,
-          cashIn: [],
-          cashOut: [],
-        };
-      });
-    }
+  setCashierSession({
+    ...mapSupabaseCashierSession(supabaseOpenSession),
+    cashIn: mappedCashFlows.filter((flow) => flow.type === "in"),
+    cashOut: mappedCashFlows.filter((flow) => flow.type === "out"),
+  });
+} else {
+  setCashierSession({
+    id: null,
+    isOpen: false,
+    openedAt: null,
+    closedAt: null,
+    openingCash: 0,
+    cashIn: [],
+    cashOut: [],
+  });
+}
 
     setStockBatches((currentStockBatches) => {
       const mappedSupabaseStockBatches = supabaseStockBatches.map(
@@ -1658,7 +1661,11 @@ const cashierOpenTime = cashierSession.openedAt
 const cashierSessionTransactions = cashierOpenTime
   ? transactions.filter((transaction) => {
       const transactionDate = new Date(transaction.date);
-      return transactionDate >= cashierOpenTime;
+
+      return (
+        transactionDate >= cashierOpenTime &&
+        transaction.status !== "cancelled"
+      );
     })
   : [];
 
