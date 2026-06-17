@@ -1,0 +1,653 @@
+/* =========================================================
+   TTM Minimal Apple POS Theme
+   File: src/styles/theme-apple-pos.css
+   Import PALING BAWAH di src/styles/index.css
+========================================================= */
+
+:root {
+  --apple-bg: #f5f7fa;
+  --apple-surface: rgba(255, 255, 255, 0.86);
+  --apple-surface-solid: #ffffff;
+  --apple-border: rgba(15, 23, 42, 0.08);
+  --apple-border-strong: rgba(15, 23, 42, 0.12);
+  --apple-text: #0f172a;
+  --apple-muted: #64748b;
+  --apple-soft: #f8fafc;
+  --apple-green: #16a34a;
+  --apple-green-soft: #ecfdf5;
+  --apple-red: #dc2626;
+  --apple-red-soft: #fef2f2;
+  --apple-blue: #2563eb;
+  --apple-blue-soft: #eff6ff;
+  --apple-amber: #d97706;
+  --apple-amber-soft: #fffbeb;
+  --apple-radius: 22px;
+  --apple-radius-lg: 28px;
+  --apple-shadow: 0 12px 32px rgba(15, 23, 42, 0.07);
+  --apple-shadow-hover: 0 18px 45px rgba(15, 23, 42, 0.1);
+}
+
+/* =========================================================
+   GLOBAL LAYOUT
+========================================================= */
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(34, 197, 94, 0.08), transparent 28%),
+    linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%) !important;
+  color: var(--apple-text) !important;
+}
+
+.main-content,
+.content-area {
+  background: transparent !important;
+}
+
+.page-card {
+  background: rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid var(--apple-border) !important;
+  border-radius: 30px !important;
+  box-shadow: var(--apple-shadow) !important;
+  backdrop-filter: blur(18px);
+}
+
+/* Sidebar tetap elegan */
+.sidebar,
+.app-sidebar {
+  background:
+    linear-gradient(180deg, #0f172a 0%, #111827 100%) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+.sidebar button,
+.sidebar a,
+.nav-button {
+  border-radius: 16px !important;
+}
+
+.sidebar button.active,
+.sidebar a.active,
+.nav-button.active {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+
+/* Topbar */
+.topbar {
+  background: rgba(255, 255, 255, 0.78) !important;
+  border: 1px solid var(--apple-border) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05) !important;
+  backdrop-filter: blur(18px);
+}
+
+/* =========================================================
+   PAGE HEADERS
+========================================================= */
+
+.dashboard-header,
+.cashier-header,
+.products-header,
+.inventory-header,
+.transactions-header,
+.history-header,
+.reports-header,
+.settings-header {
+  margin-bottom: 18px !important;
+}
+
+.dashboard-header h3,
+.cashier-header h3,
+.products-header h3,
+.inventory-header h3,
+.transactions-header h3,
+.history-header h3,
+.reports-header h3,
+.settings-header h3 {
+  color: var(--apple-text) !important;
+  font-size: clamp(28px, 2vw, 36px) !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.06em !important;
+}
+
+.muted,
+.dashboard-header .muted,
+.cashier-header .muted,
+.products-header .muted,
+.inventory-header .muted,
+.transactions-header .muted,
+.reports-header .muted,
+.settings-header .muted {
+  color: var(--apple-muted) !important;
+  font-weight: 650 !important;
+}
+
+/* =========================================================
+   UNIVERSAL SUMMARY CARDS
+========================================================= */
+
+.dashboard-summary,
+.products-summary,
+.inventory-summary,
+.transactions-summary,
+.history-summary,
+.reports-summary,
+.report-summary {
+  gap: 14px !important;
+}
+
+.dashboard-summary > div,
+.products-summary > div,
+.inventory-summary > div,
+.transactions-summary > div,
+.history-summary > div,
+.reports-summary > div,
+.report-summary > div {
+  min-height: 112px !important;
+  padding: 18px 20px !important;
+  border-radius: var(--apple-radius-lg) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 252, 0.86)) !important;
+  border: 1px solid var(--apple-border) !important;
+  box-shadow: var(--apple-shadow) !important;
+  overflow: hidden !important;
+}
+
+.dashboard-summary > div::before,
+.products-summary > div::before,
+.inventory-summary > div::before,
+.transactions-summary > div::before,
+.history-summary > div::before,
+.reports-summary > div::before,
+.report-summary > div::before {
+  width: 4px !important;
+  background: var(--apple-green) !important;
+}
+
+.dashboard-summary span,
+.products-summary span,
+.inventory-summary span,
+.transactions-summary span,
+.history-summary span,
+.reports-summary span,
+.report-summary span {
+  color: var(--apple-muted) !important;
+  font-size: 11px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.05em !important;
+}
+
+.dashboard-summary strong,
+.products-summary strong,
+.inventory-summary strong,
+.transactions-summary strong,
+.history-summary strong,
+.reports-summary strong,
+.report-summary strong {
+  color: var(--apple-text) !important;
+  font-size: clamp(26px, 2vw, 34px) !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.07em !important;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+button,
+.primary-action-button,
+.finish-button,
+.pay-button {
+  font-family: inherit;
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    background 150ms ease,
+    border-color 150ms ease !important;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.primary-action-button,
+.finish-button,
+.pay-button {
+  background: linear-gradient(135deg, #22c55e, #16a34a) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(22, 163, 74, 0.3) !important;
+  box-shadow: 0 10px 24px rgba(22, 163, 74, 0.18) !important;
+}
+
+.secondary-button {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #334155 !important;
+  border: 1px solid var(--apple-border-strong) !important;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04) !important;
+}
+
+.danger-button,
+.action-button.cancel,
+.small-danger-button {
+  background: var(--apple-red-soft) !important;
+  color: var(--apple-red) !important;
+  border: 1px solid rgba(220, 38, 38, 0.18) !important;
+}
+
+/* =========================================================
+   INPUTS
+========================================================= */
+
+input,
+textarea,
+select {
+  border-radius: 16px !important;
+  border: 1px solid var(--apple-border-strong) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: var(--apple-text) !important;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.03) !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: rgba(22, 163, 74, 0.55) !important;
+  box-shadow:
+    0 0 0 4px rgba(22, 163, 74, 0.1),
+    inset 0 1px 2px rgba(15, 23, 42, 0.03) !important;
+}
+
+/* =========================================================
+   CASHIER PAGE
+========================================================= */
+
+.cashier-layout {
+  gap: 14px !important;
+}
+
+.product-area,
+.cart-panel,
+.cart-area {
+  border-radius: 30px !important;
+  background: rgba(255, 255, 255, 0.78) !important;
+  border: 1px solid var(--apple-border) !important;
+  box-shadow: var(--apple-shadow) !important;
+  backdrop-filter: blur(16px);
+}
+
+/* Category tabs: 2 row tetap clean */
+.category-tabs {
+  display: grid !important;
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  overflow: visible !important;
+}
+
+.category-tab {
+  height: 36px !important;
+  min-height: 36px !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, 0.82) !important;
+  border: 1px solid var(--apple-border) !important;
+  color: #334155 !important;
+  font-size: 11px !important;
+  font-weight: 850 !important;
+  box-shadow: none !important;
+}
+
+.category-tab.active {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #0f172a !important;
+}
+
+/* Product Cards */
+.product-card {
+  border-radius: 22px !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid var(--apple-border) !important;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.055) !important;
+}
+
+.product-card:hover {
+  box-shadow: var(--apple-shadow-hover) !important;
+  border-color: rgba(22, 163, 74, 0.25) !important;
+}
+
+.product-card::before {
+  width: 3px !important;
+  background: var(--apple-green) !important;
+}
+
+.product-main-button {
+  background: transparent !important;
+}
+
+.product-main-button h4 {
+  color: var(--apple-text) !important;
+  font-weight: 900 !important;
+}
+
+.product-main-button p {
+  color: var(--apple-muted) !important;
+  font-weight: 800 !important;
+}
+
+.product-stock-badge {
+  background: var(--apple-green-soft) !important;
+  color: var(--apple-green) !important;
+  border-radius: 14px !important;
+  font-size: 20px !important;
+  box-shadow: none !important;
+}
+
+.product-card.product-low-stock .product-stock-badge {
+  background: var(--apple-amber-soft) !important;
+  color: var(--apple-amber) !important;
+}
+
+.product-card.product-out-of-stock {
+  background: rgba(254, 242, 242, 0.72) !important;
+  border-color: rgba(220, 38, 38, 0.22) !important;
+}
+
+.product-card.product-out-of-stock::before {
+  background: var(--apple-red) !important;
+}
+
+.product-card.product-out-of-stock .product-stock-badge,
+.product-stock-badge.stock-empty {
+  background: var(--apple-red-soft) !important;
+  color: var(--apple-red) !important;
+}
+
+/* Variant pills */
+.cashier-variant-button,
+.variant-sale-button {
+  border-radius: 999px !important;
+  background: #f8fafc !important;
+  border: 1px solid var(--apple-border) !important;
+  box-shadow: none !important;
+}
+
+.cashier-variant-button:hover:not(:disabled),
+.variant-sale-button:hover:not(:disabled) {
+  background: var(--apple-green-soft) !important;
+  border-color: rgba(22, 163, 74, 0.28) !important;
+}
+
+/* Cart */
+.cart-header {
+  background:
+    linear-gradient(135deg, #0f172a, #1e293b) !important;
+  color: #ffffff !important;
+  border-radius: 28px 28px 0 0 !important;
+}
+
+.cart-header h3,
+.cart-header h4 {
+  color: #ffffff !important;
+  font-weight: 900 !important;
+}
+
+.cart-scroll-area {
+  background: #f8fafc !important;
+}
+
+.cart-line {
+  border-radius: 18px !important;
+  background: #ffffff !important;
+  border: 1px solid var(--apple-border) !important;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.045) !important;
+}
+
+.cart-line::before {
+  width: 3px !important;
+  background: var(--apple-green) !important;
+}
+
+.cart-line-price {
+  color: var(--apple-green) !important;
+}
+
+.cart-summary {
+  background: #ffffff !important;
+  border-top: 1px solid var(--apple-border) !important;
+  box-shadow: 0 -8px 18px rgba(15, 23, 42, 0.04) !important;
+}
+
+.cart-grand-total,
+.cart-summary > div:nth-of-type(3) {
+  background:
+    linear-gradient(135deg, #22c55e, #16a34a) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 10px 24px rgba(22, 163, 74, 0.18) !important;
+}
+
+/* =========================================================
+   PRODUCTS / STOCK / HISTORY / REPORT TABLES
+========================================================= */
+
+.products-table-wrap,
+.inventory-table-wrap,
+.history-table-wrap,
+.transactions-table-wrap,
+.reports-table-wrap,
+.report-table-wrap {
+  border-radius: 28px !important;
+  background: rgba(255, 255, 255, 0.7) !important;
+  border: 1px solid var(--apple-border) !important;
+  box-shadow: var(--apple-shadow) !important;
+}
+
+.products-table,
+.inventory-table,
+.history-table,
+.transactions-table,
+.reports-table,
+.report-table {
+  border-spacing: 0 9px !important;
+}
+
+.products-table th,
+.inventory-table th,
+.history-table th,
+.transactions-table th,
+.reports-table th,
+.report-table th {
+  background: #0f172a !important;
+  color: rgba(255, 255, 255, 0.78) !important;
+  font-size: 10.5px !important;
+  font-weight: 850 !important;
+}
+
+.products-table td,
+.inventory-table td,
+.history-table td,
+.transactions-table td,
+.reports-table td,
+.report-table td {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border-color: var(--apple-border) !important;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.045) !important;
+}
+
+.products-table td:first-child,
+.inventory-table td:first-child,
+.history-table td:first-child,
+.transactions-table td:first-child,
+.reports-table td:first-child,
+.report-table td:first-child {
+  box-shadow:
+    inset 3px 0 0 var(--apple-green),
+    0 6px 16px rgba(15, 23, 42, 0.045) !important;
+}
+
+/* =========================================================
+   HISTORY CARDS
+========================================================= */
+
+.transaction-card {
+  border-radius: 26px !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  border: 1px solid var(--apple-border) !important;
+  box-shadow: var(--apple-shadow) !important;
+}
+
+.transaction-card::before {
+  width: 3px !important;
+  background: var(--apple-green) !important;
+}
+
+.transaction-card:hover {
+  box-shadow: var(--apple-shadow-hover) !important;
+}
+
+.transaction-payment div,
+.transaction-items div,
+.transaction-items li {
+  background: #f8fafc !important;
+  border: 1px solid var(--apple-border) !important;
+  box-shadow: none !important;
+}
+
+.transaction-status-badge.success,
+.product-status.active,
+.batch-status.active,
+.cashier-closing-status.match {
+  background: var(--apple-green-soft) !important;
+  color: var(--apple-green) !important;
+}
+
+.transaction-status-badge.cancelled,
+.batch-status.empty,
+.product-status.inactive {
+  background: var(--apple-red-soft) !important;
+  color: var(--apple-red) !important;
+}
+
+/* =========================================================
+   SETTINGS
+========================================================= */
+
+.settings-section,
+.reports-section,
+.report-section,
+.inventory-section {
+  border-radius: 30px !important;
+  background: rgba(255, 255, 255, 0.82) !important;
+  border: 1px solid var(--apple-border) !important;
+  box-shadow: var(--apple-shadow) !important;
+}
+
+.settings-section::before,
+.reports-section::before,
+.report-section::before,
+.inventory-section::before {
+  width: 3px !important;
+}
+
+/* =========================================================
+   MODALS
+========================================================= */
+
+.modal-backdrop {
+  background: rgba(15, 23, 42, 0.42) !important;
+  backdrop-filter: blur(7px) !important;
+}
+
+.product-modal,
+.variant-modal,
+.stock-batch-modal,
+.transaction-detail-modal,
+.history-detail-modal,
+.retur-modal,
+.cancel-modal,
+.payment-modal,
+.cash-modal {
+  border-radius: 28px !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  border: 1px solid var(--apple-border) !important;
+  box-shadow: 0 30px 90px rgba(15, 23, 42, 0.28) !important;
+  backdrop-filter: blur(18px);
+}
+
+.modal-header,
+.product-modal .modal-header,
+.variant-modal .modal-header,
+.stock-batch-modal .modal-header,
+.transaction-detail-modal .modal-header,
+.history-detail-modal .modal-header,
+.payment-modal .modal-header,
+.cash-modal .modal-header {
+  background:
+    linear-gradient(135deg, #0f172a, #1e293b) !important;
+  color: #ffffff !important;
+  border-bottom: 0 !important;
+}
+
+.modal-header h3,
+.product-modal .modal-header h3,
+.variant-modal .modal-header h3,
+.stock-batch-modal .modal-header h3,
+.transaction-detail-modal .modal-header h3,
+.history-detail-modal .modal-header h3,
+.payment-modal .modal-header h3,
+.cash-modal .modal-header h3 {
+  color: #ffffff !important;
+  font-weight: 900 !important;
+}
+
+/* Payment modal tetap compact */
+.payment-modal {
+  width: min(500px, calc(100vw - 32px)) !important;
+}
+
+.payment-summary > div {
+  background: #f8fafc !important;
+  border: 1px solid var(--apple-border) !important;
+  border-radius: 15px !important;
+}
+
+.quick-cash-button {
+  background: var(--apple-green-soft) !important;
+  color: var(--apple-green) !important;
+  border: 1px solid rgba(22, 163, 74, 0.18) !important;
+}
+
+.quick-cash-button.active {
+  background: var(--apple-green) !important;
+  color: #ffffff !important;
+}
+
+/* =========================================================
+   EMPTY STATES
+========================================================= */
+
+.empty-state {
+  background:
+    linear-gradient(180deg, #ffffff, #f8fafc) !important;
+  border: 1px dashed rgba(15, 23, 42, 0.16) !important;
+  color: var(--apple-muted) !important;
+  border-radius: 22px !important;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 980px) {
+  .category-tabs {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .category-tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .page-card {
+    border-radius: 22px !important;
+  }
+}
