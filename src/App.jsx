@@ -9,6 +9,7 @@ import {
   fetchStoreSettingsFromSupabase,
   updateStoreSettingsInSupabase,
   createTransactionInSupabase,
+  cancelTransactionInSupabase,
   updateStockBatchesInSupabase,
   fetchTransactionsFromSupabase,
   updateUsedStockBatchesInSupabase,
@@ -959,6 +960,18 @@ function mapSupabaseTransaction(transaction) {
   change: Number(transaction.change_amount || 0),
   paymentMethod: transaction.payment_method || "Cash",
   profit: Number(transaction.profit || 0),
+
+  status: transaction.status || "completed",
+
+originalSubtotal: Number(transaction.original_subtotal || transaction.subtotal || 0),
+originalDiscount: Number(transaction.original_discount || transaction.discount || 0),
+originalTotal: Number(transaction.original_total || transaction.total || 0),
+originalProfit: Number(transaction.original_profit || transaction.profit || 0),
+
+cancelReason: transaction.cancel_reason || "",
+cancelledAt: transaction.cancelled_at || "",
+cancelledBy: transaction.cancelled_by || "",
+
   cashierName: transaction.cashier_name || "",
   cashierRole: transaction.cashier_role || "",
   paymentStatus: transaction.payment_status || "paid",
@@ -1077,6 +1090,157 @@ async function addTransaction(transaction, updatedBatches) {
       "Transaksi tersimpan lokal, tapi gagal sinkron ke Supabase: " +
         error.message
     );
+  }
+}
+
+function restoreStockFromCancelledTransaction(transaction, currentStockBatches) {
+  const restoredBatches = currentStockBatches.map((batch) => ({ ...batch }));
+
+  transaction.items.forEach((item) => {
+    if (!Array.isArray(item.fifoBatches)) {
+      return;
+    }
+
+    item.fifoBatches.forEach((fifoBatch) => {
+      const batchIndex = restoredBatches.findIndex(
+        (batch) => Number(batch.id) === Number(fifoBatch.batchId)
+      );
+
+      if (batchIndex === -1) {
+        return;
+      }
+
+      restoredBatches[batchIndex] = {
+        ...restoredBatches[batchIndex],
+        qtyRemaining:
+          Number(restoredBatches[batchIndex].qtyRemaining || 0) +
+          Number(fifoBatch.qty || 0),
+      };
+    });
+  });
+
+  return restoredBatches;
+}
+
+async function cancelTransaction(transaction, reason) {
+  if (currentRole !== "admin") {
+    alert("Hanya admin yang bisa membatalkan transaksi.");
+    return false;
+  }
+
+  if (!transaction) {
+    alert("Transaksi tidak ditemukan.");
+    return false;
+  }
+
+  if (transaction.status === "cancelled") {
+    alert("Transaksi ini sudah dibatalkan.");
+    return false;
+  }
+
+  const cleanReason = String(reason || "").trim();
+
+  if (!cleanReason) {
+    alert("Alasan pembatalan wajib diisi.");
+    return false;
+  }
+
+  const confirmCancel = window.confirm(
+    "Batalkan transaksi " +
+      transaction.code +
+      "?\n\nStok FIFO akan dikembalikan dan omzet transaksi ini tidak dihitung."
+  );
+
+  if (confirmCancel === false) {
+    return false;
+  }
+
+  const cancelledAt = new Date().toISOString();
+  const cancelledBy =
+    currentProfile?.name ||
+    currentProfile?.email ||
+    currentProfile?.role ||
+    "Admin";
+
+  const cancelledTransaction = {
+    ...transaction,
+
+    status: "cancelled",
+
+    originalSubtotal: Number(transaction.originalSubtotal ?? transaction.subtotal ?? 0),
+    originalDiscount: Number(transaction.originalDiscount ?? transaction.discount ?? 0),
+    originalTotal: Number(transaction.originalTotal ?? transaction.total ?? 0),
+    originalProfit: Number(transaction.originalProfit ?? transaction.profit ?? 0),
+
+    subtotal: 0,
+    discount: 0,
+    total: 0,
+    cashReceived: 0,
+    change: 0,
+    profit: 0,
+
+    paymentStatus: "cancelled",
+    cancelReason: cleanReason,
+    cancelledAt: cancelledAt,
+    cancelledBy: cancelledBy,
+    syncStatus: "pending",
+    syncError: "",
+  };
+
+  const restoredBatches = restoreStockFromCancelledTransaction(
+    transaction,
+    stockBatches
+  );
+
+  setTransactions((currentTransactions) =>
+    currentTransactions.map((currentTransaction) =>
+      currentTransaction.code === transaction.code
+        ? cancelledTransaction
+        : currentTransaction
+    )
+  );
+
+  setStockBatches(restoredBatches);
+
+  try {
+    await cancelTransactionInSupabase(cancelledTransaction);
+    await updateStockBatchesInSupabase(restoredBatches);
+
+    setTransactions((currentTransactions) =>
+      currentTransactions.map((currentTransaction) =>
+        currentTransaction.code === transaction.code
+          ? {
+              ...cancelledTransaction,
+              syncStatus: "synced",
+              syncError: "",
+            }
+          : currentTransaction
+      )
+    );
+
+    alert("Transaksi berhasil dibatalkan dan stok FIFO sudah dikembalikan.");
+    return true;
+  } catch (error) {
+    console.error(error);
+
+    setTransactions((currentTransactions) =>
+      currentTransactions.map((currentTransaction) =>
+        currentTransaction.code === transaction.code
+          ? {
+              ...cancelledTransaction,
+              syncStatus: "failed",
+              syncError: error.message,
+            }
+          : currentTransaction
+      )
+    );
+
+    alert(
+      "Transaksi dibatalkan lokal, tapi gagal sinkron ke Supabase: " +
+        error.message
+    );
+
+    return true;
   }
 }
 
@@ -1803,15 +1967,16 @@ async function lockPos() {
             /> 
           ) : null}
 
-          {activePage === "transactions" ? ( 
-            <TransactionsPage 
-  transactions={transactions}
-  settings={settings}
-  currentRole={currentRole}
-  onClearTransactions={clearTransactions} 
-  onRetrySingleTransactionSync={retrySingleTransactionSync}
-/>
-          ) : null}
+          {activePage === "transactions" ? (
+  <TransactionsPage
+    transactions={transactions}
+    settings={settings}
+    currentRole={currentRole}
+    onClearTransactions={clearTransactions}
+    onRetrySingleTransactionSync={retrySingleTransactionSync}
+    onCancelTransaction={cancelTransaction}
+  />
+) : null}
 
           {activePage === "reports" ? (
   <ReportsPage
@@ -2109,7 +2274,12 @@ const [completedTransaction, setCompletedTransaction] = useState(null);
       ...product,
       stock: getProductStockFromBatches(product.id, stockBatches),
     }))
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) =>
+      String(a.name || "").localeCompare(String(b.name || ""), "id-ID", {
+        sensitivity: "base",
+        numeric: true,
+      })
+    );
 }, [products, stockBatches]);
 
   const activeVariantsByProductId = useMemo(() => {
@@ -2124,6 +2294,15 @@ const [completedTransaction, setCompletedTransaction] = useState(null);
 
       result[variant.productId].push(variant);
     });
+
+  Object.keys(result).forEach((productId) => {
+    result[productId].sort((a, b) =>
+      String(a.name || "").localeCompare(String(b.name || ""), "id-ID", {
+        sensitivity: "base",
+        numeric: true,
+      })
+    );
+  });
 
   return result;
 }, [productVariants]);
@@ -2227,8 +2406,31 @@ function getCartReservedQty(productId) {
 function getDisplayStock(productId) {
   const realStock = getProductStockFromBatches(productId, stockBatches);
   const reservedStock = getCartReservedQty(productId);
-
   return Math.max(0, realStock - reservedStock);
+}
+
+function formatProductStockLabel(stock) {
+  const numericStock = Number(stock || 0);
+  return numericStock <= 0 ? "0" : String(numericStock);
+}
+
+function formatVariantShortLabel(variant) {
+  const multiplier = Number(variant.qtyMultiplier || 1);
+
+  if (multiplier > 1) {
+    return multiplier + " PCS";
+  }
+
+  const rawName = String(variant.name || "").trim();
+
+  if (!rawName) {
+    return "1 PCS";
+  }
+
+  return rawName
+    .replace(/(\d+)\s*pcs/gi, "$1 pc")
+    .replace(/(\d+)\s*pc/gi, "$1 PCS")
+    .toUpperCase();
 }
 
 function addToCart(product, variant) {
@@ -2515,7 +2717,7 @@ setIsPaymentOpen(false);
                 }
                 onClick={() => setSelectedCategory(category)}
               >
-                {category}
+                {String(category || "").toUpperCase()}
               </button>
             ))}
           </div>
@@ -2548,22 +2750,29 @@ const displayStock = Math.max(0, Number(product.stock || 0) - reservedQty);
   disabled={!cashierSession.isOpen || Number(displayStock || 0) <= 0}
   onClick={() => addToCart(product, null)}
 >
-        <div>
-          <h4>{product.name}</h4>
-          <p>{product.category}</p>
-        </div>
+        <h4>{String(product.name || "").toUpperCase()}</h4>
 
-        <div className="product-card-footer">
-          <strong>
-  {productVariantsForCashier.length > 0
-    ? productVariantsForCashier.length + " varian"
-    : formatRupiah(product.price)}
-</strong>
-<span>
-  {Number(displayStock || 0) <= 0 ? "Stok habis" : "Stok " + displayStock}
-</span>
-        </div>
-      </button>
+<p>{String(product.category || "").toUpperCase()}</p>
+
+<div className="product-card-footer">
+  <strong>
+    {productVariantsForCashier.length > 0
+      ? productVariantsForCashier.length + " VARIAN"
+      : formatRupiah(product.price)}
+  </strong>
+
+  <span
+    className={
+      Number(displayStock || 0) <= 0
+        ? "product-stock-badge stock-empty"
+        : "product-stock-badge"
+    }
+    title={"Stok tersedia: " + displayStock}
+  >
+    {formatProductStockLabel(displayStock)}
+  </span>
+</div>
+</button>
 
       {productVariantsForCashier.length > 0 ? (
         <div className="cashier-variant-list">
@@ -2573,21 +2782,13 @@ const displayStock = Math.max(0, Number(product.stock || 0) - reservedQty);
 
   return (
     <button
-      key={variant.id}
-      type="button"
-      className="cashier-variant-button"
-      disabled={!cashierSession.isOpen || isVariantOutOfStock}
-      onClick={() => addToCart(product, variant)}
-    >
-      <span>
-        {variant.name}
-        {variantStockNeeded > 1 ? " • isi " + variantStockNeeded : ""}
-      </span>
-
-      <strong>
-        {isVariantOutOfStock ? "Stok kurang" : formatRupiah(variant.price)}
-      </strong>
-    </button>
+  className="cashier-variant-button"
+  disabled={isVariantOutOfStock}
+  onClick={() => addToCart(product, variant)}
+  title={String(variant.name || "").toUpperCase()}
+>
+  <span>{formatVariantShortLabel(variant)}</span>
+</button>
   );
 })}
         </div>
@@ -2604,53 +2805,64 @@ const displayStock = Math.max(0, Number(product.stock || 0) - reservedQty);
           </div>
         </div>
 
-        <div className="cart-panel">
-          <div className="cart-header">
-            <div>
-              <h4>Keranjang</h4>
-              <p>{cart.length} jenis produk</p>
+<div className="cart-panel">
+  <div className="cart-header">
+    <div>
+      <h3>Keranjang</h3>
+      <p>{cart.length} jenis produk</p>
+    </div>
+
+    {cart.length > 0 && (
+      <button className="secondary-button" onClick={clearCart}>
+        Kosongkan
+      </button>
+    )}
+  </div>
+
+  <div className="cart-scroll-area">
+    {cart.length === 0 ? (
+      <div className="empty-state">Keranjang masih kosong</div>
+    ) : (
+      cart.map((item) => (
+        <div className="cart-line" key={item.cartItemId}>
+          <div className="cart-line-top">
+            <div className="cart-line-info">
+              <h5>{String(item.name || "").toUpperCase()}</h5>
+              <p>
+                {formatRupiah(item.price)} /{" "}
+                {String(item.unit || "PCS").toUpperCase()}
+                {Number(item.qtyMultiplier || 1) > 1
+                  ? " • FIFO " +
+                    item.qtyMultiplier +
+                    " " +
+                    String(item.unit || "PCS").toUpperCase()
+                  : ""}
+              </p>
             </div>
 
-            {cart.length > 0 ? (
-              <button type="button" className="clear-button" onClick={clearCart}>
-                Kosongkan
+            <div className="cart-line-price">
+              {formatRupiah(item.price * item.qty)}
+            </div>
+          </div>
+
+          <div className="cart-line-bottom">
+            <div className="qty-control">
+              <button type="button" onClick={() => decreaseQty(item.cartItemId)}>
+                -
               </button>
-            ) : null}
+
+              <span>{item.qty}</span>
+
+              <button type="button" onClick={() => increaseQty(item.cartItemId)}>
+                +
+              </button>
+            </div>
           </div>
+        </div>
+      ))
+    )}
+  </div>
 
-          <div className="cart-items">
-            {cart.map((item) => (
-              <div key={item.cartItemId} className="cart-item">
-  <div className="cart-item-main">
-    <h5>{item.name}</h5>
-                  <p>
-  {formatRupiah(item.price)} / {item.unit}
-  {Number(item.qtyMultiplier || 1) > 1
-    ? " • FIFO " + item.qtyMultiplier + " " + item.unit
-    : ""}
-</p>
-                </div>
-
-                <div className="qty-control">
-                  <button type="button" onClick={() => decreaseQty(item.cartItemId)}>
-                    -
-                  </button>
-                  <span>{item.qty}</span>
-                  <button type="button" onClick={() => increaseQty(item.cartItemId)}>
-                    +
-                  </button>
-                </div>
-
-                <strong>{formatRupiah(item.price * item.qty)}</strong>
-              </div>
-            ))}
-
-            {cart.length === 0 ? (
-              <div className="empty-cart">
-                Keranjang masih kosong.
-              </div>
-            ) : null}
-          </div>
 
           <div className="cart-summary">
             <label className="discount-field">
@@ -3370,7 +3582,10 @@ function ProductsPage({
 const [productSearch, setProductSearch] = useState("");
 
 const sortedProducts = [...products].sort((a, b) =>
-  a.name.localeCompare(b.name, "id-ID")
+  String(a.name || "").localeCompare(String(b.name || ""), "id-ID", {
+    sensitivity: "base",
+    numeric: true,
+  })
 );
 
 const filteredProducts = sortedProducts.filter((product) => {
@@ -3991,7 +4206,12 @@ function InventoryPage({ products, stockBatches, onAddStockBatch }) {
         batchCount: productBatches.length,
       };
     })
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) =>
+  String(a.name || "").localeCompare(String(b.name || ""), "id-ID", {
+    sensitivity: "base",
+    numeric: true,
+  })
+);
 
   const sortedBatches = stockBatches
     .map((batch) => {
@@ -4004,7 +4224,14 @@ function InventoryPage({ products, stockBatches, onAddStockBatch }) {
       };
     })
     .sort((a, b) => {
-      const productCompare = a.productName.localeCompare(b.productName);
+      const productCompare = String(a.productName || "").localeCompare(
+  String(b.productName || ""),
+  "id-ID",
+  {
+    sensitivity: "base",
+    numeric: true,
+  }
+);
 
       if (productCompare !== 0) {
         return productCompare;
@@ -4368,9 +4595,12 @@ function TransactionsPage({
   currentRole,
   onClearTransactions,
   onRetrySingleTransactionSync,
+  onCancelTransaction,
 }) {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [historyPeriod, setHistoryPeriod] = useState("all");
+  const [cancelTarget, setCancelTarget] = useState(null);
+  const [cancelReason, setCancelReason] = useState("");
 
   function exportTransactionsCsv() {
   if (transactions.length === 0) {
@@ -4435,6 +4665,26 @@ function TransactionsPage({
   downloadCsvFile(filename, rows);
 }
 
+function openCancelModal(transaction) {
+  setCancelTarget(transaction);
+  setCancelReason("");
+}
+
+function closeCancelModal() {
+  setCancelTarget(null);
+  setCancelReason("");
+}
+
+async function submitCancelTransaction(event) {
+  event.preventDefault();
+
+  const success = await onCancelTransaction(cancelTarget, cancelReason);
+
+  if (success) {
+    closeCancelModal();
+  }
+}
+
   function isHistoryTransactionInPeriod(transactionDate, period) {
   const date = new Date(transactionDate);
   const now = new Date();
@@ -4478,19 +4728,33 @@ function TransactionsPage({
   return true;
 }
 
+function openEditTransaction(transaction) {
+  alert(
+    "Edit transaksi " +
+      transaction.code +
+      " akan dibuat pada tahap berikutnya.\n\nKonsep aman: transaksi lama dibatalkan lalu dibuat transaksi pengganti."
+  );
+}
+
 const filteredTransactions = transactions.filter((transaction) =>
   isHistoryTransactionInPeriod(transaction.date, historyPeriod)
 );
 
-const totalOmzet = filteredTransactions.reduce(
+const activeFilteredTransactions = filteredTransactions.filter(
+  (transaction) => transaction.status !== "cancelled"
+);
+
+const totalOmzet = activeFilteredTransactions.reduce(
   (total, transaction) => total + Number(transaction.total || 0),
   0
 );
 
-const totalProfit = filteredTransactions.reduce(
+const totalProfit = activeFilteredTransactions.reduce(
   (total, transaction) => total + Number(transaction.profit || 0),
   0
 );
+
+const totalTransactionCount = activeFilteredTransactions.length;
 
   return (
     <div>
@@ -4624,12 +4888,29 @@ const totalProfit = filteredTransactions.reduce(
                 <strong>{formatRupiah(transaction.total)}</strong>
 
                 <button
-                  type="button"
-                  className="detail-button"
-                  onClick={() => setSelectedTransaction(transaction)}
-                >
-                  Detail
-                </button>
+  className="detail-button"
+  onClick={() => setSelectedTransaction(transaction)}
+>
+  Detail
+</button>
+
+{currentRole === "admin" && transaction.status !== "cancelled" ? (
+  <>
+    <button
+      className="action-button edit"
+      onClick={() => openEditTransaction(transaction)}
+    >
+      Edit
+    </button>
+
+    <button
+      className="action-button cancel"
+      onClick={() => openCancelModal(transaction)}
+    >
+      Batalkan
+    </button>
+  </>
+) : null}
               </div>
             </div>
 
@@ -4688,6 +4969,61 @@ const totalProfit = filteredTransactions.reduce(
           onRetrySingleTransactionSync={onRetrySingleTransactionSync}
         />
       ) : null}
+
+      {cancelTarget ? (
+  <div className="modal-backdrop">
+    <form className="cancel-modal" onSubmit={submitCancelTransaction}>
+      <div className="modal-header">
+        <div>
+          <h3>Batalkan Transaksi</h3>
+          <p>{cancelTarget.code}</p>
+        </div>
+
+        <button type="button" onClick={closeCancelModal}>
+          ×
+        </button>
+      </div>
+
+      <div className="cancel-summary-box">
+        <div>
+          <span>Total Awal</span>
+          <strong>
+            {formatRupiah(cancelTarget.originalTotal || cancelTarget.total || 0)}
+          </strong>
+        </div>
+
+        <div>
+          <span>Profit Awal</span>
+          <strong>
+            {formatRupiah(cancelTarget.originalProfit || cancelTarget.profit || 0)}
+          </strong>
+        </div>
+      </div>
+
+      <div className="cancel-reason">
+        <label>
+          Alasan Pembatalan
+          <textarea
+            value={cancelReason}
+            onChange={(event) => setCancelReason(event.target.value)}
+            placeholder="Contoh: salah input qty, transaksi double, customer batal..."
+            autoFocus
+          />
+        </label>
+      </div>
+
+      <div className="modal-actions">
+        <button type="button" className="cancel" onClick={closeCancelModal}>
+          Kembali
+        </button>
+
+        <button type="submit" className="confirm danger">
+          Batalkan Transaksi
+        </button>
+      </div>
+    </form>
+  </div>
+) : null}
     </div>
   );
 }

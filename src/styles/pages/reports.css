@@ -1,45 +1,75 @@
-/* =========================
-   Reports Modern UI
-========================= */
+/* =========================================================
+   TTM Reports / Laporan Premium
+   File: src/styles/pages/reports.css
+   Theme: Match Kasir + Produk + Stok + Riwayat UI
+========================================================= */
+
+
+/* =========================================================
+   HEADER
+========================================================= */
 
 .reports-header {
   display: grid;
   grid-template-columns: minmax(280px, 1fr) auto;
   gap: 18px;
   align-items: center;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .reports-header h3 {
   margin: 0;
-  font-size: 30px;
-  letter-spacing: -0.06em;
-  color: var(--ttm-text);
+  color: #0f172a;
+  font-size: clamp(28px, 2vw, 36px);
+  line-height: 1;
+  font-weight: 1000;
+  letter-spacing: -0.075em;
 }
 
 .reports-header .muted {
-  margin-top: 4px;
-  color: var(--ttm-muted);
+  margin: 7px 0 0;
+  max-width: 720px;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 750;
 }
+
+
+/* =========================================================
+   SUMMARY GRID
+========================================================= */
 
 .reports-summary,
 .report-summary {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .reports-summary > div,
 .report-summary > div {
   position: relative;
+  min-height: 122px;
   overflow: hidden;
-  min-height: 112px;
-  padding: 18px;
-  border-radius: var(--ttm-radius);
-  background: #ffffff;
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  box-shadow: var(--ttm-shadow-soft);
+  padding: 20px;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(34, 197, 94, 0.12), transparent 34%),
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(203, 213, 225, 0.92);
+  box-shadow:
+    0 16px 38px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.reports-summary > div::before,
+.report-summary > div::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 6px;
+  background: linear-gradient(180deg, #22c55e, #16a34a);
 }
 
 .reports-summary > div::after,
@@ -47,159 +77,430 @@
   content: "";
   position: absolute;
   right: -42px;
-  bottom: -52px;
-  width: 126px;
-  height: 126px;
+  bottom: -54px;
+  width: 128px;
+  height: 128px;
   border-radius: 999px;
-  background: rgba(14, 165, 233, 0.09);
+  background: rgba(34, 197, 94, 0.09);
+}
+
+.reports-summary > div:nth-child(2)::before,
+.report-summary > div:nth-child(2)::before {
+  background: linear-gradient(180deg, #2563eb, #1d4ed8);
+}
+
+.reports-summary > div:nth-child(2)::after,
+.report-summary > div:nth-child(2)::after {
+  background: rgba(37, 99, 235, 0.1);
+}
+
+.reports-summary > div:nth-child(3)::before,
+.report-summary > div:nth-child(3)::before {
+  background: linear-gradient(180deg, #f97316, #ea580c);
+}
+
+.reports-summary > div:nth-child(3)::after,
+.report-summary > div:nth-child(3)::after {
+  background: rgba(249, 115, 22, 0.11);
+}
+
+.reports-summary > div:nth-child(4)::before,
+.report-summary > div:nth-child(4)::before {
+  background: linear-gradient(180deg, #7c3aed, #6d28d9);
+}
+
+.reports-summary > div:nth-child(4)::after,
+.report-summary > div:nth-child(4)::after {
+  background: rgba(124, 58, 237, 0.1);
 }
 
 .reports-summary span,
 .report-summary span {
+  position: relative;
+  z-index: 1;
   display: block;
-  color: var(--ttm-muted);
+  color: #64748b;
   font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 0.055em;
+  font-weight: 1000;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
 }
 
 .reports-summary strong,
 .report-summary strong {
+  position: relative;
+  z-index: 1;
   display: block;
-  margin-top: 10px;
-  color: var(--ttm-text);
-  font-size: 26px;
-  line-height: 1;
-  letter-spacing: -0.05em;
+  margin-top: 12px;
+  color: #0f172a;
+  font-size: clamp(25px, 2vw, 36px);
+  line-height: 0.98;
+  font-weight: 1000;
+  letter-spacing: -0.08em;
 }
+
+
+/* =========================================================
+   PERIOD CARD
+========================================================= */
+
+.report-period-card {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.report-period-card::before {
+  background: linear-gradient(180deg, #0f172a, #334155) !important;
+}
+
+.report-period-card::after {
+  background: rgba(15, 23, 42, 0.08) !important;
+}
+
+.report-period-card span {
+  color: #334155;
+}
+
+.report-period-card strong {
+  font-size: 20px;
+  letter-spacing: -0.04em;
+}
+
+.report-period-card .period-filter {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 2px;
+}
+
+.report-period-card .period-filter button,
+.period-filter button {
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.38);
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  color: #334155;
+  font-size: 10.5px;
+  font-weight: 1000;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow:
+    0 7px 16px rgba(15, 23, 42, 0.055),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  transition:
+    transform 140ms ease,
+    background 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.report-period-card .period-filter button:hover,
+.period-filter button:hover {
+  transform: translateY(-1px);
+  background: #f0fdf4;
+  border-color: rgba(34, 197, 94, 0.42);
+  color: #166534;
+}
+
+.report-period-card .period-filter button.active,
+.period-filter button.active {
+  border-color: rgba(22, 163, 74, 0.78);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.35), transparent 36%),
+    linear-gradient(135deg, #22c55e, #16a34a);
+  color: #ffffff;
+  box-shadow:
+    0 12px 26px rgba(22, 163, 74, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
+}
+
+
+/* =========================================================
+   REPORT SECTIONS
+========================================================= */
 
 .reports-section,
 .report-section {
-  margin-top: 18px;
-  padding: 18px;
-  border-radius: 28px;
-  background: #ffffff;
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  box-shadow: var(--ttm-shadow-soft);
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(34, 197, 94, 0.08), transparent 30%),
+    linear-gradient(180deg, #eef2f7 0%, #f8fafc 100%);
+  border: 1px solid rgba(203, 213, 225, 0.95);
+  box-shadow:
+    0 18px 45px rgba(15, 23, 42, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .reports-section .section-title,
 .report-section .section-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
   margin-bottom: 14px;
 }
 
+.reports-section .section-title h4,
+.report-section .section-title h4 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 20px;
+  line-height: 1.1;
+  font-weight: 1000;
+  letter-spacing: -0.055em;
+}
+
+.reports-section .section-title p,
+.report-section .section-title p {
+  margin: 5px 0 0;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+
+/* =========================================================
+   TABLE WRAPPER
+========================================================= */
+
 .reports-table-wrap,
 .report-table-wrap {
-  overflow-x: auto;
-  border-radius: 22px;
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  background: #ffffff;
+  overflow: auto;
+  padding: 10px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(203, 213, 225, 0.9);
 }
 
 .reports-table,
 .report-table {
   width: 100%;
   min-width: 900px;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0 10px;
 }
 
 .reports-table th,
 .report-table th {
-  padding: 14px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: 12px 15px;
+  background: #0f172a;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 11px;
+  font-weight: 1000;
+  letter-spacing: 0.08em;
   text-align: left;
-  color: #64748b;
-  background: #f8fafc;
-  font-size: 12px;
-  font-weight: 950;
-  letter-spacing: 0.04em;
   text-transform: uppercase;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
 }
 
-.reports-table td,
-.report-table td {
-  padding: 15px 16px;
-  color: #334155;
-  font-weight: 750;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.7);
-  vertical-align: middle;
+.reports-table th:first-child,
+.report-table th:first-child {
+  border-top-left-radius: 18px;
+  border-bottom-left-radius: 18px;
+}
+
+.reports-table th:last-child,
+.report-table th:last-child {
+  border-top-right-radius: 18px;
+  border-bottom-right-radius: 18px;
 }
 
 .reports-table tbody tr,
 .report-table tbody tr {
-  transition: background 140ms ease;
+  transition:
+    transform 150ms ease,
+    opacity 150ms ease;
 }
 
 .reports-table tbody tr:hover,
 .report-table tbody tr:hover {
-  background: #f8fafc;
+  transform: translateY(-2px);
+}
+
+.reports-table td,
+.report-table td {
+  padding: 15px;
+  background: #ffffff;
+  border-top: 1px solid rgba(203, 213, 225, 0.88);
+  border-bottom: 1px solid rgba(203, 213, 225, 0.88);
+  color: #334155;
+  font-size: 13px;
+  font-weight: 850;
+  vertical-align: middle;
+  box-shadow: 0 9px 22px rgba(15, 23, 42, 0.055);
+}
+
+.reports-table td:first-child,
+.report-table td:first-child {
+  border-left: 1px solid rgba(203, 213, 225, 0.88);
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+  box-shadow:
+    inset 5px 0 0 #22c55e,
+    0 9px 22px rgba(15, 23, 42, 0.055);
+}
+
+.reports-table td:last-child,
+.report-table td:last-child {
+  border-right: 1px solid rgba(203, 213, 225, 0.88);
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
 }
 
 .reports-table td strong,
 .report-table td strong {
-  color: var(--ttm-text);
-  font-weight: 950;
+  display: block;
+  color: #0f172a;
+  font-size: 13.5px;
+  font-weight: 1000;
+  line-height: 1.18;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
 }
 
 .reports-table .positive,
-.report-table .positive {
+.report-table .positive,
+.reports-table td:nth-last-child(1),
+.report-table td:nth-last-child(1) {
   color: #15803d;
-  font-weight: 950;
+  font-weight: 1000;
 }
 
 .reports-table .negative,
 .report-table .negative {
   color: #b91c1c;
-  font-weight: 950;
+  font-weight: 1000;
 }
 
-.report-period-card {
-  display: grid;
-  align-content: start;
-  gap: 10px;
-}
 
-.report-period-card::after {
-  background: rgba(34, 197, 94, 0.1);
-}
-
-.report-period-card .period-filter {
-  justify-content: flex-start;
-  gap: 7px;
-}
-
-.report-period-card .period-filter button {
-  min-height: 32px;
-  padding: 0 10px;
-  font-size: 11px;
-}
+/* =========================================================
+   CASHIER CLOSING STATUS
+========================================================= */
 
 .cashier-closing-status {
-  display: inline-flex;
+  display: inline-flex !important;
   align-items: center;
-  min-height: 28px;
+  justify-content: center;
+  min-height: 30px;
   width: fit-content;
   border-radius: 999px;
-  padding: 5px 10px;
-  font-size: 12px;
-  font-weight: 950;
+  padding: 6px 12px;
+  font-size: 11.5px !important;
+  font-weight: 1000 !important;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .cashier-closing-status.match {
-  background: rgba(34, 197, 94, 0.12);
-  color: #15803d;
+  background: #dcfce7;
+  color: #15803d !important;
+  border: 1px solid rgba(34, 197, 94, 0.24);
 }
 
 .cashier-closing-status.over {
-  background: rgba(37, 99, 235, 0.1);
-  color: #1d4ed8;
+  background: #dbeafe;
+  color: #1d4ed8 !important;
+  border: 1px solid rgba(37, 99, 235, 0.24);
 }
 
 .cashier-closing-status.short {
-  background: rgba(220, 38, 38, 0.1);
-  color: #b91c1c;
+  background: #fee2e2;
+  color: #b91c1c !important;
+  border: 1px solid rgba(239, 68, 68, 0.26);
 }
+
+
+/* =========================================================
+   SPECIAL NUMBERS
+========================================================= */
+
+.report-table td:nth-child(3),
+.report-table td:nth-child(4),
+.report-table td:nth-child(5),
+.report-table td:nth-child(6),
+.report-table td:nth-child(7),
+.report-table td:nth-child(8),
+.reports-table td:nth-child(3),
+.reports-table td:nth-child(4),
+.reports-table td:nth-child(5),
+.reports-table td:nth-child(6),
+.reports-table td:nth-child(7),
+.reports-table td:nth-child(8) {
+  font-weight: 1000;
+  white-space: nowrap;
+}
+
+.report-table td:nth-child(5),
+.report-table td:nth-child(8),
+.reports-table td:nth-child(5),
+.reports-table td:nth-child(8) {
+  color: #15803d;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.empty-state {
+  display: grid;
+  place-items: center;
+  min-height: 130px;
+  padding: 22px;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.12), transparent 36%),
+    linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
+  border: 1px dashed rgba(34, 197, 94, 0.38);
+  color: #166534;
+  font-size: 15px;
+  font-weight: 1000;
+  text-align: center;
+}
+
+
+/* =========================================================
+   DESKTOP SCROLL BEHAVIOR
+========================================================= */
+
+@media (min-width: 1100px) {
+  .page-card:has(.report-table-wrap),
+  .page-card:has(.reports-table-wrap) {
+    height: calc(100dvh - 92px) !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  .reports-table-wrap,
+  .report-table-wrap {
+    max-height: 390px;
+    overflow: auto !important;
+  }
+
+  .reports-table thead th,
+  .report-table thead th {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 6 !important;
+  }
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
 
 @media (max-width: 1200px) {
   .reports-summary,
@@ -220,12 +521,26 @@
 
   .reports-section,
   .report-section {
-    padding: 14px;
+    padding: 12px;
     border-radius: 22px;
   }
 
+  .reports-table-wrap,
+  .report-table-wrap {
+    border-radius: 20px;
+    padding: 8px;
+  }
+
+  .reports-table,
+  .report-table {
+    min-width: 860px;
+  }
+
   .report-period-card .period-filter {
-    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .report-period-card .period-filter button {
+    width: 100%;
   }
 }

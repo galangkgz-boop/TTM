@@ -1,6 +1,13 @@
-/* =========================
-   Transaction History Modern
-========================= */
+/* =========================================================
+   TTM Transaction History / Riwayat Premium
+   File: src/styles/pages/history.css
+   Theme: Match Kasir + Produk + Stok UI
+========================================================= */
+
+
+/* =========================================================
+   HEADER
+========================================================= */
 
 .history-header,
 .transactions-header {
@@ -8,22 +15,54 @@
   grid-template-columns: minmax(280px, 1fr) auto;
   gap: 18px;
   align-items: center;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .history-header h3,
 .transactions-header h3 {
   margin: 0;
-  font-size: 30px;
-  letter-spacing: -0.06em;
-  color: var(--ttm-text);
+  color: #0f172a;
+  font-size: clamp(28px, 2vw, 36px);
+  line-height: 1;
+  font-weight: 1000;
+  letter-spacing: -0.075em;
 }
 
 .history-header .muted,
 .transactions-header .muted {
-  margin-top: 4px;
-  color: var(--ttm-muted);
+  margin: 7px 0 0;
+  max-width: 680px;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 750;
 }
+
+.transaction-header-actions {
+  display: grid;
+  gap: 10px;
+  justify-items: end;
+}
+
+.history-export-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.history-export-actions button,
+.transaction-header-actions button {
+  min-height: 40px;
+  padding: 0 15px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 1000;
+}
+
+
+/* =========================================================
+   FILTER BUTTONS
+========================================================= */
 
 .history-filter,
 .transactions-filter,
@@ -31,7 +70,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
@@ -39,17 +78,23 @@
 .transactions-filter button,
 .period-filter button {
   min-height: 38px;
-  border: 0;
-  border-radius: 999px;
   padding: 0 14px;
-  background: rgba(15, 23, 42, 0.07);
-  color: #475569;
-  font-size: 13px;
-  font-weight: 900;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.36);
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  color: #334155;
+  font-size: 12px;
+  font-weight: 1000;
+  text-transform: uppercase;
   cursor: pointer;
+  box-shadow:
+    0 7px 16px rgba(15, 23, 42, 0.055),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
   transition:
     transform 140ms ease,
     background 140ms ease,
+    border-color 140ms ease,
     color 140ms ease,
     box-shadow 140ms ease;
 }
@@ -58,36 +103,60 @@
 .transactions-filter button:hover,
 .period-filter button:hover {
   transform: translateY(-1px);
-  background: rgba(34, 197, 94, 0.12);
-  color: #15803d;
+  background: #f0fdf4;
+  border-color: rgba(34, 197, 94, 0.42);
+  color: #166534;
 }
 
 .history-filter button.active,
 .transactions-filter button.active,
 .period-filter button.active {
-  background: linear-gradient(135deg, #16a34a, #22c55e);
+  border-color: rgba(22, 163, 74, 0.78);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.35), transparent 36%),
+    linear-gradient(135deg, #22c55e, #16a34a);
   color: #ffffff;
-  box-shadow: 0 12px 28px rgba(34, 197, 94, 0.28);
+  box-shadow:
+    0 12px 26px rgba(22, 163, 74, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
 }
+
+
+/* =========================================================
+   SUMMARY CARDS
+========================================================= */
 
 .history-summary,
 .transactions-summary {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .history-summary > div,
 .transactions-summary > div {
   position: relative;
+  min-height: 118px;
   overflow: hidden;
-  min-height: 112px;
-  padding: 18px;
-  border-radius: var(--ttm-radius);
-  background: #ffffff;
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  box-shadow: var(--ttm-shadow-soft);
+  padding: 20px;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(34, 197, 94, 0.12), transparent 34%),
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(203, 213, 225, 0.92);
+  box-shadow:
+    0 16px 38px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.history-summary > div::before,
+.transactions-summary > div::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 6px;
+  background: linear-gradient(180deg, #22c55e, #16a34a);
 }
 
 .history-summary > div::after,
@@ -95,217 +164,877 @@
   content: "";
   position: absolute;
   right: -42px;
-  bottom: -52px;
-  width: 126px;
-  height: 126px;
+  bottom: -54px;
+  width: 128px;
+  height: 128px;
   border-radius: 999px;
-  background: rgba(37, 99, 235, 0.09);
+  background: rgba(34, 197, 94, 0.09);
+}
+
+.history-summary > div:nth-child(2)::before,
+.transactions-summary > div:nth-child(2)::before {
+  background: linear-gradient(180deg, #2563eb, #1d4ed8);
+}
+
+.history-summary > div:nth-child(2)::after,
+.transactions-summary > div:nth-child(2)::after {
+  background: rgba(37, 99, 235, 0.1);
+}
+
+.history-summary > div:nth-child(3)::before,
+.transactions-summary > div:nth-child(3)::before {
+  background: linear-gradient(180deg, #f97316, #ea580c);
+}
+
+.history-summary > div:nth-child(3)::after,
+.transactions-summary > div:nth-child(3)::after {
+  background: rgba(249, 115, 22, 0.11);
+}
+
+.history-summary > div:nth-child(4)::before,
+.transactions-summary > div:nth-child(4)::before {
+  background: linear-gradient(180deg, #7c3aed, #6d28d9);
+}
+
+.history-summary > div:nth-child(4)::after,
+.transactions-summary > div:nth-child(4)::after {
+  background: rgba(124, 58, 237, 0.1);
 }
 
 .history-summary span,
 .transactions-summary span {
+  position: relative;
+  z-index: 1;
   display: block;
-  color: var(--ttm-muted);
+  color: #64748b;
   font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 0.055em;
+  font-weight: 1000;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
 }
 
 .history-summary strong,
 .transactions-summary strong {
+  position: relative;
+  z-index: 1;
   display: block;
-  margin-top: 10px;
-  color: var(--ttm-text);
-  font-size: 28px;
-  line-height: 1;
-  letter-spacing: -0.05em;
+  margin-top: 12px;
+  color: #0f172a;
+  font-size: clamp(28px, 2.1vw, 38px);
+  line-height: 0.98;
+  font-weight: 1000;
+  letter-spacing: -0.08em;
 }
 
-.history-table-wrap,
-.transactions-table-wrap {
-  overflow-x: auto;
+
+/* =========================================================
+   TRANSACTION CARD LIST
+========================================================= */
+
+.transaction-list {
+  display: grid;
+  gap: 13px;
+}
+
+.transaction-card {
+  position: relative;
+  overflow: hidden;
+  padding: 16px 18px;
   border-radius: 26px;
-  background: #ffffff;
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  box-shadow: var(--ttm-shadow-soft);
-}
-
-.history-table,
-.transactions-table {
-  width: 100%;
-  min-width: 900px;
-  border-collapse: collapse;
-}
-
-.history-table th,
-.transactions-table th {
-  padding: 14px 16px;
-  text-align: left;
-  color: #64748b;
-  background: #f8fafc;
-  font-size: 12px;
-  font-weight: 950;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
-}
-
-.history-table td,
-.transactions-table td {
-  padding: 15px 16px;
-  color: #334155;
-  font-weight: 750;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.7);
-  vertical-align: middle;
-}
-
-.history-table tbody tr,
-.transactions-table tbody tr {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(34, 197, 94, 0.08), transparent 30%),
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(203, 213, 225, 0.92);
+  box-shadow:
+    0 14px 32px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
   transition:
-    background 140ms ease,
-    transform 140ms ease;
+    transform 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
 }
 
-.history-table tbody tr:hover,
-.transactions-table tbody tr:hover {
-  background: #f8fafc;
+.transaction-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 6px;
+  background: linear-gradient(180deg, #22c55e, #16a34a);
 }
 
-.history-table td strong,
-.transactions-table td strong {
-  color: var(--ttm-text);
-  font-weight: 950;
+.transaction-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(34, 197, 94, 0.42);
+  box-shadow:
+    0 20px 44px rgba(15, 23, 42, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
-.history-code,
-.transaction-code {
+.transaction-card-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: start;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(203, 213, 225, 0.72);
+}
+
+.transaction-card-header h4 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 17px;
+  font-weight: 1000;
+  line-height: 1.15;
+  letter-spacing: -0.045em;
+}
+
+.transaction-card-header p {
+  margin: 5px 0 0;
+  color: #64748b;
+  font-size: 12.5px;
+  font-weight: 850;
+}
+
+.transaction-code,
+.history-code {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-height: 30px;
-  border-radius: 999px;
+  width: fit-content;
   padding: 5px 10px;
+  border-radius: 999px;
   background: rgba(15, 23, 42, 0.07);
   color: #334155;
-  font-size: 12px;
-  font-weight: 950;
+  font-size: 11.5px;
+  font-weight: 1000;
+  letter-spacing: 0.02em;
 }
 
-.history-total,
-.transaction-total {
-  color: #15803d !important;
-  font-weight: 950 !important;
+.transaction-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  width: fit-content;
+  margin-top: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 1000;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
-.history-profit,
-.transaction-profit {
-  color: #1d4ed8 !important;
-  font-weight: 950 !important;
+.transaction-status-badge.success {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid rgba(34, 197, 94, 0.22);
+}
+
+.transaction-status-badge.cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid rgba(239, 68, 68, 0.24);
+}
+
+.transaction-status-badge.returned {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border: 1px solid rgba(37, 99, 235, 0.22);
+}
+
+.transaction-status-badge.pending {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+
+/* =========================================================
+   TRANSACTION ITEMS INSIDE CARD
+========================================================= */
+
+.transaction-items {
+  display: grid;
+  gap: 7px;
+  padding: 13px 0;
+}
+
+.transaction-items div,
+.transaction-items li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: rgba(241, 245, 249, 0.78);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.transaction-items span {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.transaction-items strong {
+  color: #15803d;
+  font-size: 13px;
+  font-weight: 1000;
+  white-space: nowrap;
+}
+
+.transaction-items ul {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+
+/* =========================================================
+   PAYMENT SUMMARY IN CARD
+========================================================= */
+
+.transaction-payment {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(203, 213, 225, 0.72);
+}
+
+.transaction-payment div {
+  min-height: 64px;
+  padding: 11px 12px;
+  border-radius: 17px;
+  background: #ffffff;
+  border: 1px solid rgba(203, 213, 225, 0.88);
+  box-shadow: 0 7px 16px rgba(15, 23, 42, 0.045);
+}
+
+.transaction-payment span {
+  display: block;
+  color: #64748b;
+  font-size: 10.5px;
+  font-weight: 1000;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.transaction-payment strong {
+  display: block;
+  margin-top: 6px;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 1000;
+  line-height: 1.1;
+  letter-spacing: -0.035em;
+}
+
+.transaction-payment div:first-child strong {
+  color: #15803d;
+}
+
+.transaction-payment div:nth-child(2) strong {
+  color: #1d4ed8;
+}
+
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.transaction-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(203, 213, 225, 0.72);
+}
+
+.history-detail-button,
+.transaction-detail-button,
+.detail-button,
+.action-button {
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 11.5px;
+  font-weight: 1000;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    transform 140ms ease,
+    background 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
 }
 
 .history-detail-button,
 .transaction-detail-button,
 .detail-button {
-  min-height: 34px;
-  border: 0;
-  border-radius: 999px;
-  padding: 0 12px;
   background: rgba(37, 99, 235, 0.1);
   color: #1d4ed8;
-  font-size: 12px;
-  font-weight: 900;
-  cursor: pointer;
-  transition:
-    transform 140ms ease,
-    background 140ms ease,
-    box-shadow 140ms ease;
+  border-color: rgba(37, 99, 235, 0.18);
+}
+
+.action-button.retur {
+  background: #dbeafe;
+  color: #0c4a6e;
+  border-color: rgba(37, 99, 235, 0.18);
+}
+
+.action-button.cancel {
+  background: #fee2e2;
+  color: #7f1d1d;
+  border-color: rgba(239, 68, 68, 0.22);
 }
 
 .history-detail-button:hover,
 .transaction-detail-button:hover,
-.detail-button:hover {
+.detail-button:hover,
+.action-button:hover:not(:disabled) {
   transform: translateY(-1px);
-  background: rgba(37, 99, 235, 0.16);
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.09);
 }
 
-/* Transaction detail modal */
+.action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   TABLE FALLBACK
+========================================================= */
+
+.history-table-wrap,
+.transactions-table-wrap {
+  overflow: auto;
+  padding: 12px;
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(34, 197, 94, 0.08), transparent 30%),
+    linear-gradient(180deg, #eef2f7 0%, #f8fafc 100%);
+  border: 1px solid rgba(203, 213, 225, 0.95);
+  box-shadow:
+    0 18px 45px rgba(15, 23, 42, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.history-table,
+.transactions-table {
+  width: 100%;
+  min-width: 920px;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+}
+
+.history-table th,
+.transactions-table th {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: 12px 15px;
+  background: #0f172a;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 11px;
+  font-weight: 1000;
+  letter-spacing: 0.08em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.history-table th:first-child,
+.transactions-table th:first-child {
+  border-top-left-radius: 18px;
+  border-bottom-left-radius: 18px;
+}
+
+.history-table th:last-child,
+.transactions-table th:last-child {
+  border-top-right-radius: 18px;
+  border-bottom-right-radius: 18px;
+}
+
+.history-table td,
+.transactions-table td {
+  padding: 15px;
+  background: #ffffff;
+  border-top: 1px solid rgba(203, 213, 225, 0.88);
+  border-bottom: 1px solid rgba(203, 213, 225, 0.88);
+  color: #334155;
+  font-size: 13px;
+  font-weight: 850;
+  vertical-align: middle;
+  box-shadow: 0 9px 22px rgba(15, 23, 42, 0.055);
+}
+
+.history-table td:first-child,
+.transactions-table td:first-child {
+  border-left: 1px solid rgba(203, 213, 225, 0.88);
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+  box-shadow:
+    inset 5px 0 0 #22c55e,
+    0 9px 22px rgba(15, 23, 42, 0.055);
+}
+
+.history-table td:last-child,
+.transactions-table td:last-child {
+  border-right: 1px solid rgba(203, 213, 225, 0.88);
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+.history-total,
+.transaction-total {
+  color: #15803d !important;
+  font-weight: 1000 !important;
+}
+
+.history-profit,
+.transaction-profit {
+  color: #1d4ed8 !important;
+  font-weight: 1000 !important;
+}
+
+
+/* =========================================================
+   DETAIL MODAL
+========================================================= */
+
 .transaction-detail-modal,
 .history-detail-modal {
-  width: min(860px, calc(100vw - 28px));
-  max-height: calc(100vh - 32px);
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  width: min(620px, calc(100vw - 32px));
+  max-height: calc(100vh - 42px);
+  overflow: hidden;
   border-radius: 30px;
   background: #ffffff;
+  border: 1px solid rgba(203, 213, 225, 0.95);
+  box-shadow: 0 30px 90px rgba(15, 23, 42, 0.3);
+}
+
+.transaction-detail-modal .modal-header,
+.history-detail-modal .modal-header {
+  flex: 0 0 auto;
+  padding: 20px 22px;
+  color: #ffffff;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(34, 197, 94, 0.44), transparent 35%),
+    linear-gradient(135deg, #020617 0%, #0f172a 60%, #14532d 100%);
+  border-bottom: 0;
+}
+
+.transaction-detail-modal .modal-header h3,
+.history-detail-modal .modal-header h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 23px;
+  font-weight: 1000;
+  letter-spacing: -0.06em;
+}
+
+.transaction-detail-modal .modal-header p,
+.history-detail-modal .modal-header p {
+  margin: 6px 0 0;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
+.transaction-detail-modal .modal-close,
+.history-detail-modal .modal-close {
+  color: #ffffff;
 }
 
 .transaction-detail-summary,
-.history-detail-summary {
+.history-detail-summary,
+.detail-info-grid {
+  flex: 0 0 auto;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 10px;
+  padding: 14px 16px 0;
 }
 
 .transaction-detail-summary > div,
-.history-detail-summary > div {
-  padding: 14px;
-  border-radius: 20px;
+.history-detail-summary > div,
+.detail-info-grid div {
+  padding: 12px;
+  border-radius: 18px;
   background: #f8fafc;
-  border: 1px solid rgba(226, 232, 240, 0.9);
+  border: 1px solid rgba(203, 213, 225, 0.9);
 }
 
 .transaction-detail-summary span,
-.history-detail-summary span {
+.history-detail-summary span,
+.detail-info-grid span,
+.detail-total-list span {
   display: block;
-  color: var(--ttm-muted);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 0.04em;
+  color: #64748b;
+  font-size: 10.5px;
+  font-weight: 1000;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
 .transaction-detail-summary strong,
-.history-detail-summary strong {
+.history-detail-summary strong,
+.detail-info-grid strong {
   display: block;
-  margin-top: 6px;
-  color: var(--ttm-text);
-  font-size: 18px;
-  font-weight: 950;
+  margin-top: 5px;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 1000;
+  line-height: 1.15;
 }
 
-.transaction-items-table,
-.history-items-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 720px;
-}
-
-.transaction-items-wrap,
-.history-items-wrap {
-  overflow-x: auto;
+.detail-item-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: 14px 16px;
+  padding: 14px;
   border-radius: 22px;
-  border: 1px solid rgba(226, 232, 240, 0.9);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(34, 197, 94, 0.08), transparent 30%),
+    #f1f5f9;
+  border: 1px solid rgba(203, 213, 225, 0.9);
+  scrollbar-width: thin;
 }
 
-.transaction-items-table th,
-.history-items-table th {
-  padding: 12px 14px;
-  text-align: left;
-  background: #f8fafc;
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 950;
+.detail-item-list h4 {
+  margin: 0 0 10px;
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 1000;
+  letter-spacing: -0.04em;
+}
+
+.detail-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(203, 213, 225, 0.8);
+}
+
+.detail-item:last-child {
+  border-bottom: 0;
+}
+
+.detail-item strong {
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 1000;
+  line-height: 1.25;
   text-transform: uppercase;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
 }
 
-.transaction-items-table td,
-.history-items-table td {
-  padding: 13px 14px;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.7);
-  color: #334155;
-  font-weight: 750;
+.detail-item p {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 11.5px;
+  font-weight: 800;
 }
+
+.detail-item > strong:last-child,
+.detail-item > div:last-child strong {
+  color: #15803d;
+  white-space: nowrap;
+}
+
+.fifo-batch-list {
+  margin-top: 7px;
+  padding: 8px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid rgba(203, 213, 225, 0.82);
+}
+
+.fifo-batch-list span,
+.fifo-batch-list small {
+  display: block;
+  color: #475569;
+  font-size: 10.5px;
+  font-weight: 850;
+  line-height: 1.3;
+}
+
+
+/* =========================================================
+   DETAIL TOTAL + ACTIONS
+========================================================= */
+
+.detail-total-list {
+  flex: 0 0 auto;
+  display: grid;
+  gap: 8px;
+  padding: 0 16px 14px;
+  background: #ffffff;
+}
+
+.detail-total-list div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 40px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: #f8fafc;
+  border: 1px solid rgba(203, 213, 225, 0.9);
+}
+
+.detail-total-list strong {
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 1000;
+}
+
+.detail-total-list div:last-child {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.32), transparent 36%),
+    linear-gradient(135deg, #22c55e, #16a34a);
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+.detail-total-list div:last-child span,
+.detail-total-list div:last-child strong {
+  color: #ffffff;
+}
+
+.detail-actions {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 16px 16px;
+  background: #ffffff;
+  border-top: 1px solid rgba(203, 213, 225, 0.85);
+}
+
+.detail-actions .secondary-button,
+.detail-actions .finish-button {
+  min-height: 38px;
+  border-radius: 14px;
+  padding: 0 13px;
+  font-size: 12px;
+  font-weight: 1000;
+}
+
+
+/* =========================================================
+   RETUR & CANCEL MODAL
+========================================================= */
+
+.retur-modal,
+.cancel-modal {
+  width: min(520px, calc(100vw - 32px));
+  overflow: hidden;
+  border-radius: 30px;
+  background: #ffffff;
+  border: 1px solid rgba(203, 213, 225, 0.95);
+  box-shadow: 0 30px 90px rgba(15, 23, 42, 0.3);
+}
+
+.retur-modal .modal-header,
+.cancel-modal .modal-header {
+  padding: 20px 22px;
+  color: #ffffff;
+  border-bottom: 0;
+}
+
+.retur-modal .modal-header {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.44), transparent 35%),
+    linear-gradient(135deg, #020617 0%, #0f172a 60%, #1e3a8a 100%);
+}
+
+.cancel-modal .modal-header {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(239, 68, 68, 0.42), transparent 35%),
+    linear-gradient(135deg, #020617 0%, #0f172a 60%, #7f1d1d 100%);
+}
+
+.retur-modal .modal-header h3,
+.cancel-modal .modal-header h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 23px;
+  font-weight: 1000;
+  letter-spacing: -0.06em;
+}
+
+.retur-modal .modal-header p,
+.cancel-modal .modal-header p {
+  margin: 6px 0 0;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
+.retur-reason,
+.cancel-reason {
+  display: grid;
+  gap: 8px;
+  padding: 18px 22px 0;
+}
+
+.retur-reason label,
+.cancel-reason label {
+  color: #475569;
+  font-size: 12px;
+  font-weight: 1000;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+.retur-reason textarea,
+.cancel-reason textarea {
+  min-height: 104px;
+  padding: 13px 14px;
+  border-radius: 17px;
+  border: 1px solid rgba(148, 163, 184, 0.48);
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.4;
+  outline: none;
+  resize: vertical;
+}
+
+.retur-reason textarea:focus {
+  border-color: rgba(37, 99, 235, 0.65);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+.cancel-reason textarea:focus {
+  border-color: rgba(239, 68, 68, 0.65);
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12);
+}
+
+.modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: 10px;
+  padding: 18px 22px 22px;
+}
+
+.modal-actions button {
+  min-height: 42px;
+  border: 0;
+  border-radius: 16px;
+  padding: 0 14px;
+  font-size: 12px;
+  font-weight: 1000;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    background 140ms ease;
+}
+
+.modal-actions button:hover {
+  transform: translateY(-1px);
+}
+
+.modal-actions button.cancel {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.modal-actions button.confirm {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(22, 163, 74, 0.22);
+}
+
+.cancel-modal .modal-actions button.confirm {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  box-shadow: 0 12px 24px rgba(220, 38, 38, 0.2);
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.empty-state {
+  display: grid;
+  place-items: center;
+  min-height: 140px;
+  padding: 22px;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.12), transparent 36%),
+    linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
+  border: 1px dashed rgba(34, 197, 94, 0.38);
+  color: #166534;
+  font-size: 15px;
+  font-weight: 1000;
+  text-align: center;
+}
+
+
+/* =========================================================
+   DESKTOP SCROLL BEHAVIOR
+========================================================= */
+
+@media (min-width: 1100px) {
+  .page-card:has(.transaction-list),
+  .page-card:has(.transactions-table-wrap),
+  .page-card:has(.history-table-wrap) {
+    height: calc(100dvh - 92px) !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  .transaction-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .transaction-card {
+    padding: 16px 18px;
+    border-radius: 24px;
+  }
+
+  .transaction-card-header h4 {
+    font-size: 16px;
+  }
+
+  .transaction-payment div {
+    min-height: 58px;
+  }
+}
+
+@media (min-width: 1500px) {
+  .transaction-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
 
 @media (max-width: 1100px) {
   .history-header,
@@ -313,6 +1042,11 @@
     grid-template-columns: 1fr;
   }
 
+  .transaction-header-actions {
+    justify-items: start;
+  }
+
+  .history-export-actions,
   .history-filter,
   .transactions-filter,
   .period-filter {
@@ -325,7 +1059,12 @@
   }
 
   .transaction-detail-summary,
-  .history-detail-summary {
+  .history-detail-summary,
+  .detail-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .transaction-payment {
     grid-template-columns: 1fr;
   }
 }
@@ -348,590 +1087,118 @@
   .period-filter button {
     width: 100%;
   }
-}
-
-.transaction-header-actions {
-  display: grid;
-  gap: 12px;
-  justify-items: end;
-}
-
-.history-export-actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-@media (max-width: 1100px) {
-  .transaction-header-actions {
-    justify-items: start;
-  }
-
-  .history-export-actions {
-    justify-content: flex-start;
-  }
-}
-
-/* Compact detail transaksi, posisi modal tidak disentuh */
-.transaction-detail-modal {
-  width: min(520px, calc(100vw - 40px)) !important;
-  max-height: calc(100vh - 44px) !important;
-  padding: 16px !important;
-  border-radius: 20px !important;
-}
-
-.transaction-detail-modal .modal-header {
-  margin-bottom: 10px !important;
-  padding-bottom: 8px !important;
-  border-bottom: 1px solid #e5e7eb !important;
-}
-
-.transaction-detail-modal .modal-header h3 {
-  font-size: 16px !important;
-  margin: 0 0 2px !important;
-}
-
-.transaction-detail-modal .modal-header p {
-  font-size: 11px !important;
-}
-
-.transaction-detail-modal .modal-close {
-  width: 30px !important;
-  height: 30px !important;
-  font-size: 20px !important;
-}
-
-.transaction-detail-modal .detail-info-grid {
-  gap: 8px !important;
-  margin-bottom: 10px !important;
-}
-
-.transaction-detail-modal .detail-info-grid div {
-  padding: 9px 10px !important;
-  border-radius: 12px !important;
-}
-
-.transaction-detail-modal .detail-info-grid span,
-.transaction-detail-modal .detail-total-list span {
-  font-size: 10.5px !important;
-  margin-bottom: 3px !important;
-}
-
-.transaction-detail-modal .detail-info-grid strong {
-  font-size: 12px !important;
-}
-
-.transaction-detail-modal .detail-item-list {
-  padding: 10px !important;
-  margin-bottom: 10px !important;
-  border-radius: 14px !important;
-}
-
-.transaction-detail-modal .detail-item-list h4 {
-  font-size: 13px !important;
-  margin: 0 0 8px !important;
-}
-
-.transaction-detail-modal .detail-item {
-  padding: 7px 0 !important;
-  gap: 10px !important;
-}
-
-.transaction-detail-modal .detail-item strong {
-  font-size: 12px !important;
-}
-
-.transaction-detail-modal .detail-item p {
-  font-size: 10.5px !important;
-  line-height: 1.25 !important;
-  margin: 2px 0 0 !important;
-}
-
-.transaction-detail-modal .fifo-batch-list {
-  margin-top: 5px !important;
-  padding: 6px !important;
-  border-radius: 10px !important;
-}
-
-.transaction-detail-modal .fifo-batch-list span,
-.transaction-detail-modal .fifo-batch-list small {
-  font-size: 9.5px !important;
-  line-height: 1.25 !important;
-}
-
-.transaction-detail-modal .detail-total-list {
-  gap: 8px !important;
-}
-
-.transaction-detail-modal .detail-total-list div {
-  padding: 9px 10px !important;
-  border-radius: 12px !important;
-}
-
-.transaction-detail-modal .detail-total-list strong {
-  font-size: 12.5px !important;
-}
-
-.transaction-detail-modal .detail-actions {
-  margin-top: 10px !important;
-  gap: 8px !important;
-}
-
-.transaction-detail-modal .secondary-button,
-.transaction-detail-modal .finish-button {
-  padding: 8px 10px !important;
-  border-radius: 10px !important;
-  font-size: 11px !important;
-}
-
-/* Laptop/Desktop history layout refinement */
-@media (min-width: 1200px) {
-  .transaction-list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-  }
-
-  .transaction-card {
-    padding: 16px 18px !important;
-    border-radius: 20px !important;
-  }
 
   .transaction-card-header {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) auto !important;
-    gap: 12px !important;
-    align-items: start !important;
-    padding-bottom: 12px !important;
+    grid-template-columns: 1fr;
   }
 
-  .transaction-card-header h4 {
-    font-size: 16px !important;
-    margin-bottom: 5px !important;
+  .transaction-actions,
+  .detail-actions {
+    display: grid;
+    grid-template-columns: 1fr;
   }
 
-  .transaction-card-header p {
-    font-size: 12px !important;
-  }
-
-  .transaction-header-actions {
-    align-items: flex-end !important;
-    gap: 7px !important;
-  }
-
-  .transaction-items {
-    padding: 12px 0 !important;
-    gap: 7px !important;
-  }
-
-  .transaction-items div {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) auto !important;
-    align-items: center !important;
-    gap: 10px !important;
-  }
-
-  .transaction-items span {
-    font-size: 13px !important;
-    line-height: 1.35 !important;
-  }
-
-  .transaction-items strong {
-    font-size: 13px !important;
-    white-space: nowrap !important;
-  }
-
-  .transaction-payment {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 10px !important;
-    padding-top: 12px !important;
-  }
-
-  .transaction-payment div {
-    padding: 10px 12px !important;
-    border-radius: 14px !important;
-    min-height: 58px !important;
-  }
-
-  .transaction-payment span {
-    font-size: 11px !important;
-    font-weight: 900 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.04em !important;
-  }
-
-  .transaction-payment strong {
-    font-size: 14px !important;
-  }
-
-  .detail-button {
-    min-height: 32px !important;
-    padding: 0 12px !important;
-    font-size: 11px !important;
-  }
-}
-
-/* Rapikan jarak kiri item transaksi di card riwayat */
-.transaction-items {
-  padding-left: 24px !important;
-  padding-right: 24px !important;
-}
-
-.transaction-items div,
-.transaction-items li {
-  padding-left: 8px !important;
-}
-
-.transaction-items ul {
-  padding-left: 22px !important;
-  margin-left: 0 !important;
-}
-
-.transaction-items li::marker {
-  font-size: 0.8em;
-}
-
-/* Detail Riwayat: hanya item transaksi yang scroll */
-.transaction-detail-modal {
-  display: flex !important;
-  flex-direction: column !important;
-  width: min(520px, calc(100vw - 40px)) !important;
-  max-height: calc(100vh - 300px) !important;
-  overflow: hidden !important;
-}
-
-.transaction-detail-modal .modal-header,
-.transaction-detail-modal .detail-info-grid,
-.transaction-detail-modal .detail-total-list,
-.transaction-detail-modal .detail-actions {
-  flex: 0 0 auto !important;
-}
-
-.transaction-detail-modal .detail-item-list {
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-  max-height: none !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  margin-bottom: 10px !important;
-}
-
-.transaction-detail-modal .detail-total-list {
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-  background: #ffffff !important;
-}
-
-.transaction-detail-modal .detail-actions {
-  margin-top: 10px !important;
-  padding-top: 8px !important;
-  border-top: 1px solid #e5e7eb !important;
-  background: #ffffff !important;
-}
-
-/* ========================================
-   HISTORY.CSS - PENAMBAHAN FITUR RETUR & CANCEL
-   Copy-paste ini ke akhir file src/styles/pages/history.css
-   ======================================== */
-
-/* === Admin Actions: Retur & Cancel Transaksi === */
-.transaction-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid #e2e8f0;
-}
-
-.action-button {
-  border: 0;
-  border-radius: 12px;
-  padding: 9px 13px;
-  font-size: 12px;
-  font-weight: 950;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.action-button.retur {
-  background: #dbeafe;
-  color: #0c4a6e;
-}
-
-.action-button.retur:hover:not(:disabled) {
-  background: #bfdbfe;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.2);
-}
-
-.action-button.cancel {
-  background: #fee2e2;
-  color: #7f1d1d;
-}
-
-.action-button.cancel:hover:not(:disabled) {
-  background: #fecaca;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
-}
-
-.action-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* === Status Badge === */
-.transaction-status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-top: 8px;
-}
-
-.transaction-status-badge.success {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.transaction-status-badge.cancelled {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.transaction-status-badge.returned {
-  background: #dbeafe;
-  color: #1d4ed8;
-}
-
-.transaction-status-badge.pending {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-/* === Retur Modal === */
-.retur-modal {
-  width: min(520px, 94vw);
-  background: #ffffff;
-  border-radius: 24px;
-  padding: 24px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 28px 90px rgba(15, 23, 42, 0.30);
-}
-
-.retur-modal .modal-header {
-  margin-bottom: 18px;
-}
-
-.retur-modal .modal-header h3 {
-  margin: 0 0 4px;
-  font-size: 22px;
-  color: #0f172a;
-}
-
-.retur-modal .modal-header p {
-  margin: 0;
-  color: #64748b;
-  font-size: 13px;
-}
-
-.retur-reason {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.retur-reason label {
-  font-weight: 900;
-  color: #0f172a;
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.retur-reason textarea {
-  border: 1px solid #cbd5e1;
-  border-radius: 14px;
-  padding: 12px 14px;
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  resize: vertical;
-  min-height: 100px;
-  outline: none;
-  background: #ffffff;
-  color: #0f172a;
-}
-
-.retur-reason textarea:focus {
-  border-color: #22c55e;
-  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.13);
-}
-
-.retur-reason textarea::placeholder {
-  color: #94a3b8;
-}
-
-/* === Cancel Modal === */
-.cancel-modal {
-  width: min(520px, 94vw);
-  background: #ffffff;
-  border-radius: 24px;
-  padding: 24px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 28px 90px rgba(15, 23, 42, 0.30);
-}
-
-.cancel-modal .modal-header {
-  margin-bottom: 18px;
-}
-
-.cancel-modal .modal-header h3 {
-  margin: 0 0 4px;
-  font-size: 22px;
-  color: #0f172a;
-}
-
-.cancel-modal .modal-header p {
-  margin: 0;
-  color: #64748b;
-  font-size: 13px;
-}
-
-.cancel-reason {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.cancel-reason label {
-  font-weight: 900;
-  color: #0f172a;
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.cancel-reason textarea {
-  border: 1px solid #cbd5e1;
-  border-radius: 14px;
-  padding: 12px 14px;
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  resize: vertical;
-  min-height: 100px;
-  outline: none;
-  background: #ffffff;
-  color: #0f172a;
-}
-
-.cancel-reason textarea:focus {
-  border-color: #dc2626;
-  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.13);
-}
-
-.cancel-reason textarea::placeholder {
-  color: #94a3b8;
-}
-
-/* === Modal Actions === */
-.modal-actions {
-  display: grid;
-  grid-template-columns: 1fr 1.3fr;
-  gap: 12px;
-  margin-top: 20px;
-}
-
-.modal-actions button {
-  border: 0;
-  border-radius: 14px;
-  padding: 13px 16px;
-  font-weight: 800;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.modal-actions button.cancel {
-  background: #f3f4f6;
-  color: #374151;
-}
-
-.modal-actions button.cancel:hover {
-  background: #e5e7eb;
-  transform: translateY(-1px);
-}
-
-.modal-actions button.confirm {
-  background: #22c55e;
-  color: #052e16;
-  font-weight: 950;
-}
-
-.modal-actions button.confirm:hover {
-  background: #16a34a;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
-}
-
-.modal-actions button:active {
-  transform: translateY(0);
-}
-
-/* === Responsive === */
-@media (max-width: 700px) {
-  .transaction-actions {
-    flex-direction: column;
-  }
-
-  .action-button {
+  .history-detail-button,
+  .transaction-detail-button,
+  .detail-button,
+  .action-button,
+  .detail-actions button {
     width: 100%;
-    text-align: center;
-  }
-
-  .retur-modal,
-  .cancel-modal {
-    width: min(94vw, 480px);
-    padding: 18px;
-  }
-
-  .retur-reason textarea,
-  .cancel-reason textarea {
-    min-height: 80px;
   }
 
   .modal-actions {
     grid-template-columns: 1fr;
   }
 
-  .modal-actions button {
-    width: 100%;
+  .transaction-detail-modal,
+  .history-detail-modal,
+  .retur-modal,
+  .cancel-modal {
+    border-radius: 22px;
+  }
+} 
+
+/* =========================================================
+   PATCH: Admin Cancel Transaction
+========================================================= */
+
+.transaction-card:has(.transaction-status-badge.cancelled) {
+  opacity: 0.82;
+}
+
+.transaction-card:has(.transaction-status-badge.cancelled)::before {
+  background: linear-gradient(180deg, #ef4444, #dc2626);
+}
+
+.transaction-status-badge.cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid rgba(239, 68, 68, 0.28);
+}
+
+.action-button.cancel,
+.modal-actions .confirm.danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #ffffff;
+  border-color: rgba(239, 68, 68, 0.32);
+  box-shadow: 0 10px 22px rgba(220, 38, 38, 0.18);
+}
+
+.cancel-summary-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 18px 22px 0;
+}
+
+.cancel-summary-box > div {
+  padding: 13px 14px;
+  border-radius: 18px;
+  background: #f8fafc;
+  border: 1px solid rgba(203, 213, 225, 0.9);
+}
+
+.cancel-summary-box span {
+  display: block;
+  color: #64748b;
+  font-size: 10.5px;
+  font-weight: 1000;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.cancel-summary-box strong {
+  display: block;
+  margin-top: 6px;
+  color: #0f172a;
+  font-size: 16px;
+  font-weight: 1000;
+  letter-spacing: -0.04em;
+}
+
+.cancel-summary-box > div:first-child strong {
+  color: #15803d;
+}
+
+.cancel-summary-box > div:nth-child(2) strong {
+  color: #1d4ed8;
+}
+
+@media (max-width: 640px) {
+  .cancel-summary-box {
+    grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 480px) {
-  .retur-modal,
-  .cancel-modal {
-    border-radius: 20px;
-  }
+/* Tombol Edit transaksi */
+.action-button.edit {
+  background: #fef3c7;
+  color: #92400e;
+  border-color: rgba(245, 158, 11, 0.32);
+  box-shadow: 0 10px 22px rgba(245, 158, 11, 0.14);
+}
 
-  .retur-modal .modal-header h3,
-  .cancel-modal .modal-header h3 {
-    font-size: 20px;
-  }
+.action-button.edit:hover {
+  background: #fde68a;
+  color: #78350f;
 }

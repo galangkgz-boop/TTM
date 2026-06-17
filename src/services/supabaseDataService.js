@@ -271,6 +271,46 @@ export async function createTransactionInSupabase(transaction) {
   return createdTransaction;
 }
 
+export async function cancelTransactionInSupabase(transaction) {
+  const row = {
+    status: "cancelled",
+
+    original_subtotal: Number(
+      transaction.originalSubtotal ?? transaction.subtotal ?? 0
+    ),
+    original_discount: Number(
+      transaction.originalDiscount ?? transaction.discount ?? 0
+    ),
+    original_total: Number(
+      transaction.originalTotal ?? transaction.total ?? 0
+    ),
+    original_profit: Number(
+      transaction.originalProfit ?? transaction.profit ?? 0
+    ),
+
+    subtotal: 0,
+    discount: 0,
+    total: 0,
+    cash_received: 0,
+    change_amount: 0,
+    profit: 0,
+
+    payment_status: "cancelled",
+    cancel_reason: transaction.cancelReason || "",
+    cancelled_at: transaction.cancelledAt || new Date().toISOString(),
+    cancelled_by: transaction.cancelledBy || "Admin",
+  };
+
+  const { error } = await supabase
+    .from("transactions")
+    .update(row)
+    .eq("code", transaction.code);
+
+  if (error) {
+    throw error;
+  }
+}
+
 export async function updateStockBatchesInSupabase(stockBatches) {
   const updates = stockBatches.map((batch) =>
     supabase
