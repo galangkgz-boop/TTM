@@ -1,88 +1,252 @@
-/* =========================
-   Shared Buttons
-   Reusable button variants used across multiple pages
-========================= */
+/* =========================================================
+   Buttons — shared clean POS actions
+   ========================================================= */
 
-/* --- Primary Action Button --- */
-.primary-action-button {
+.primary-action-button,
+.finish-button,
+.pay-button,
+.login-button,
+.open-cashier-button,
+.close-cashier-button,
+.cash-flow-button.primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
   border: 0;
-  border-radius: 14px;
-  padding: 12px 16px;
-  background: #22c55e;
-  color: #052e16;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.primary-action-button:hover {
-  background: #16a34a;
-}
-
-/* --- Secondary Button --- */
-.secondary-button {
-  border: 0;
-  border-radius: 14px;
-  padding: 14px;
-  background: #f3f4f6;
-  color: #374151;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-/* --- Danger Button --- */
-.danger-button {
-  border: 0;
-  border-radius: 14px;
-  padding: 12px 14px;
-  background: #fee2e2;
-  color: #991b1b;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.danger-button:hover {
-  background: #fecaca;
-}
-
-/* --- Finish / Confirm Button --- */
-.finish-button {
-  border: 0;
-  border-radius: 14px;
-  padding: 14px;
-  background: #22c55e;
-  color: #052e16;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.finish-button:disabled {
-  background: #d1d5db;
-  color: #6b7280;
-  cursor: not-allowed;
-}
-
-/* --- Lock Button (topbar) --- */
-.lock-button {
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
-  color: #334155;
-  border-radius: 999px;
-  padding: 8px 13px;
-  font-size: 12px;
+  border-radius: var(--ttm-radius-md);
+  background: linear-gradient(135deg, #22c55e, var(--ttm-primary));
+  color: #ffffff;
   font-weight: 900;
-  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(22, 163, 74, 0.22);
+  transition:
+    transform var(--ttm-transition),
+    box-shadow var(--ttm-transition),
+    background var(--ttm-transition),
+    opacity var(--ttm-transition);
 }
 
-.lock-button:hover {
-  background: #f1f5f9;
-}
-
-/* --- Table Action Buttons (small) --- */
-
-.small-edit-button:hover,
-.small-danger-button:hover,
-.small-activate-button:hover,
-.small-variant-button:hover {
+.primary-action-button:hover,
+.finish-button:hover,
+.pay-button:hover,
+.login-button:hover,
+.open-cashier-button:hover,
+.close-cashier-button:hover,
+.cash-flow-button.primary:hover {
   transform: translateY(-1px);
+  background: linear-gradient(135deg, #22c55e, var(--ttm-primary-hover));
+  box-shadow: 0 14px 30px rgba(22, 163, 74, 0.28);
 }
 
+.primary-action-button:active,
+.finish-button:active,
+.pay-button:active,
+.login-button:active,
+.open-cashier-button:active,
+.close-cashier-button:active,
+.cash-flow-button.primary:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 18px rgba(22, 163, 74, 0.20);
+}
+
+.secondary-button,
+.cancel-button,
+.export-button,
+.print-button,
+.test-print-button,
+.cash-flow-button,
+.edit-button,
+.detail-button,
+.variant-button,
+.retry-button,
+.pin-role-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--ttm-border);
+  border-radius: var(--ttm-radius-md);
+  background: #ffffff;
+  color: var(--ttm-text);
+  font-weight: 850;
+  box-shadow: var(--ttm-shadow-xs);
+  transition:
+    transform var(--ttm-transition),
+    border-color var(--ttm-transition),
+    background var(--ttm-transition),
+    box-shadow var(--ttm-transition),
+    color var(--ttm-transition);
+}
+
+.secondary-button:hover,
+.cancel-button:hover,
+.export-button:hover,
+.print-button:hover,
+.test-print-button:hover,
+.cash-flow-button:hover,
+.edit-button:hover,
+.detail-button:hover,
+.variant-button:hover,
+.retry-button:hover,
+.pin-role-tab:hover {
+  transform: translateY(-1px);
+  border-color: rgba(22, 163, 74, 0.36);
+  background: var(--ttm-surface-soft);
+  box-shadow: var(--ttm-shadow-sm);
+}
+
+.pin-role-tab.active,
+.category-tab.active,
+.filter-tab.active {
+  border-color: rgba(22, 163, 74, 0.26);
+  background: var(--ttm-primary-soft);
+  color: var(--ttm-primary-dark);
+}
+
+.danger-button,
+.delete-button,
+.cancel-transaction-button,
+.deactivate-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid rgba(220, 38, 38, 0.14);
+  border-radius: var(--ttm-radius-md);
+  background: var(--ttm-danger-soft);
+  color: #991b1b;
+  font-weight: 850;
+  box-shadow: none;
+  transition:
+    transform var(--ttm-transition),
+    background var(--ttm-transition),
+    border-color var(--ttm-transition),
+    box-shadow var(--ttm-transition);
+}
+
+.danger-button:hover,
+.delete-button:hover,
+.cancel-transaction-button:hover,
+.deactivate-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(220, 38, 38, 0.22);
+  background: #fecaca;
+  box-shadow: 0 10px 22px rgba(220, 38, 38, 0.12);
+}
+
+.activate-button,
+.success-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid rgba(22, 163, 74, 0.18);
+  border-radius: var(--ttm-radius-md);
+  background: var(--ttm-primary-soft);
+  color: var(--ttm-primary-dark);
+  font-weight: 850;
+  transition:
+    transform var(--ttm-transition),
+    background var(--ttm-transition),
+    border-color var(--ttm-transition);
+}
+
+.activate-button:hover,
+.success-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(22, 163, 74, 0.28);
+  background: #bbf7d0;
+}
+
+.category-tab,
+.filter-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--ttm-border);
+  border-radius: var(--ttm-radius-pill);
+  background: #ffffff;
+  color: var(--ttm-text-soft);
+  font-size: 13px;
+  font-weight: 850;
+  transition:
+    transform var(--ttm-transition),
+    background var(--ttm-transition),
+    border-color var(--ttm-transition),
+    color var(--ttm-transition);
+}
+
+.category-tab:hover,
+.filter-tab:hover {
+  transform: translateY(-1px);
+  border-color: rgba(22, 163, 74, 0.30);
+  background: var(--ttm-surface-soft);
+}
+
+.icon-button,
+.modal-close,
+.qty-button,
+.cart-qty-button,
+.remove-cart-button {
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--ttm-border);
+  border-radius: var(--ttm-radius-md);
+  background: #ffffff;
+  color: var(--ttm-text);
+  transition:
+    transform var(--ttm-transition),
+    background var(--ttm-transition),
+    border-color var(--ttm-transition);
+}
+
+.icon-button:hover,
+.modal-close:hover,
+.qty-button:hover,
+.cart-qty-button:hover,
+.remove-cart-button:hover {
+  transform: translateY(-1px);
+  border-color: var(--ttm-border-strong);
+  background: var(--ttm-surface-soft);
+}
+
+.modal-close {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  border-radius: var(--ttm-radius-pill);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.action-group,
+.table-actions,
+.card-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .primary-action-button,
+  .finish-button,
+  .pay-button,
+  .secondary-button,
+  .cancel-button,
+  .danger-button,
+  .export-button,
+  .print-button,
+  .test-print-button {
+    width: 100%;
+  }
+}
