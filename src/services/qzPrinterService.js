@@ -3,6 +3,8 @@ import * as qz from "qz-tray";
 const DEFAULT_PRINTER_NAME = "EPPOS";
 const RECEIPT_WIDTH = 32;
 
+let printQueue = Promise.resolve();
+
 function money(value) {
   return Number(value || 0).toLocaleString("id-ID");
 }
@@ -146,15 +148,24 @@ receiptLines.push(padLine("Kembali", money(changeValue)));
   }
 
 receiptLines.push("");
-receiptLines.push("");
 
-  return [
-    {
-      type: "raw",
-      format: "plain",
-      data: receiptLines.join("\n") +"\n\n\n\n",
-    },
-  ];
+  const ESC = "\x1B";
+const GS = "\x1D";
+
+const receiptText =
+  ESC + "@" + // initialize printer
+  receiptLines.join("\n") +
+  "\n\n\n\n" +
+  GS + "V" + "\x42" + "\x00"; // partial cut, kalau printer support cutter
+
+return [
+  {
+    type: "raw",
+    format: "command",
+    flavor: "plain",
+    data: receiptText,
+  },
+];
 }
 
 export async function connectQzTray() {
@@ -164,14 +175,25 @@ export async function connectQzTray() {
 }
 
 export async function printThermalReceiptQz(transaction, settings) {
-  await connectQzTray();
+  printQueue = printQueue.then(async () => {
+    await connectQzTray();
 
-  const safeSettings = settings || {};
-  const printerName = safeSettings.printerName || DEFAULT_PRINTER_NAME;
-  const config = qz.configs.create(printerName);
-  const data = buildThermalReceipt(transaction, safeSettings);
+    const safeSettings = settings || {};
+    const printerName = safeSettings.printerName || DEFAULT_PRINTER_NAME;
 
-  await qz.print(config, data);
+    const config = qz.configs.create(printerName, {
+      jobName: "TTM Receipt",
+      spool: {
+        end: "\n",
+        size: 10,
+      },
+    });
+
+    const data = buildThermalReceipt(transaction, safeSettings);
+    await qz.print(config, data);
+  });
+
+  return printQueue;
 }
 
 export async function printTestReceiptQz(settings) {
