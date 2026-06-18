@@ -351,6 +351,10 @@ function mapSupabaseCashFlow(cashFlow) {
   };
 }
 
+function isActiveSalesTransaction(transaction) {
+  return transaction && transaction.status !== "cancelled";
+}
+
 function App() {
   const [activePage, setActivePage] = useState("cashier");
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -3207,9 +3211,14 @@ function DashboardPage({
   startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
 
   const todayTransactions = transactions.filter((transaction) => {
-    const transactionDate = new Date(transaction.date);
-    return transactionDate >= startOfToday && transactionDate < startOfTomorrow;
-  });
+  const transactionDate = new Date(transaction.date);
+
+  return (
+    isActiveSalesTransaction(transaction) &&
+    transactionDate >= startOfToday &&
+    transactionDate < startOfTomorrow
+  );
+});
 
   const todayRevenue = todayTransactions.reduce(
     (total, transaction) => total + Number(transaction.total || 0),
@@ -3304,7 +3313,11 @@ const dashboardCashierOpenTime = cashierSession.openedAt
 const dashboardCashierTransactions = dashboardCashierOpenTime
   ? transactions.filter((transaction) => {
       const transactionDate = new Date(transaction.date);
-      return transactionDate >= dashboardCashierOpenTime;
+
+      return (
+        isActiveSalesTransaction(transaction) &&
+        transactionDate >= dashboardCashierOpenTime
+      );
     })
   : [];
 
@@ -5458,9 +5471,12 @@ function ReportsPage({ transactions, cashierClosings }) {
   return true;
 }
 
-const filteredTransactions = transactions.filter((transaction) =>
-  isTransactionInPeriod(transaction.date, reportPeriod)
-);
+const filteredTransactions = transactions.filter((transaction) => {
+  return (
+    isActiveSalesTransaction(transaction) &&
+    isTransactionInPeriod(transaction.date, reportPeriod)
+  );
+});
 
 const filteredCashierClosings = (cashierClosings || []).filter((closing) =>
   isTransactionInPeriod(closing.closedAt, reportPeriod)
