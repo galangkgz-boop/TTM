@@ -121,11 +121,20 @@ receiptLines.push(line());
 });
 
   receiptLines.push(line());
-  receiptLines.push(padLine("Subtotal", money(transaction.subtotal)));
-  receiptLines.push(padLine("Diskon", money(transaction.discount)));
-  receiptLines.push(padLine("TOTAL", money(transaction.total)));
-  receiptLines.push(padLine("Tunai", money(transaction.cashReceived)));
-  receiptLines.push(padLine("Kembali", money(transaction.change)));
+  const totalValue = Number(transaction.total || 0);
+const changeValue = Number(transaction.change || 0);
+const cashReceivedValue = Number(transaction.cashReceived || 0);
+
+const cashForReceipt =
+  transaction.paymentMethod === "Cash"
+    ? Math.max(cashReceivedValue, totalValue + Math.max(changeValue, 0))
+    : cashReceivedValue;
+
+receiptLines.push(padLine("Subtotal", money(transaction.subtotal)));
+receiptLines.push(padLine("Diskon", money(transaction.discount)));
+receiptLines.push(padLine("TOTAL", money(totalValue)));
+receiptLines.push(padLine("Tunai", money(cashForReceipt)));
+receiptLines.push(padLine("Kembali", money(changeValue)));
   receiptLines.push(line());
 
   receiptLines.push(centerText(receiptNote));
@@ -136,8 +145,6 @@ receiptLines.push(line());
     receiptLines.push(centerText(phone));
   }
 
-receiptLines.push("");
-receiptLines.push("");
 receiptLines.push("");
 receiptLines.push("");
 

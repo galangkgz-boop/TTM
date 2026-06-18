@@ -519,19 +519,6 @@ textarea:focus {
   margin-bottom: 10px !important;
 }
 
-/* Total pembayaran lebih jelas */
-.cart-total,
-.order-total,
-.payment-total,
-.grand-total {
-  background: var(--ttm-primary-soft) !important;
-  color: var(--ttm-primary-dark) !important;
-  border: 1px solid rgba(47, 158, 115, 0.22) !important;
-  border-radius: 20px !important;
-  padding: 16px !important;
-  font-weight: 850 !important;
-}
-
 /* Tombol bayar lebih dominan tapi tetap soft */
 .pay-button,
 .finish-button {
@@ -1821,6 +1808,35 @@ textarea:focus {
 }
 
 /* Keranjang - Total Belanja tanpa background */
+.cart-total-plain {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0 6px;
+  margin-top: 8px;
+  border-top: 1px solid var(--ttm-border);
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.cart-total-plain span {
+  color: var(--ttm-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cart-total-plain strong {
+  color: var(--ttm-text);
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
 .cart-total-plain {
   display: flex;
   align-items: flex-end;

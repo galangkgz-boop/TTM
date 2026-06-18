@@ -2648,15 +2648,24 @@ function finishTransaction() {
   ? Math.min(numericCashReceived, cartTotal)
   : cartTotal;
 
+const cashTendered = isDebtPayment
+  ? paidAmount
+  : numericCashReceived;
+
+const finalChangeAmount = isDebtPayment
+  ? 0
+  : Math.max(numericCashReceived - cartTotal, 0);
+
 const finalDebtAmount = isDebtPayment
   ? Math.max(cartTotal - paidAmount, 0)
   : 0;
 
-const paymentStatus = finalDebtAmount > 0
-  ? paidAmount > 0
-    ? "partial"
-    : "unpaid"
-  : "paid";
+const paymentStatus =
+  finalDebtAmount > 0
+    ? paidAmount > 0
+      ? "partial"
+      : "unpaid"
+    : "paid";
 
 const transaction = {
   id: transactionId,
@@ -2666,14 +2675,22 @@ const transaction = {
   subtotal: cartSubtotal,
   discount: safeDiscountAmount,
   total: cartTotal,
-  cashReceived: paidAmount,
-  change: changeAmount,
+
+  // uang yang benar-benar diberikan pembeli
+  cashReceived: cashTendered,
+
+  // kembalian yang diberikan ke pembeli
+  change: finalChangeAmount,
+
   paymentMethod: paymentMethod,
   profit: totalProfitBeforeDiscount - safeDiscountAmount,
   cashierName: currentProfile ? currentProfile.name : "",
   cashierRole: currentProfile ? currentProfile.role : "",
   paymentStatus: paymentStatus,
+
+  // uang bersih yang masuk ke kas
   paidAmount: paidAmount,
+
   debtAmount: finalDebtAmount,
   customerName: customerName.trim(),
   customerPhone: customerPhone.trim(),
@@ -2891,7 +2908,7 @@ const displayStock = Math.max(0, Number(product.stock || 0) - reservedQty);
               <strong>{formatRupiah(safeDiscountAmount)}</strong>
             </div>
 
-            <div className="cart-total-plain">
+            <div>
               <span>Total Belanja</span>
               <strong>{formatRupiah(cartTotal)}</strong>
             </div>
@@ -3002,7 +3019,7 @@ const displayStock = Math.max(0, Number(product.stock || 0) - reservedQty);
     <strong>{formatRupiah(safeDiscountAmount)}</strong>
   </div>
 
-  <div>
+  <div className="cart-total-plain">
     <span>Total Belanja</span>
     <strong>{formatRupiah(cartTotal)}</strong>
   </div>
@@ -3292,7 +3309,8 @@ const dashboardCashierTransactions = dashboardCashierOpenTime
   : [];
 
 const dashboardCashierSalesTotal = dashboardCashierTransactions.reduce(
-  (total, transaction) => total + Number(transaction.cashReceived || 0),
+  (total, transaction) =>
+    total + Number(transaction.paidAmount || transaction.total || 0),
   0
 );
 
