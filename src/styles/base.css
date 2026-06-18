@@ -320,3 +320,30 @@ body {
     padding: 14px;
   }
 }
+
+/* =========================================================
+   GLOBAL FONT FIX - Clean POS Font
+========================================================= */
+
+:root {
+  --ttm-font-main:
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Display",
+    "SF Pro Text",
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif;
+}
+
+html,
+body,
+button,
+input,
+textarea,
+select {
+  font-family: var(--ttm-font-main) !important;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}

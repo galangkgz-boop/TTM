@@ -1,227 +1,148 @@
-/* =========================
-   Cashier Session Panel
-   cashier-command-panel, cash-flow-modal, close-cashier-modal
-========================= */
-
-/* --- Command Panel (Open/Close Session) --- */
+/* =========================================================
+   TTM POS - Clean Cashier Session Page
+   Replace file: src/styles/pages/cashier-session.css
+========================================================= */
 
 .cashier-command-stats {
   display: flex;
-  gap: 8px;
   flex-wrap: wrap;
+  gap: 8px;
   margin-top: 12px;
 }
 
 .cashier-command-stats span {
-  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 11px;
+  border: 1px solid var(--ttm-border, #e5e7eb);
   border-radius: 999px;
-  padding: 7px 10px;
-  background: #f8fafc;
-  color: #475569;
-  border: 1px solid #e2e8f0;
-  font-size: 11px;
-  font-weight: 900;
-  text-transform: none;
-  letter-spacing: 0;
+  background: var(--ttm-surface-soft, #f8fafc);
+  color: var(--ttm-muted, #64748b);
+  font-size: 12px;
+  font-weight: 800;
 }
 
-@media (max-width: 900px) {
-
-}
-
-/* --- Cash Flow Modal (Pemasukan/Pengeluaran Kas) --- */
-.cash-flow-modal {
-  width: min(520px, 94vw);
-  max-height: 86vh;
+.cash-flow-modal,
+.close-cashier-modal {
+  width: min(560px, calc(100vw - 28px));
+  max-height: calc(100vh - 36px);
   overflow-y: auto;
   background: #ffffff;
-  border-radius: 24px;
+  border: 1px solid var(--ttm-border, #e5e7eb);
+  border-radius: 20px;
   padding: 20px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 28px 90px rgba(15, 23, 42, 0.30);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22);
 }
 
-.cash-flow-form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+.cash-flow-form,
+.actual-cash-input-box label {
+  display: grid;
+  gap: 10px;
 }
 
-.cash-flow-form label {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  color: #0f172a;
+.cash-flow-form label,
+.actual-cash-input-box label {
+  color: var(--ttm-text, #111827);
   font-size: 13px;
-  font-weight: 950;
+  font-weight: 800;
 }
 
-.cash-flow-form input {
-  border: 1px solid #cbd5e1;
-  border-radius: 16px;
-  padding: 13px 14px;
+.cash-flow-form input,
+.actual-cash-input-box input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 13px;
+  border: 1px solid var(--ttm-border, #e5e7eb);
+  border-radius: 13px;
+  background: #ffffff;
+  color: var(--ttm-text, #111827);
   font: inherit;
   outline: none;
-  background: #ffffff;
-  color: #0f172a;
 }
 
-.cash-flow-form input:focus {
-  border-color: #22c55e;
-  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.13);
-}
-
-@media (max-width: 760px) {
-  .cash-flow-modal {
-    padding: 18px;
-    border-radius: 24px;
-  }
-
-  .cashier-command-stats {
-    flex-direction: column;
-  }
-}
-
-/* --- Close Cashier Modal --- */
-.close-cashier-modal {
-  width: min(560px, 94vw);
-  max-height: 82vh;
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  background: #ffffff;
-  border-radius: 28px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 28px 90px rgba(15, 23, 42, 0.30);
-}
-
-.close-cashier-modal .modal-header {
-  margin-bottom: 12px;
-}
-
-.close-cashier-modal .modal-header h3 {
-  font-size: 20px;
-  margin-bottom: 3px;
-}
-
-.close-cashier-modal .modal-header p {
-  font-size: 13px;
+.cash-flow-form input:focus,
+.actual-cash-input-box input:focus {
+  border-color: var(--ttm-primary, #16a34a);
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.12);
 }
 
 .close-cashier-summary {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 10px;
+  margin-top: 12px;
 }
 
-.close-cashier-summary div {
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 10px 12px;
-  background: #f8fafc;
+.close-cashier-summary div,
+.actual-cash-input-box,
+.cash-difference-box,
+.close-cashier-note,
+.closing-cash-total {
+  border: 1px solid var(--ttm-border, #e5e7eb);
+  border-radius: 15px;
+  padding: 13px;
+  background: var(--ttm-surface-soft, #f8fafc);
 }
 
 .close-cashier-summary span,
 .closing-cash-total span,
 .cash-difference-box span {
   display: block;
-  color: #64748b;
-  font-size: 10px;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
+  color: var(--ttm-muted, #64748b);
+  font-size: 11px;
+  font-weight: 800;
 }
 
-.close-cashier-summary strong {
-  color: #0f172a;
-  font-size: 14px;
-  letter-spacing: -0.02em;
+.close-cashier-summary strong,
+.closing-cash-total strong,
+.cash-difference-box strong {
+  display: block;
+  color: var(--ttm-text, #111827);
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
 }
 
 .closing-cash-total {
-  margin-top: 10px;
-  border-radius: 16px;
-  padding: 12px 14px;
-  background: linear-gradient(135deg, #dcfce7, #f0fdf4);
-  border: 1px solid #bbf7d0;
+  margin-top: 12px;
+  background: var(--ttm-primary-soft, #ecfdf5);
+  border-color: #bbf7d0;
 }
 
 .closing-cash-total strong {
-  display: block;
-  color: #052e16;
-  font-size: 23px;
-  letter-spacing: -0.05em;
+  color: var(--ttm-primary-dark, #15803d);
+  font-size: 24px;
 }
 
-.actual-cash-input-box {
-  margin-top: 10px;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 12px;
-  background: #ffffff;
+.actual-cash-input-box,
+.cash-difference-box,
+.close-cashier-note {
+  margin-top: 12px;
 }
 
-.actual-cash-input-box label {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  color: #0f172a;
+.cash-difference-box p,
+.close-cashier-note p {
+  margin: 5px 0 0;
+  color: var(--ttm-muted, #64748b);
   font-size: 12px;
-  font-weight: 950;
-}
-
-.actual-cash-input-box input {
-  border: 1px solid #cbd5e1;
-  border-radius: 13px;
-  padding: 10px 12px;
-  font: inherit;
-  outline: none;
-  background: #ffffff;
-  color: #0f172a;
-}
-
-.actual-cash-input-box input:focus {
-  border-color: #22c55e;
-  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.13);
-}
-
-.cash-difference-box {
-  margin-top: 10px;
-  border-radius: 16px;
-  padding: 12px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-}
-
-.cash-difference-box strong {
-  display: block;
-  color: #0f172a;
-  font-size: 20px;
-  letter-spacing: -0.04em;
-}
-
-.cash-difference-box p {
-  margin: 4px 0 0;
-  color: #64748b;
-  font-weight: 700;
-  font-size: 12px;
+  line-height: 1.45;
 }
 
 .cash-difference-box.match {
+  background: #ecfdf5;
   border-color: #bbf7d0;
-  background: #f0fdf4;
 }
 
 .cash-difference-box.match strong,
 .cash-difference-box.match p {
-  color: #166534;
+  color: #15803d;
 }
 
 .cash-difference-box.over {
-  border-color: #bfdbfe;
   background: #eff6ff;
+  border-color: #bfdbfe;
 }
 
 .cash-difference-box.over strong,
@@ -230,118 +151,78 @@
 }
 
 .cash-difference-box.short {
+  background: #fef2f2;
   border-color: #fecaca;
-  background: #fff1f2;
 }
 
 .cash-difference-box.short strong,
 .cash-difference-box.short p {
-  color: #991b1b;
+  color: #b91c1c;
 }
 
 .close-cashier-note {
-  margin-top: 10px;
-  border: 1px solid #fed7aa;
-  border-radius: 15px;
-  padding: 11px 12px;
   background: #fff7ed;
+  border-color: #fed7aa;
 }
 
-.close-cashier-note strong {
-  color: #9a3412;
-}
-
+.close-cashier-note strong,
 .close-cashier-note p {
-  margin: 5px 0 0;
   color: #9a3412;
-  font-weight: 650;
-  font-size: 12px;
 }
 
 .close-cashier-modal .payment-actions {
   position: sticky;
-  bottom: -18px;
-  margin: 12px -18px -18px;
-  padding: 12px 18px;
+  bottom: -20px;
+  margin: 16px -20px -20px;
+  padding: 14px 20px;
   background: #ffffff;
-  border-top: 1px solid #e2e8f0;
-  z-index: 2;
+  border-top: 1px solid var(--ttm-border, #e5e7eb);
 }
 
-.close-cashier-modal .payment-actions button {
-  min-height: 42px;
-}
-
-/* --- Cashier Closing History --- */
 .close-history-section {
-  margin-bottom: 22px;
+  margin-bottom: 18px;
 }
 
 .close-history-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 10px;
 }
 
 .close-history-item {
   display: grid;
-  grid-template-columns: 1.2fr repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1.4fr repeat(3, minmax(0, 1fr));
   gap: 12px;
   align-items: center;
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  padding: 12px;
-  background: #f8fafc;
+  padding: 13px;
+  border: 1px solid var(--ttm-border, #e5e7eb);
+  border-radius: 15px;
+  background: var(--ttm-surface-soft, #f8fafc);
 }
 
 .close-history-item strong {
   display: block;
-  color: #0f172a;
+  color: var(--ttm-text, #111827);
   font-size: 14px;
+  font-weight: 850;
 }
 
 .close-history-item span {
   display: block;
-  color: #64748b;
-  font-size: 10px;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
   margin-bottom: 4px;
+  color: var(--ttm-muted, #64748b);
+  font-size: 11px;
+  font-weight: 800;
 }
 
 .close-history-item p {
   margin: 4px 0 0;
-  color: #64748b;
+  color: var(--ttm-muted, #64748b);
   font-size: 12px;
-  font-weight: 650;
 }
 
 @media (max-width: 850px) {
-  .close-history-item {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 700px) {
-  .close-cashier-modal {
-    width: min(94vw, 520px);
-    max-height: 86vh;
-    padding: 14px;
-    border-radius: 22px;
-  }
-
+  .close-history-item,
   .close-cashier-summary {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .closing-cash-total strong {
-    font-size: 21px;
-  }
-
-  .close-cashier-modal .payment-actions {
-    bottom: -14px;
-    margin: 10px -14px -14px;
-    padding: 10px 14px;
+    grid-template-columns: 1fr;
   }
 }

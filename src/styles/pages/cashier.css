@@ -1,14 +1,14 @@
 /* =========================================================
-   TTM Cashier Premium POS
-   File: src/styles/pages/cashier.css
+   Cashier CSS - diambil gaya simple dari pos-toko-telon-mindi
+   Disesuaikan untuk class di TTM: src/styles/pages/cashier.css
+   Cara pakai: replace isi file cashier.css lama dengan file ini.
 ========================================================= */
 
 /* ---------- Cashier Header ---------- */
-
 .cashier-header {
   display: grid;
-  grid-template-columns: minmax(280px, 1fr) auto;
-  gap: 18px;
+  grid-template-columns: minmax(260px, 1fr) auto;
+  gap: 16px;
   align-items: center;
   margin-bottom: 18px;
 }
@@ -16,83 +16,59 @@
 .cashier-header h3 {
   margin: 0;
   color: var(--ttm-text, #0f172a);
-  font-size: clamp(26px, 2vw, 34px);
+  font-size: 28px;
   line-height: 1;
-  letter-spacing: -0.06em;
+  font-weight: 900;
+  letter-spacing: -0.04em;
 }
 
-.cashier-header .muted {
-  margin: 7px 0 0;
+.cashier-header p {
+  margin: 8px 0 0;
   color: var(--ttm-muted, #64748b);
   font-size: 14px;
   font-weight: 650;
 }
 
 .cashier-total-box {
-  position: relative;
-  min-width: 315px;
-  padding: 20px 24px;
-  overflow: hidden;
-  border-radius: 30px;
+  min-width: 260px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #1e6f5c, #29a385);
   color: #ffffff;
-  background:
-    radial-gradient(circle at 90% 0%, rgba(255, 255, 255, 0.32), transparent 34%),
-    linear-gradient(135deg, #22c55e 0%, #16a34a 48%, #15803d 100%);
-  box-shadow: 0 22px 58px rgba(22, 163, 74, 0.28);
-}
-
-.cashier-total-box::after {
-  content: "";
-  position: absolute;
-  right: -42px;
-  bottom: -54px;
-  width: 140px;
-  height: 140px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 10px 26px rgba(30, 111, 92, 0.22);
 }
 
 .cashier-total-box span {
-  position: relative;
-  z-index: 1;
   display: block;
   font-size: 12px;
-  font-weight: 950;
+  font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  opacity: 0.82;
+  opacity: 0.85;
 }
 
 .cashier-total-box strong {
-  position: relative;
-  z-index: 1;
   display: block;
-  margin-top: 8px;
-  font-size: clamp(30px, 2.5vw, 40px);
+  margin-top: 6px;
+  font-size: 26px;
   line-height: 1;
-  letter-spacing: -0.07em;
+  font-weight: 900;
+  letter-spacing: -0.05em;
 }
 
-
-/* ---------- Closed Warning ---------- */
-
 .cashier-closed-warning {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
   margin-bottom: 16px;
-  padding: 16px 18px;
-  border-radius: 24px;
-  background: linear-gradient(135deg, #fff7ed, #ffedd5);
-  border: 1px solid rgba(249, 115, 22, 0.26);
-  color: #9a3412;
-  box-shadow: 0 14px 34px rgba(249, 115, 22, 0.11);
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
 }
 
 .cashier-closed-warning strong {
+  display: block;
   color: #9a3412;
-  font-size: 15px;
+  font-size: 14px;
+  font-weight: 900;
 }
 
 .cashier-closed-warning p {
@@ -102,161 +78,147 @@
   font-weight: 650;
 }
 
-
 /* ---------- Main Layout ---------- */
-
 .cashier-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 430px;
-  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 20px;
   align-items: start;
+}
+
+.product-area,
+.cart-panel,
+.cart-area {
+  background: #ffffff;
+  border: 1px solid var(--ttm-border, #e2e8f0);
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
 }
 
 .product-area {
   min-width: 0;
   padding: 18px;
-  border-radius: 32px;
-  background:
-    radial-gradient(circle at 100% 0%, rgba(34, 197, 94, 0.08), transparent 28%),
-    rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(226, 232, 240, 0.92);
-  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
 }
 
+.cart-panel,
+.cart-area {
+  position: sticky;
+  top: 16px;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 140px);
+  overflow: hidden;
+}
 
-/* ---------- Product Search & Category ---------- */
-
-.product-toolbar {
-  display: grid;
+/* ---------- Product Toolbar ---------- */
+.product-toolbar,
+.cashier-filter-area {
+  display: flex;
   gap: 12px;
   margin-bottom: 14px;
 }
 
-.product-toolbar input {
+.product-toolbar input,
+.cashier-filter-area input {
   width: 100%;
-  min-height: 54px;
-  padding: 0 18px;
-  border-radius: 20px;
-  border: 1px solid rgba(203, 213, 225, 0.92);
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1.5px solid var(--ttm-border, #e2e8f0);
   background: #ffffff;
   color: var(--ttm-text, #0f172a);
-  font-size: 15px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 700;
   outline: none;
-  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.05);
-  transition:
-    border-color 160ms ease,
-    box-shadow 160ms ease,
-    transform 160ms ease;
 }
 
-.product-toolbar input:focus {
-  border-color: rgba(34, 197, 94, 0.56);
-  box-shadow:
-    0 0 0 4px rgba(34, 197, 94, 0.13),
-    0 14px 30px rgba(15, 23, 42, 0.07);
+.product-toolbar input:focus,
+.cashier-filter-area input:focus {
+  border-color: #1e6f5c;
+  box-shadow: 0 0 0 3px rgba(30, 111, 92, 0.12);
 }
 
 .category-tabs {
   display: flex;
-  gap: 9px;
+  gap: 8px;
   margin-bottom: 16px;
   padding-bottom: 5px;
   overflow-x: auto;
-  scrollbar-width: thin;
 }
 
 .category-tab {
   flex: 0 0 auto;
-  min-height: 42px;
-  padding: 0 15px;
+  min-height: 38px;
+  padding: 0 14px;
   border-radius: 999px;
-  border: 1px solid rgba(203, 213, 225, 0.92);
+  border: 1px solid var(--ttm-border, #e2e8f0);
   background: #ffffff;
   color: #475569;
-  font-size: 13px;
-  font-weight: 950;
+  font-size: 12.5px;
+  font-weight: 850;
   cursor: pointer;
-  transition:
-    transform 150ms ease,
-    background 150ms ease,
-    border-color 150ms ease,
-    color 150ms ease,
-    box-shadow 150ms ease;
 }
 
 .category-tab:hover {
-  transform: translateY(-1px);
-  border-color: rgba(34, 197, 94, 0.36);
-  color: #166534;
+  border-color: #1e6f5c;
+  color: #1e6f5c;
 }
 
 .category-tab.active {
-  border-color: transparent;
-  background: linear-gradient(135deg, #22c55e, #16a34a);
+  border-color: #1e6f5c;
+  background: #1e6f5c;
   color: #ffffff;
-  box-shadow: 0 14px 30px rgba(22, 163, 74, 0.22);
 }
-
 
 /* ---------- Product Grid ---------- */
-
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(205px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
   align-content: start;
-  max-height: calc(100vh - 320px);
+  max-height: calc(100vh - 310px);
   overflow-y: auto;
-  padding: 2px 6px 4px 2px;
+  padding-right: 4px;
 }
 
-.product-card {
+.product-card,
+.product-card-pos {
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 172px;
   overflow: hidden;
-  border-radius: 24px;
+  border-radius: 18px;
   background: #ffffff;
-  border: 1px solid rgba(226, 232, 240, 0.94);
-  box-shadow: 0 13px 32px rgba(15, 23, 42, 0.06);
-  transition:
-    transform 150ms ease,
-    box-shadow 150ms ease,
-    border-color 150ms ease;
+  border: 1px solid #dbe4ea;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
 }
 
-.product-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(34, 197, 94, 0.34);
-  box-shadow: 0 20px 48px rgba(15, 23, 42, 0.1);
+.product-card:hover,
+.product-card-pos:hover {
+  transform: translateY(-2px);
+  border-color: #1e6f5c;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
 }
 
 .product-card.has-variants {
-  min-height: 236px;
+  min-height: 212px;
 }
 
-.product-card.no-variants {
-  height: 100%;
+.product-card.no-variants,
+.product-card-pos {
+  min-height: 150px;
 }
 
 .product-main-button {
   width: 100%;
-  min-height: 156px;
-  padding: 16px;
+  min-height: 142px;
+  padding: 14px;
   border: 0;
-  background:
-    radial-gradient(circle at 100% 0%, rgba(34, 197, 94, 0.08), transparent 32%),
-    linear-gradient(180deg, #ffffff, #f8fafc);
+  background: linear-gradient(180deg, #ffffff, #f8fafc);
   color: var(--ttm-text, #0f172a);
   text-align: left;
   cursor: pointer;
-}
-
-.product-card.no-variants .product-main-button {
-  flex: 1;
-  height: 100%;
 }
 
 .product-main-button:disabled {
@@ -264,20 +226,22 @@
   opacity: 0.55;
 }
 
-.product-main-button h4 {
+.product-main-button h4,
+.product-card-pos .pname {
   margin: 0;
-  min-height: 38px;
   color: var(--ttm-text, #0f172a);
-  font-size: 15px;
-  line-height: 1.24;
-  letter-spacing: -0.025em;
+  font-size: 13.5px;
+  line-height: 1.25;
+  font-weight: 850;
+  letter-spacing: -0.02em;
 }
 
-.product-main-button p {
+.product-main-button p,
+.product-card-pos .pstock {
   margin: 7px 0 0;
   color: var(--ttm-muted, #64748b);
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 750;
 }
 
 .product-card-footer {
@@ -285,248 +249,166 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 10px;
-  margin-top: 18px;
+  margin-top: 16px;
 }
 
-.product-card-footer strong {
-  color: #15803d;
-  font-size: 17px;
+.product-card-footer strong,
+.product-card-pos .pprice {
+  color: #1e6f5c;
+  font-size: 15px;
   line-height: 1.1;
-  letter-spacing: -0.04em;
+  font-weight: 900;
 }
 
 .product-card-footer span {
   flex: 0 0 auto;
-  padding: 6px 9px;
+  padding: 5px 8px;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.06);
+  background: #f1f5f9;
   color: #475569;
   font-size: 11px;
-  font-weight: 950;
+  font-weight: 850;
 }
 
-.product-main-button:disabled .product-card-footer span {
-  background: rgba(239, 68, 68, 0.1);
-  color: #dc2626;
-}
-
-
-/* ---------- Product Variant Buttons ---------- */
-
+/* ---------- Variant Buttons ---------- */
 .cashier-variant-list {
   display: grid;
   gap: 7px;
-  padding: 0 11px 12px;
+  padding: 0 10px 12px;
 }
 
 .cashier-variant-button,
 .variant-sale-button {
   width: 100%;
-  min-height: 44px;
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  border-radius: 15px;
-  border: 1px solid rgba(203, 213, 225, 0.9);
+  min-height: 38px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid #dbe4ea;
   background: #f8fafc;
   color: var(--ttm-text, #0f172a);
   font-size: 12px;
   font-weight: 850;
-  text-align: left;
   cursor: pointer;
-  transition:
-    transform 150ms ease,
-    background 150ms ease,
-    border-color 150ms ease,
-    box-shadow 150ms ease;
 }
 
-.cashier-variant-button span,
-.variant-sale-button span {
-  display: block;
-  color: #475569;
-  line-height: 1.2;
-}
-
-.cashier-variant-button strong,
-.variant-sale-button strong {
-  display: block;
-  color: #16a34a;
-  font-size: 13px;
-  font-weight: 950;
-}
-
-.cashier-variant-button:hover:not(:disabled),
-.variant-sale-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-  border-color: rgba(34, 197, 94, 0.42);
-  background: #f0fdf4;
-  box-shadow: 0 8px 18px rgba(34, 197, 94, 0.13);
+.cashier-variant-button:hover,
+.variant-sale-button:hover {
+  border-color: #1e6f5c;
+  background: #e8f5f2;
+  color: #1e6f5c;
 }
 
 .cashier-variant-button:disabled,
 .variant-sale-button:disabled {
-  opacity: 0.55;
+  opacity: 0.5;
   cursor: not-allowed;
-  background: #f1f5f9;
 }
 
-.cashier-variant-button:disabled strong,
-.variant-sale-button:disabled strong {
-  color: #ef4444;
-}
-
-
-/* ---------- Cart Panel ---------- */
-
-.cart-panel,
-.cart-area {
-  position: sticky;
-  top: 22px;
-  display: flex;
-  flex-direction: column;
-  max-height: calc(100vh - 170px);
-  min-height: calc(100vh - 170px);
-  overflow: hidden;
-  border-radius: 32px;
-  background:
-    radial-gradient(circle at 100% 0%, rgba(34, 197, 94, 0.09), transparent 34%),
-    linear-gradient(180deg, #ffffff, #f8fafc);
-  border: 1px solid rgba(226, 232, 240, 0.94);
-  box-shadow: 0 22px 58px rgba(15, 23, 42, 0.11);
-}
-
+/* ---------- Cart ---------- */
 .cart-header {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--ttm-border, #e2e8f0);
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 14px;
-  padding: 18px;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.92);
-  background: rgba(255, 255, 255, 0.9);
+  gap: 12px;
 }
 
 .cart-header h3,
 .cart-header h4 {
   margin: 0;
   color: var(--ttm-text, #0f172a);
-  font-size: 22px;
-  line-height: 1;
-  letter-spacing: -0.05em;
+  font-size: 20px;
+  font-weight: 900;
 }
 
 .cart-header p {
-  margin: 5px 0 0;
+  margin: 4px 0 0;
   color: var(--ttm-muted, #64748b);
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12.5px;
+  font-weight: 650;
 }
-
-.cart-header .secondary-button {
-  min-height: 34px;
-  padding: 0 12px;
-  border-radius: 999px;
-  font-size: 12px;
-}
-
-
-/* ---------- Cart Items ---------- */
 
 .cart-items,
 .cart-list {
   flex: 1;
   display: grid;
   align-content: start;
-  gap: 10px;
+  gap: 8px;
   min-height: 0;
   padding: 14px;
   overflow-y: auto;
 }
 
 .cart-item {
-  padding: 14px;
-  border-radius: 20px;
-  background: #ffffff;
-  border: 1px solid rgba(226, 232, 240, 0.94);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+  padding: 12px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid var(--ttm-border, #e2e8f0);
 }
 
 .cart-item-main {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
 }
 
 .cart-item-main strong {
   display: block;
   color: var(--ttm-text, #0f172a);
-  line-height: 1.22;
-  font-size: 14px;
-  font-weight: 950;
+  font-size: 13.5px;
+  line-height: 1.25;
+  font-weight: 850;
 }
 
 .cart-item-main span,
 .cart-item-main p {
   display: block;
-  margin-top: 5px;
+  margin-top: 4px;
   color: var(--ttm-muted, #64748b);
   font-size: 12px;
-  font-weight: 700;
-}
-
-.cart-item-main > strong,
-.cart-item-main > div:last-child strong {
-  color: #15803d;
+  font-weight: 650;
 }
 
 .qty-control {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-top: 12px;
-  padding: 5px;
+  margin-top: 10px;
+  padding: 4px;
   border-radius: 999px;
-  background: #f1f5f9;
+  background: #eef2f7;
 }
 
 .qty-control button {
-  width: 31px;
-  height: 31px;
+  width: 30px;
+  height: 30px;
   border: 0;
   border-radius: 999px;
   background: #ffffff;
   color: var(--ttm-text, #0f172a);
-  font-size: 18px;
-  font-weight: 950;
+  font-size: 17px;
+  font-weight: 900;
   cursor: pointer;
-  box-shadow: 0 5px 12px rgba(15, 23, 42, 0.09);
-  transition:
-    transform 130ms ease,
-    background 130ms ease;
 }
 
 .qty-control button:hover {
-  transform: translateY(-1px);
-  background: #f8fafc;
+  background: #e8f5f2;
+  color: #1e6f5c;
 }
 
 .qty-control span {
-  min-width: 28px;
-  color: var(--ttm-text, #0f172a);
+  min-width: 26px;
   text-align: center;
-  font-weight: 950;
+  font-weight: 900;
 }
 
-
 /* ---------- Cart Summary ---------- */
-
 .cart-summary {
   flex: 0 0 auto;
-  padding: 16px 18px 18px;
-  border-top: 1px solid rgba(226, 232, 240, 0.92);
-  background: rgba(255, 255, 255, 0.96);
+  padding: 14px 18px 18px;
+  border-top: 1px solid var(--ttm-border, #e2e8f0);
+  background: #ffffff;
 }
 
 .discount-field {
@@ -535,30 +417,28 @@
 
 .discount-field label {
   display: grid;
-  gap: 7px;
+  gap: 6px;
   color: var(--ttm-muted, #64748b);
   font-size: 12px;
-  font-weight: 950;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-weight: 850;
 }
 
 .discount-field input {
   width: 100%;
-  min-height: 44px;
-  padding: 0 13px;
-  border-radius: 16px;
-  border: 1px solid rgba(203, 213, 225, 0.92);
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid var(--ttm-border, #e2e8f0);
   background: #ffffff;
   color: var(--ttm-text, #0f172a);
-  font-size: 15px;
-  font-weight: 900;
+  font-size: 14px;
+  font-weight: 800;
   outline: none;
 }
 
 .discount-field input:focus {
-  border-color: rgba(34, 197, 94, 0.56);
-  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
+  border-color: #1e6f5c;
+  box-shadow: 0 0 0 3px rgba(30, 111, 92, 0.12);
 }
 
 .cart-total-row,
@@ -569,64 +449,35 @@
   margin-top: 8px;
   color: var(--ttm-muted, #64748b);
   font-size: 13px;
-  font-weight: 750;
+  font-weight: 700;
 }
 
 .cart-total-row strong,
 .cart-summary > div strong {
   color: var(--ttm-text, #0f172a);
-  font-weight: 950;
-}
-
-.cart-grand-total,
-.cart-summary > div:nth-of-type(3) {
-  display: block;
-  margin-top: 14px;
-  padding: 16px;
-  border-radius: 22px;
-  background:
-    radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.26), transparent 32%),
-    linear-gradient(135deg, #22c55e, #16a34a);
-  color: #ffffff;
-}
-
-.cart-grand-total span,
-.cart-summary > div:nth-of-type(3) span {
-  display: block;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 12px;
-  font-weight: 850;
-}
-
-.cart-grand-total strong,
-.cart-summary > div:nth-of-type(3) strong {
-  display: block;
-  margin-top: 6px;
-  color: #ffffff;
-  font-size: 30px;
-  line-height: 1;
-  letter-spacing: -0.07em;
+  font-weight: 900;
 }
 
 .cart-actions {
   display: grid;
-  grid-template-columns: 1fr 1.25fr;
+  grid-template-columns: 1fr 1.2fr;
   gap: 10px;
   margin-top: 14px;
 }
 
-.cart-actions button,
-.pay-button {
-  min-height: 48px;
-  border-radius: 18px;
-}
-
 .pay-button {
   width: 100%;
+  min-height: 48px;
   margin-top: 14px;
-  background: linear-gradient(135deg, #22c55e, #16a34a);
+  border-radius: 14px;
+  background: #1e6f5c;
   color: #ffffff;
-  box-shadow: 0 16px 34px rgba(22, 163, 74, 0.24);
+  font-weight: 900;
+  box-shadow: 0 10px 22px rgba(30, 111, 92, 0.22);
+}
+
+.pay-button:hover {
+  background: #29a385;
 }
 
 .pay-button:disabled {
@@ -635,77 +486,70 @@
   box-shadow: none;
 }
 
-
-/* ---------- Empty State ---------- */
-
-.empty-state {
+.empty-state,
+.empty {
   display: grid;
   place-items: center;
-  min-height: 130px;
-  padding: 22px;
-  border-radius: 22px;
-  background: linear-gradient(135deg, #f8fafc, #ffffff);
-  border: 1px dashed rgba(148, 163, 184, 0.56);
+  min-height: 120px;
+  padding: 20px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
   color: var(--ttm-muted, #64748b);
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 750;
   text-align: center;
 }
 
-
 /* ---------- Payment Modal ---------- */
-
 .payment-modal {
-  width: min(540px, calc(100vw - 28px));
-  max-width: 540px;
+  width: min(520px, calc(100vw - 28px));
+  max-width: 520px;
   overflow: hidden;
-  border-radius: 32px;
+  border-radius: 18px;
   background: #ffffff;
-  border: 1px solid rgba(226, 232, 240, 0.92);
-  box-shadow: 0 30px 90px rgba(15, 23, 42, 0.28);
+  border: 1px solid var(--ttm-border, #e2e8f0);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.24);
 }
 
 .payment-modal .modal-header {
-  padding: 20px 22px;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.92);
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--ttm-border, #e2e8f0);
 }
 
 .payment-modal .modal-header h3 {
   margin: 0;
   color: var(--ttm-text, #0f172a);
-  font-size: 24px;
-  letter-spacing: -0.05em;
-}
-
-.payment-modal .modal-header p {
-  margin: 6px 0 0;
-  color: var(--ttm-muted, #64748b);
-  font-size: 13px;
-  font-weight: 750;
+  font-size: 22px;
+  font-weight: 900;
 }
 
 .payment-summary {
   display: grid;
-  gap: 10px;
-  margin: 16px 0;
+  gap: 8px;
+  padding: 16px 20px;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--ttm-border, #e2e8f0);
 }
 
-.payment-summary > div {
+.payment-summary div {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  padding: 13px 14px;
-  border-radius: 17px;
-  background: #f8fafc;
-  border: 1px solid rgba(226, 232, 240, 0.92);
-  color: #475569;
+  color: var(--ttm-muted, #64748b);
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .payment-summary strong {
   color: var(--ttm-text, #0f172a);
-  font-weight: 950;
+  font-weight: 900;
+}
+
+.payment-input-box,
+.payment-modal .form-row {
+  padding: 0 20px;
+  margin-top: 14px;
 }
 
 .payment-input-box input,
@@ -713,19 +557,19 @@
 .payment-modal textarea,
 .payment-modal select {
   width: 100%;
-  min-height: 48px;
-  padding: 0 14px;
-  border-radius: 17px;
-  border: 1px solid rgba(203, 213, 225, 0.92);
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid var(--ttm-border, #e2e8f0);
   background: #ffffff;
   color: var(--ttm-text, #0f172a);
-  font-size: 16px;
-  font-weight: 900;
+  font-size: 15px;
+  font-weight: 800;
   outline: none;
 }
 
 .payment-modal textarea {
-  min-height: 84px;
+  min-height: 80px;
   padding-top: 12px;
   resize: vertical;
 }
@@ -734,8 +578,8 @@
 .payment-modal input:focus,
 .payment-modal textarea:focus,
 .payment-modal select:focus {
-  border-color: rgba(34, 197, 94, 0.56);
-  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
+  border-color: #1e6f5c;
+  box-shadow: 0 0 0 3px rgba(30, 111, 92, 0.12);
 }
 
 .quick-cash-buttons {
@@ -746,243 +590,29 @@
 }
 
 .quick-cash-button {
-  min-height: 40px;
-  border-radius: 15px;
-  border: 1px solid rgba(34, 197, 94, 0.22);
-  background: #f0fdf4;
-  color: #166534;
+  min-height: 38px;
+  border-radius: 12px;
+  border: 1px solid rgba(30, 111, 92, 0.24);
+  background: #e8f5f2;
+  color: #1e6f5c;
   font-size: 13px;
-  font-weight: 950;
+  font-weight: 850;
   cursor: pointer;
-  transition:
-    transform 140ms ease,
-    background 140ms ease,
-    border-color 140ms ease;
 }
 
-.quick-cash-button:hover {
-  transform: translateY(-1px);
-  background: #dcfce7;
-  border-color: rgba(34, 197, 94, 0.42);
-}
-
+.quick-cash-button:hover,
 .quick-cash-button.active {
-  background: #16a34a;
+  background: #1e6f5c;
   color: #ffffff;
-  border-color: #16a34a;
+  border-color: #1e6f5c;
 }
 
 .danger-text {
   color: #dc2626 !important;
-  font-weight: 950;
+  font-weight: 900;
 }
 
-
-/* ---------- Desktop Viewport Optimization ---------- */
-
-@media (min-width: 1100px) {
-  .main-content:has(.cashier-layout) {
-    height: 100dvh;
-    overflow: hidden;
-    padding-top: 10px;
-    padding-bottom: 10px;
-  }
-
-  .main-content:has(.cashier-layout) .topbar {
-    min-height: 56px;
-    padding: 8px 14px;
-    border-radius: 22px;
-  }
-
-  .page-card:has(.cashier-layout) {
-    height: calc(100dvh - 76px);
-    min-height: 0;
-    margin-top: 8px;
-    padding: 12px;
-    overflow: hidden;
-  }
-
-  .page-card:has(.cashier-layout) > div {
-    height: 100%;
-    min-height: 0;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .cashier-header {
-    display: none;
-  }
-
-  .cashier-layout {
-    flex: 1 1 auto;
-    height: 100%;
-    min-height: 0;
-    overflow: hidden;
-    grid-template-columns: minmax(0, 1fr) 385px;
-    gap: 13px;
-    align-items: stretch;
-  }
-
-  .product-area {
-    height: 100%;
-    min-height: 0;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    padding: 12px;
-    border-radius: 24px;
-  }
-
-  .product-toolbar {
-    flex: 0 0 auto;
-    margin-bottom: 10px;
-  }
-
-  .product-toolbar input {
-    min-height: 42px;
-  }
-
-  .category-tabs {
-    flex: 0 0 auto;
-    margin-bottom: 10px;
-  }
-
-  .category-tab {
-    min-height: 34px;
-    padding: 0 12px;
-    font-size: 11.5px;
-  }
-
-  .product-grid {
-    flex: 1 1 auto;
-    min-height: 0;
-    max-height: none;
-    overflow-y: auto;
-    grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
-    gap: 11px;
-  }
-
-  .product-card {
-    min-height: 148px;
-    border-radius: 20px;
-  }
-
-  .product-card.has-variants {
-    min-height: 218px;
-  }
-
-  .product-main-button {
-    min-height: 138px;
-    padding: 13px;
-  }
-
-  .product-main-button h4 {
-    min-height: 34px;
-    font-size: 14px;
-  }
-
-  .product-card-footer {
-    margin-top: 12px;
-  }
-
-  .cashier-variant-list {
-    gap: 6px;
-    padding: 0 9px 10px;
-  }
-
-  .cashier-variant-button,
-  .variant-sale-button {
-    min-height: 40px;
-    padding: 8px 10px;
-  }
-
-  .cart-panel,
-  .cart-area {
-    position: relative;
-    top: 0;
-    align-self: stretch;
-    height: 100%;
-    min-height: 0;
-    max-height: none;
-    border-radius: 24px;
-  }
-
-  .cart-header {
-    flex: 0 0 auto;
-    padding: 13px 15px;
-  }
-
-  .cart-header h3,
-  .cart-header h4 {
-    font-size: 20px;
-  }
-
-  .cart-items,
-  .cart-list {
-    flex: 1 1 auto;
-    min-height: 0;
-    padding: 10px;
-  }
-
-  .cart-item {
-    padding: 12px;
-    border-radius: 17px;
-  }
-
-  .cart-summary {
-    flex: 0 0 auto;
-    margin-top: auto;
-    padding: 11px 13px 16px;
-  }
-
-  .discount-field {
-    margin-bottom: 8px;
-  }
-
-  .discount-field input {
-    min-height: 34px;
-  }
-
-  .cart-total-row,
-  .cart-summary > div {
-    margin-top: 4px;
-    font-size: 12px;
-  }
-
-  .cart-grand-total,
-  .cart-summary > div:nth-of-type(3) {
-    margin-top: 9px;
-    padding: 12px 14px;
-  }
-
-  .cart-grand-total strong,
-  .cart-summary > div:nth-of-type(3) strong {
-    font-size: 25px;
-  }
-
-  .pay-button {
-    min-height: 40px;
-    margin-top: 10px;
-  }
-}
-
-
-/* ---------- Large Desktop ---------- */
-
-@media (min-width: 1600px) {
-  .cashier-layout {
-    grid-template-columns: minmax(0, 1fr) 420px;
-  }
-
-  .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
-  }
-}
-
-
-/* ---------- Tablet ---------- */
-
+/* ---------- Responsive ---------- */
 @media (max-width: 1180px) {
   .cashier-layout {
     grid-template-columns: 1fr;
@@ -992,7 +622,6 @@
   .cart-area {
     position: relative;
     top: 0;
-    min-height: auto;
     max-height: none;
   }
 
@@ -1000,9 +629,6 @@
     max-height: none;
   }
 }
-
-
-/* ---------- Mobile ---------- */
 
 @media (max-width: 720px) {
   .cashier-header {
@@ -1013,1959 +639,66 @@
     min-width: 0;
   }
 
-  .cashier-closed-warning {
-    display: grid;
-  }
-
-  .product-area,
-  .cart-panel,
-  .cart-area {
-    border-radius: 24px;
+  .product-area {
+    padding: 14px;
+    border-radius: 16px;
   }
 
   .product-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .product-main-button {
-    min-height: 140px;
-  }
-
-  .product-main-button h4 {
-    min-height: unset;
-  }
-
-  .product-card.has-variants {
-    min-height: auto;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
 
   .cart-actions {
     grid-template-columns: 1fr;
   }
-
-  .quick-cash-buttons {
-    grid-template-columns: 1fr;
-  }
 }
 
-@media (max-width: 460px) {
+@media (max-width: 480px) {
   .product-grid {
     grid-template-columns: 1fr;
   }
-
-  .cart-item-main {
-    display: grid;
-  }
-
-  .cart-summary > div:nth-of-type(3) strong {
-    font-size: 26px;
-  }
-}
-
-/* =========================================================
-   PATCH: Cashier Compact Variant Card + Uppercase
-   Paste di PALING BAWAH src/styles/pages/cashier.css
-========================================================= */
-
-/* Produk kasir tampil uppercase tanpa mengubah data asli */
-.cashier-layout .product-main-button h4,
-.cashier-layout .product-main-button p,
-.cashier-layout .cashier-variant-button,
-.cashier-layout .variant-sale-button,
-.cashier-layout .cart-item-main strong,
-.cashier-layout .category-tab {
-  text-transform: uppercase;
-}
-
-/* Grid dibuat lebih fleksibel di zoom 100% */
-.cashier-layout .product-grid {
-  grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
-  gap: 10px;
-}
-
-/* Card varian tidak lagi mendorong terlalu panjang */
-.cashier-layout .product-card {
-  min-height: 148px;
-  border-radius: 18px;
-}
-
-.cashier-layout .product-card.has-variants {
-  height: 205px;
-  min-height: 205px;
-  max-height: 205px;
-  display: flex;
-  flex-direction: column;
-}
-
-.cashier-layout .product-card.no-variants {
-  height: 148px;
-  min-height: 148px;
-}
-
-/* Area utama produk dibuat lebih pendek */
-.cashier-layout .product-main-button {
-  min-height: 112px;
-  height: 112px;
-  padding: 11px 12px;
-  flex: 0 0 auto;
-}
-
-.cashier-layout .product-main-button h4 {
-  min-height: 0;
-  max-height: 36px;
-  overflow: hidden;
-  color: var(--ttm-text, #0f172a);
-  font-size: 13px;
-  line-height: 1.18;
-  letter-spacing: -0.02em;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.cashier-layout .product-main-button p {
-  margin-top: 5px;
-  font-size: 10.5px;
-  line-height: 1.15;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Footer harga / stok lebih ringkas */
-.cashier-layout .product-card-footer {
-  margin-top: 9px;
-  align-items: center;
-}
-
-.cashier-layout .product-card-footer strong {
-  font-size: 13px;
-  line-height: 1.1;
-}
-
-.cashier-layout .product-card-footer span {
-  padding: 5px 7px;
-  font-size: 10px;
-}
-
-/* Area varian dibuat scroll internal, jadi card tidak turun ke bawah */
-.cashier-layout .cashier-variant-list {
-  flex: 1 1 auto;
-  min-height: 0;
-  max-height: 84px;
-  overflow-y: auto;
-  display: grid;
-  gap: 5px;
-  padding: 0 9px 9px;
-  scrollbar-width: thin;
-}
-
-/* Tombol varian lebih pendek dan tetap terbaca */
-.cashier-layout .cashier-variant-button,
-.cashier-layout .variant-sale-button {
-  min-height: 36px;
-  padding: 7px 9px;
-  border-radius: 12px;
-  gap: 2px;
-}
-
-.cashier-layout .cashier-variant-button span,
-.cashier-layout .variant-sale-button span {
-  width: 100%;
-  font-size: 10.5px;
-  line-height: 1.12;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.cashier-layout .cashier-variant-button strong,
-.cashier-layout .variant-sale-button strong {
-  font-size: 11.5px;
-  line-height: 1.1;
-}
-
-/* Desktop khusus kasir supaya 100% scale tetap muat */
-@media (min-width: 1100px) {
-  .cashier-layout {
-    grid-template-columns: minmax(0, 1fr) 370px;
-    gap: 11px;
-  }
-
-  .cashier-layout .product-area {
-    padding: 10px;
-  }
-
-  .cashier-layout .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 9px;
-  }
-
-  .cashier-layout .product-card.has-variants {
-    height: 196px;
-    min-height: 196px;
-    max-height: 196px;
-  }
-
-  .cashier-layout .product-card.no-variants {
-    height: 140px;
-    min-height: 140px;
-  }
-
-  .cashier-layout .product-main-button {
-    height: 104px;
-    min-height: 104px;
-    padding: 10px;
-  }
-
-  .cashier-layout .cashier-variant-list {
-    max-height: 82px;
-  }
-}
-
-/* Layar besar tetap lega */
-@media (min-width: 1500px) {
-  .cashier-layout {
-    grid-template-columns: minmax(0, 1fr) 400px;
-  }
-
-  .cashier-layout .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  }
-
-  .cashier-layout .product-card.has-variants {
-    height: 210px;
-    min-height: 210px;
-    max-height: 210px;
-  }
-
-  .cashier-layout .product-main-button {
-    height: 114px;
-    min-height: 114px;
-  }
-
-  .cashier-layout .cashier-variant-list {
-    max-height: 88px;
-  }
-}
-
-/* Mobile jangan terlalu kecil */
-@media (max-width: 720px) {
-  .cashier-layout .product-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .cashier-layout .product-card.has-variants {
-    height: 210px;
-    min-height: 210px;
-    max-height: 210px;
-  }
-
-  .cashier-layout .product-main-button {
-    height: 112px;
-    min-height: 112px;
-  }
-}
-
-/* =========================================================
-   PATCH: Kasir Compact Stock Number + Short Variant Button
-   Paste di PALING BAWAH src/styles/pages/cashier.css
-========================================================= */
-
-/* Nama produk tetap tegas */
-.cashier-layout .product-main-button h4 {
-  font-size: 13.5px;
-  line-height: 1.15;
-  min-height: 32px;
-  max-height: 32px;
-  overflow: hidden;
-  letter-spacing: -0.025em;
-}
-
-/* Kategori dibuat maksimal 2 baris dan lebih besar */
-.cashier-layout .product-main-button p {
-  margin-top: 6px;
-  min-height: 30px;
-  max-height: 30px;
-  overflow: hidden;
-  color: #475569;
-  font-size: 12.5px;
-  font-weight: 950;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
-  white-space: normal;
-  text-overflow: unset;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-/* Footer produk lebih hemat tempat */
-.cashier-layout .product-card-footer {
-  margin-top: 8px;
-  align-items: center;
-}
-
-/* Tulisan harga / varian */
-.cashier-layout .product-card-footer strong {
-  font-size: 12.5px;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-/* Badge stok angka saja */
-.cashier-layout .product-stock-badge,
-.cashier-layout .product-card-footer span.product-stock-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 34px;
-  height: 34px;
-  padding: 0 8px;
-  border-radius: 14px;
-  background: #ecfdf5;
-  color: #15803d;
-  font-size: 25px;
-  font-weight: 1000;
-  line-height: 1;
-  letter-spacing: -0.04em;
-  text-align: center;
-}
-
-/* Stok kosong */
-.cashier-layout .product-stock-badge.stock-empty {
-  background: #fef2f2;
-  color: #dc2626;
-}
-
-/* Card produk dibuat sedikit lebih padat */
-.cashier-layout .product-main-button {
-  height: 108px;
-  min-height: 108px;
-  padding: 10px 11px;
-}
-
-.cashier-layout .product-card.has-variants {
-  height: 188px;
-  min-height: 188px;
-  max-height: 188px;
-}
-
-.cashier-layout .product-card.no-variants {
-  height: 142px;
-  min-height: 142px;
-}
-
-/* Area varian tidak perlu tinggi karena hanya nama pendek */
-.cashier-layout .cashier-variant-list {
-  max-height: 72px;
-  gap: 6px;
-  padding: 0 8px 8px;
-}
-
-/* Tombol varian cukup nama saja */
-.cashier-layout .cashier-variant-button,
-.cashier-layout .variant-sale-button {
-  min-height: 32px;
-  padding: 0 10px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 13px;
-  background: #f8fafc;
-  border: 1px solid rgba(203, 213, 225, 0.95);
-}
-
-.cashier-layout .cashier-variant-button span,
-.cashier-layout .variant-sale-button span {
-  width: 100%;
-  color: #0f172a;
-  font-size: 13px;
-  font-weight: 1000;
-  line-height: 1;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Hilangkan strong harga lama kalau masih ada sisa JSX */
-.cashier-layout .cashier-variant-button strong,
-.cashier-layout .variant-sale-button strong {
-  display: none;
-}
-
-/* Hover varian */
-.cashier-layout .cashier-variant-button:hover:not(:disabled),
-.cashier-layout .variant-sale-button:hover:not(:disabled) {
-  background: #dcfce7;
-  border-color: rgba(34, 197, 94, 0.5);
-}
-
-/* Varian stok kurang */
-.cashier-layout .cashier-variant-button:disabled,
-.cashier-layout .variant-sale-button:disabled {
-  background: #f1f5f9;
-  color: #94a3b8;
-  opacity: 0.55;
-}
-
-/* Grid lebih lega karena card makin pendek */
-@media (min-width: 1100px) {
-  .cashier-layout .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
-    gap: 9px;
-  }
-
-  .cashier-layout .product-main-button {
-    height: 104px;
-    min-height: 104px;
-  }
-
-  .cashier-layout .product-card.has-variants {
-    height: 184px;
-    min-height: 184px;
-    max-height: 184px;
-  }
-
-  .cashier-layout .product-card.no-variants {
-    height: 138px;
-    min-height: 138px;
-  }
-}
-
-@media (min-width: 1500px) {
-  .cashier-layout .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
-  }
-
-  .cashier-layout .product-card.has-variants {
-    height: 192px;
-    min-height: 192px;
-    max-height: 192px;
-  }
-
-  .cashier-layout .product-main-button {
-    height: 110px;
-    min-height: 110px;
-  }
-}
-
-/* =========================================================
-   PATCH V2: Cashier Product Card Premium + Stock Color Fix
-   Paste di PALING BAWAH cashier.css
-========================================================= */
-
-/* Area produk dibuat lebih kontras */
-.cashier-layout .product-area {
-  background:
-    radial-gradient(circle at 100% 0%, rgba(34, 197, 94, 0.12), transparent 28%),
-    linear-gradient(180deg, #f8fafc, #eef2f7);
-  border: 1px solid rgba(203, 213, 225, 0.9);
-}
-
-/* Grid lebih rapi dan card tidak terlalu sempit */
-.cashier-layout .product-grid {
-  grid-template-columns: repeat(auto-fill, minmax(178px, 1fr));
-  gap: 12px;
-}
-
-/* Product card dibuat lebih premium */
-.cashier-layout .product-card {
-  position: relative;
-  overflow: hidden;
-  border-radius: 22px;
-  background:
-    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-  border: 1px solid rgba(203, 213, 225, 0.95);
-  box-shadow:
-    0 12px 28px rgba(15, 23, 42, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-/* Aksen garis hijau supaya tidak flat */
-.cashier-layout .product-card::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 5px;
-  background: linear-gradient(180deg, #22c55e, #16a34a);
-  opacity: 0.95;
-}
-
-/* Card varian jangan kepotong */
-.cashier-layout .product-card.has-variants {
-  height: 226px;
-  min-height: 226px;
-  max-height: 226px;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Card tanpa varian */
-.cashier-layout .product-card.no-variants {
-  height: 158px;
-  min-height: 158px;
-}
-
-/* Area utama produk lebih lega */
-.cashier-layout .product-main-button {
-  height: auto;
-  min-height: 138px;
-  padding: 13px 14px 10px 17px;
-  background:
-    radial-gradient(circle at 100% 0%, rgba(34, 197, 94, 0.08), transparent 35%),
-    transparent;
-}
-
-/* Nama produk */
-.cashier-layout .product-main-button h4 {
-  min-height: 38px;
-  max-height: 38px;
-  overflow: hidden;
-  color: #0f172a;
-  font-size: 13.6px;
-  font-weight: 1000;
-  line-height: 1.18;
-  letter-spacing: -0.03em;
-  text-transform: uppercase;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-/* Kategori: 2 baris, font diperbesar */
-.cashier-layout .product-main-button p {
-  margin-top: 7px;
-  min-height: 32px;
-  max-height: 32px;
-  overflow: hidden;
-  color: #334155;
-  font-size: 12.8px;
-  font-weight: 950;
-  line-height: 1.25;
-  letter-spacing: -0.01em;
-  text-transform: uppercase;
-  white-space: normal;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-/* Footer harga/varian dan stok */
-.cashier-layout .product-card-footer {
-  margin-top: 10px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: 10px;
-}
-
-.cashier-layout .product-card-footer strong {
-  color: #15803d;
-  font-size: 12.8px;
-  font-weight: 1000;
-  line-height: 1;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-/* Badge stok angka saja */
-.cashier-layout .product-card-footer .product-stock-badge,
-.cashier-layout .product-stock-badge {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  min-width: 38px;
-  height: 38px;
-  padding: 0 9px;
-  border-radius: 15px;
-  background: #dcfce7 !important;
-  color: #15803d !important;
-  font-size: 22px;
-  font-weight: 1000;
-  line-height: 1;
-  letter-spacing: -0.08em;
-  box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.14);
-}
-
-/* Stok rendah 1-5 dibuat kuning */
-.cashier-layout .product-card.product-low-stock .product-stock-badge {
-  background: #fef3c7 !important;
-  color: #b45309 !important;
-  box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.25);
 }
-
-/* Stok 0 wajib merah */
-.cashier-layout .product-card.product-out-of-stock .product-stock-badge,
-.cashier-layout .product-stock-badge.stock-empty {
-  background: #fee2e2 !important;
-  color: #dc2626 !important;
-  box-shadow: inset 0 0 0 1px rgba(239, 68, 68, 0.25);
-}
-
-/* Seluruh card stok 0 dibuat beda */
-.cashier-layout .product-card.product-out-of-stock {
-  background:
-    repeating-linear-gradient(
-      -45deg,
-      rgba(239, 68, 68, 0.035),
-      rgba(239, 68, 68, 0.035) 8px,
-      rgba(255, 255, 255, 0.8) 8px,
-      rgba(255, 255, 255, 0.8) 16px
-    );
-  border-color: rgba(239, 68, 68, 0.35);
-}
-
-.cashier-layout .product-card.product-out-of-stock::before {
-  background: linear-gradient(180deg, #ef4444, #dc2626);
-}
-
-.cashier-layout .product-card.product-out-of-stock .product-main-button h4,
-.cashier-layout .product-card.product-out-of-stock .product-main-button p,
-.cashier-layout .product-card.product-out-of-stock .product-card-footer strong {
-  color: #991b1b;
-}
-
-/* Area varian dibuat jelas, bukan numpuk ke konten produk */
-.cashier-layout .cashier-variant-list {
-  flex: 1 1 auto;
-  min-height: 0;
-  max-height: 82px;
-  overflow-y: auto;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 7px;
-  padding: 0 10px 11px 17px;
-  scrollbar-width: thin;
-}
-
-/* Tombol varian seperti pill button */
-.cashier-layout .cashier-variant-button,
-.cashier-layout .variant-sale-button {
-  min-height: 34px;
-  height: 34px;
-  padding: 0 10px;
-  border-radius: 999px;
-  background: #ffffff;
-  border: 1px solid rgba(148, 163, 184, 0.7);
-  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.05);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.cashier-layout .cashier-variant-button span,
-.cashier-layout .variant-sale-button span {
-  width: 100%;
-  color: #0f172a;
-  font-size: 13px;
-  font-weight: 1000;
-  line-height: 1;
-  text-align: center;
-  text-transform: uppercase;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Harga lama di tombol varian disembunyikan kalau masih ada */
-.cashier-layout .cashier-variant-button strong,
-.cashier-layout .variant-sale-button strong {
-  display: none !important;
-}
-
-.cashier-layout .cashier-variant-button:hover:not(:disabled),
-.cashier-layout .variant-sale-button:hover:not(:disabled) {
-  background: #dcfce7;
-  border-color: rgba(34, 197, 94, 0.58);
-  transform: translateY(-1px);
-}
-
-/* Varian disabled dibuat merah muda */
-.cashier-layout .cashier-variant-button:disabled,
-.cashier-layout .variant-sale-button:disabled {
-  background: #fee2e2;
-  border-color: rgba(239, 68, 68, 0.28);
-  opacity: 0.65;
-}
-
-.cashier-layout .cashier-variant-button:disabled span,
-.cashier-layout .variant-sale-button:disabled span {
-  color: #b91c1c;
-}
-
-/* Hover card lebih hidup */
-.cashier-layout .product-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(34, 197, 94, 0.45);
-  box-shadow:
-    0 20px 42px rgba(15, 23, 42, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-/* Produk stok 0 hover tetap merah, bukan hijau */
-.cashier-layout .product-card.product-out-of-stock:hover {
-  border-color: rgba(239, 68, 68, 0.48);
-}
-
-/* Desktop scale 100% */
-@media (min-width: 1100px) {
-  .cashier-layout {
-    grid-template-columns: minmax(0, 1fr) 380px;
-  }
-
-  .cashier-layout .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(172px, 1fr));
-    gap: 11px;
-  }
-
-  .cashier-layout .product-card.has-variants {
-    height: 218px;
-    min-height: 218px;
-    max-height: 218px;
-  }
-
-  .cashier-layout .product-card.no-variants {
-    height: 154px;
-    min-height: 154px;
-  }
-
-  .cashier-layout .product-main-button {
-    min-height: 132px;
-  }
-
-  .cashier-layout .cashier-variant-list {
-    max-height: 78px;
-  }
-}
-
-/* Layar besar */
-@media (min-width: 1500px) {
-  .cashier-layout {
-    grid-template-columns: minmax(0, 1fr) 410px;
-  }
-
-  .cashier-layout .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  }
-
-  .cashier-layout .product-card.has-variants {
-    height: 226px;
-    min-height: 226px;
-    max-height: 226px;
-  }
-
-  .cashier-layout .product-card.no-variants {
-    height: 160px;
-    min-height: 160px;
-  }
-}
-
-/* =========================================================
-   PATCH V3: Premium Cart Panel + Category 2 Rows
-   Paste di PALING BAWAH src/styles/pages/cashier.css
-========================================================= */
-
 
-/* =========================================================
-   CATEGORY: 12 kategori jadi 6 atas + 6 bawah
-========================================================= */
+/* =========================
+   FINAL FIX CART LAYOUT
+========================= */
 
-.cashier-layout .category-tabs {
+.cashier-layout {
   display: grid !important;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  grid-auto-rows: 38px;
-  gap: 8px;
-  margin-bottom: 14px;
-  padding: 2px;
-  overflow: visible !important;
-  max-height: none !important;
+  grid-template-columns: 1fr 380px !important;
+  gap: 16px !important;
+
+  height: calc(100vh - 120px) !important;
 }
 
-.cashier-layout .category-tab {
-  width: 100%;
-  min-width: 0;
-  min-height: 38px;
-  height: 38px;
-  padding: 0 8px;
-  border-radius: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.46);
-  background:
-    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-  color: #334155;
-  font-size: 12px;
-  font-weight: 1000;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  box-shadow:
-    0 6px 14px rgba(15, 23, 42, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.85);
-}
-
-.cashier-layout .category-tab:hover {
-  background: #f0fdf4;
-  border-color: rgba(34, 197, 94, 0.48);
-  color: #166534;
-  transform: translateY(-1px);
-}
-
-.cashier-layout .category-tab.active {
-  border-color: rgba(22, 163, 74, 0.8);
-  background:
-    radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.35), transparent 38%),
-    linear-gradient(135deg, #22c55e, #16a34a);
-  color: #ffffff;
-  box-shadow:
-    0 10px 22px rgba(22, 163, 74, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.26);
-}
-
-
-/* =========================================================
-   CART PANEL: dibuat lebih premium dan tegas
-========================================================= */
-
-.cashier-layout .cart-panel,
-.cashier-layout .cart-area {
-  position: sticky;
-  top: 14px;
-  overflow: hidden;
-  border-radius: 28px;
-  background:
-    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-  border: 1px solid rgba(203, 213, 225, 0.95);
-  box-shadow:
-    0 22px 55px rgba(15, 23, 42, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-/* Header keranjang dibuat seperti mesin checkout */
-.cashier-layout .cart-header {
-  position: relative;
-  padding: 18px 18px 16px;
-  color: #ffffff;
-  background:
-    radial-gradient(circle at 100% 0%, rgba(34, 197, 94, 0.48), transparent 35%),
-    linear-gradient(135deg, #020617 0%, #0f172a 58%, #14532d 100%);
-  border-bottom: 0;
-}
-
-.cashier-layout .cart-header::after {
-  content: "";
-  position: absolute;
-  right: -44px;
-  bottom: -58px;
-  width: 145px;
-  height: 145px;
-  border-radius: 999px;
-  background: rgba(34, 197, 94, 0.15);
-}
-
-.cashier-layout .cart-header h3,
-.cashier-layout .cart-header h4 {
-  position: relative;
-  z-index: 1;
-  margin: 0;
-  color: #ffffff;
-  font-size: 24px;
-  font-weight: 1000;
-  letter-spacing: -0.06em;
-}
-
-.cashier-layout .cart-header p {
-  position: relative;
-  z-index: 1;
-  margin: 5px 0 0;
-  color: rgba(255, 255, 255, 0.68);
-  font-size: 12px;
-  font-weight: 850;
-  text-transform: uppercase;
-}
-
-/* Tombol kosongkan */
-.cashier-layout .cart-header .secondary-button {
-  position: relative;
-  z-index: 1;
-  min-height: 34px;
-  padding: 0 12px;
-  border-radius: 999px;
-  background: rgba(239, 68, 68, 0.16);
-  border: 1px solid rgba(248, 113, 113, 0.3);
-  color: #fecaca;
-  font-size: 11px;
-  font-weight: 1000;
-}
-
-.cashier-layout .cart-header .secondary-button:hover {
-  background: rgba(239, 68, 68, 0.28);
-}
-
-
-/* Area list keranjang */
-.cashier-layout .cart-items,
-.cashier-layout .cart-list {
-  padding: 12px;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.06), transparent 35%),
-    #f1f5f9;
-  gap: 10px;
-}
-
-/* Empty state keranjang tidak kosong polos lagi */
-.cashier-layout .cart-items .empty-state,
-.cashier-layout .cart-list .empty-state,
-.cashier-layout .cart-area .empty-state,
-.cashier-layout .cart-panel .empty-state {
-  position: relative;
-  min-height: 140px;
-  border-radius: 22px;
-  border: 1px dashed rgba(34, 197, 94, 0.38);
-  background:
-    radial-gradient(circle at 50% 10%, rgba(34, 197, 94, 0.13), transparent 40%),
-    linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
-  color: #166534;
-  font-size: 15px;
-  font-weight: 1000;
-  letter-spacing: -0.03em;
-}
-
-.cashier-layout .cart-items .empty-state::before,
-.cashier-layout .cart-list .empty-state::before,
-.cashier-layout .cart-area .empty-state::before,
-.cashier-layout .cart-panel .empty-state::before {
-  content: "🛒";
-  display: block;
-  margin-bottom: 8px;
-  font-size: 30px;
-  filter: grayscale(0.1);
-}
-
-/* Item di keranjang */
-.cashier-layout .cart-item {
-  position: relative;
-  overflow: hidden;
-  padding: 13px;
-  border-radius: 20px;
-  background: #ffffff;
-  border: 1px solid rgba(203, 213, 225, 0.88);
-  box-shadow:
-    0 10px 24px rgba(15, 23, 42, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.92);
-}
-
-.cashier-layout .cart-item::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 4px;
-  background: linear-gradient(180deg, #22c55e, #16a34a);
-}
-
-.cashier-layout .cart-item-main strong,
-.cashier-layout .cart-item h5 {
-  color: #0f172a;
-  font-size: 13.5px;
-  font-weight: 1000;
-  line-height: 1.2;
-  letter-spacing: -0.03em;
-  text-transform: uppercase;
-}
-
-.cashier-layout .cart-item-main span,
-.cashier-layout .cart-item-main p,
-.cashier-layout .cart-item p {
-  margin-top: 5px;
-  color: #64748b;
-  font-size: 11.5px;
-  font-weight: 850;
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-/* Total per item */
-.cashier-layout .cart-item-main > strong:last-child,
-.cashier-layout .cart-item-main > div:last-child strong {
-  color: #15803d;
-  font-size: 14px;
-  white-space: nowrap;
-}
-
-
-/* Kontrol qty lebih seperti POS */
-.cashier-layout .qty-control {
-  margin-top: 11px;
-  width: fit-content;
-  padding: 4px;
-  border-radius: 999px;
-  background: #e2e8f0;
-  border: 1px solid rgba(203, 213, 225, 0.9);
-}
-
-.cashier-layout .qty-control button {
-  width: 30px;
-  height: 30px;
-  border-radius: 999px;
-  background: #ffffff;
-  color: #0f172a;
-  font-size: 17px;
-  font-weight: 1000;
-  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12);
-}
-
-.cashier-layout .qty-control span {
-  min-width: 34px;
-  color: #0f172a;
-  font-size: 14px;
-  font-weight: 1000;
-}
-
-
-/* Summary bawah dibuat rapi */
-.cashier-layout .cart-summary {
-  padding: 13px 14px 15px;
-  background:
-    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-  border-top: 1px solid rgba(203, 213, 225, 0.95);
-}
-
-/* Label diskon */
-.cashier-layout .discount-field label {
-  color: #334155;
-  font-size: 11.5px;
-  font-weight: 1000;
-  letter-spacing: -0.01em;
-  text-transform: uppercase;
-}
-
-.cashier-layout .discount-field input {
-  min-height: 38px;
-  border-radius: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.55);
-  background: #ffffff;
-  color: #0f172a;
-  font-size: 14px;
-  font-weight: 1000;
-}
-
-/* Baris subtotal & diskon */
-.cashier-layout .cart-total-row,
-.cashier-layout .cart-summary > div {
-  margin-top: 6px;
-  color: #475569;
-  font-size: 12.5px;
-  font-weight: 900;
-}
-
-.cashier-layout .cart-total-row strong,
-.cashier-layout .cart-summary > div strong {
-  color: #0f172a;
-  font-weight: 1000;
-}
-
-/* Total belanja dibuat lebih premium */
-.cashier-layout .cart-grand-total,
-.cashier-layout .cart-summary > div:nth-of-type(3) {
-  margin-top: 10px;
-  padding: 14px 15px;
-  border-radius: 20px;
-  background:
-    radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.35), transparent 38%),
-    linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-  box-shadow:
-    0 14px 30px rgba(22, 163, 74, 0.26),
-    inset 0 1px 0 rgba(255, 255, 255, 0.26);
-}
-
-.cashier-layout .cart-grand-total span,
-.cashier-layout .cart-summary > div:nth-of-type(3) span {
-  color: rgba(255, 255, 255, 0.76);
-  font-size: 11px;
-  font-weight: 1000;
-  text-transform: uppercase;
-}
-
-.cashier-layout .cart-grand-total strong,
-.cashier-layout .cart-summary > div:nth-of-type(3) strong {
-  margin-top: 5px;
-  color: #ffffff;
-  font-size: 30px;
-  font-weight: 1000;
-  line-height: 1;
-  letter-spacing: -0.08em;
-}
-
-/* Tombol bayar lebih tegas */
-.cashier-layout .pay-button {
-  min-height: 44px;
-  margin-top: 11px;
-  border-radius: 18px;
-  background:
-    radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.34), transparent 35%),
-    linear-gradient(135deg, #22c55e, #16a34a);
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: 1000;
-  letter-spacing: -0.02em;
-  box-shadow: 0 14px 28px rgba(22, 163, 74, 0.25);
-}
-
-.cashier-layout .pay-button:disabled {
-  background: linear-gradient(135deg, #94a3b8, #64748b);
-  opacity: 0.55;
-  box-shadow: none;
-}
-
-
-/* =========================================================
-   Desktop scale 100% biar tetap muat
-========================================================= */
-
-@media (min-width: 1100px) {
-  .cashier-layout {
-    grid-template-columns: minmax(0, 1fr) 390px;
-    gap: 12px;
-  }
-
-  .cashier-layout .category-tabs {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    grid-auto-rows: 34px;
-    gap: 7px;
-    margin-bottom: 11px;
-  }
-
-  .cashier-layout .category-tab {
-    height: 34px;
-    min-height: 34px;
-    border-radius: 13px;
-    font-size: 11px;
-  }
-
-  .cashier-layout .cart-header {
-    padding: 15px 16px 14px;
-  }
-
-  .cashier-layout .cart-header h3,
-  .cashier-layout .cart-header h4 {
-    font-size: 22px;
-  }
-
-  .cashier-layout .cart-items,
-  .cashier-layout .cart-list {
-    padding: 10px;
-  }
-
-  .cashier-layout .cart-summary {
-    padding: 11px 13px 13px;
-  }
-
-  .cashier-layout .cart-grand-total strong,
-  .cashier-layout .cart-summary > div:nth-of-type(3) strong {
-    font-size: 28px;
-  }
-}
-
-
-/* Layar lebih kecil: kategori tetap rapi */
-@media (max-width: 980px) {
-  .cashier-layout .category-tabs {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 640px) {
-  .cashier-layout .category-tabs {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-/* =========================================================
-   PATCH V4: Cart Scroll + Nominal Kanan
-   Paste di PALING BAWAH src/styles/pages/cashier.css
-========================================================= */
-
-
-/* Cart panel harus flex supaya list bisa scroll dan summary tetap bawah */
-.cashier-layout .cart-panel,
-.cashier-layout .cart-area {
+/* container utama keranjang */
+.cart-panel {
   display: flex !important;
   flex-direction: column !important;
-  height: calc(100dvh - 112px) !important;
-  max-height: calc(100dvh - 112px) !important;
-  min-height: 0 !important;
+
+  height: 100% !important;
   overflow: hidden !important;
 }
 
-/* Header tidak ikut scroll */
-.cashier-layout .cart-header {
-  flex: 0 0 auto !important;
-}
-
-/* INI AREA YANG BISA SCROLL */
-.cashier-layout .cart-scroll-area,
-.cashier-layout .cart-items,
-.cashier-layout .cart-list {
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
+/* list item scroll */
+.cart-items {
+  flex: 1 !important;
   overflow-y: auto !important;
-  overflow-x: hidden !important;
-  padding: 12px !important;
-  display: grid !important;
-  align-content: start !important;
-  gap: 10px !important;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.08), transparent 36%),
-    #eef2f7 !important;
-  scrollbar-width: thin;
-}
-
-/* Summary bawah jangan ikut terdorong */
-.cashier-layout .cart-summary {
-  flex: 0 0 auto !important;
-  margin-top: 0 !important;
-}
-
-
-/* =========================================================
-   Cart item layout baru
-========================================================= */
-
-.cashier-layout .cart-line {
-  position: relative;
-  overflow: hidden;
-  padding: 14px 14px 12px 17px;
-  border-radius: 20px;
-  background:
-    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-  border: 1px solid rgba(203, 213, 225, 0.92);
-  box-shadow:
-    0 10px 22px rgba(15, 23, 42, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-.cashier-layout .cart-line::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 5px;
-  background: linear-gradient(180deg, #22c55e, #16a34a);
-}
-
-.cashier-layout .cart-line-top {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 12px;
-  align-items: start;
-}
-
-.cashier-layout .cart-line-info {
-  min-width: 0;
-}
-
-.cashier-layout .cart-line-info h5 {
-  margin: 0;
-  max-height: 42px;
-  overflow: hidden;
-  color: #0f172a;
-  font-size: 15px;
-  font-weight: 1000;
-  line-height: 1.2;
-  letter-spacing: -0.035em;
-  text-transform: uppercase;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.cashier-layout .cart-line-info p {
-  margin: 6px 0 0;
-  color: #64748b;
-  font-size: 11.5px;
-  font-weight: 900;
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-/* Nominal total item kanan */
-.cashier-layout .cart-line-price {
-  min-width: 92px;
-  color: #15803d;
-  font-size: 16px;
-  font-weight: 1000;
-  line-height: 1.1;
-  text-align: right;
-  letter-spacing: -0.045em;
-  white-space: nowrap;
-}
-
-/* Bawah: qty kiri, harga satuan kanan */
-.cashier-layout .cart-line-bottom {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 10px;
-  align-items: center;
-  margin-top: 13px;
-}
-
-.cashier-layout .cart-line-unit {
-  justify-self: end;
-  color: #475569;
-  font-size: 12px;
-  font-weight: 950;
-  line-height: 1.15;
-  text-align: right;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-
-/* Qty control lebih bersih */
-.cashier-layout .cart-line .qty-control {
-  margin-top: 0 !important;
-  display: inline-grid !important;
-  grid-template-columns: 32px 36px 32px;
-  align-items: center;
-  width: auto;
-  padding: 4px;
-  border-radius: 999px;
-  background: #e2e8f0;
-  border: 1px solid rgba(148, 163, 184, 0.42);
-}
-
-.cashier-layout .cart-line .qty-control button {
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  border: 0;
-  background: #ffffff;
-  color: #0f172a;
-  font-size: 18px;
-  font-weight: 1000;
-  cursor: pointer;
-  box-shadow: 0 5px 11px rgba(15, 23, 42, 0.12);
-}
-
-.cashier-layout .cart-line .qty-control span {
-  min-width: 36px;
-  color: #0f172a;
-  font-size: 15px;
-  font-weight: 1000;
-  text-align: center;
-}
-
-
-/* Matikan style cart-item lama supaya tidak bentrok */
-.cashier-layout .cart-item {
-  display: none;
-}
-
-
-/* Empty state tetap bagus */
-.cashier-layout .cart-scroll-area .empty-state {
-  min-height: 145px;
-  border-radius: 22px;
-  border: 1px dashed rgba(34, 197, 94, 0.38);
-  background:
-    radial-gradient(circle at 50% 10%, rgba(34, 197, 94, 0.13), transparent 40%),
-    linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
-  color: #166534;
-  font-size: 15px;
-  font-weight: 1000;
-  text-align: center;
-}
-
-
-/* Desktop scale 100% */
-@media (min-width: 1100px) {
-  .cashier-layout .cart-panel,
-  .cashier-layout .cart-area {
-    height: calc(100dvh - 88px) !important;
-    max-height: calc(100dvh - 88px) !important;
-  }
-
-  .cashier-layout .cart-scroll-area,
-  .cashier-layout .cart-items,
-  .cashier-layout .cart-list {
-    padding: 10px !important;
-    gap: 9px !important;
-  }
-
-  .cashier-layout .cart-line {
-    padding: 12px 12px 11px 16px;
-    border-radius: 18px;
-  }
-
-  .cashier-layout .cart-line-info h5 {
-    font-size: 14px;
-    max-height: 38px;
-  }
-
-  .cashier-layout .cart-line-price {
-    min-width: 84px;
-    font-size: 15px;
-  }
-
-  .cashier-layout .cart-line-bottom {
-    margin-top: 10px;
-  }
-
-  .cashier-layout .cart-line .qty-control {
-    grid-template-columns: 29px 32px 29px;
-  }
-
-  .cashier-layout .cart-line .qty-control button {
-    width: 29px;
-    height: 29px;
-    font-size: 17px;
-  }
-
-  .cashier-layout .cart-line .qty-control span {
-    min-width: 32px;
-    font-size: 14px;
-  }
-}
-
-/* =========================================================
-   FIX FINAL: Cart Scroll Area Benar-Benar Bisa Scroll
-   Paste PALING BAWAH cashier.css
-========================================================= */
-
-.cashier-layout .cart-panel,
-.cashier-layout .cart-area {
-  display: flex !important;
-  flex-direction: column !important;
-  align-self: stretch !important;
-
-  height: calc(100dvh - 92px) !important;
-  max-height: calc(100dvh - 92px) !important;
-  min-height: 0 !important;
-
-  overflow: hidden !important;
-}
-
-/* Header keranjang diam di atas */
-.cashier-layout .cart-header {
-  flex: 0 0 auto !important;
-}
-
-/* INI BAGIAN YANG SCROLL */
-.cashier-layout .cart-scroll-area {
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-  max-height: none !important;
-
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 10px !important;
-
-  padding: 12px !important;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.08), transparent 35%),
-    #eef2f7 !important;
-
-  scrollbar-width: thin;
-}
-
-/* Untuk Chrome / Edge */
-.cashier-layout .cart-scroll-area::-webkit-scrollbar {
-  width: 8px;
-}
-
-.cashier-layout .cart-scroll-area::-webkit-scrollbar-track {
-  background: #e2e8f0;
-  border-radius: 999px;
-}
-
-.cashier-layout .cart-scroll-area::-webkit-scrollbar-thumb {
-  background: #94a3b8;
-  border-radius: 999px;
-}
-
-.cashier-layout .cart-scroll-area::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
-}
-
-/* Summary tetap diam di bawah */
-.cashier-layout .cart-summary {
-  flex: 0 0 auto !important;
-  margin-top: 0 !important;
-  position: relative !important;
-  z-index: 5 !important;
-}
-
-/* Item keranjang */
-.cashier-layout .cart-line {
-  flex: 0 0 auto !important;
-  position: relative;
-  overflow: hidden;
-
-  padding: 13px 14px 12px 17px;
-  border-radius: 18px;
-
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-  border: 1px solid rgba(203, 213, 225, 0.92);
-
-  box-shadow:
-    0 8px 18px rgba(15, 23, 42, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-.cashier-layout .cart-line::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 5px;
-  background: linear-gradient(180deg, #22c55e, #16a34a);
-}
-
-/* Nama kiri, nominal kanan */
-.cashier-layout .cart-line-top {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 12px;
-  align-items: start;
-}
-
-.cashier-layout .cart-line-info {
-  min-width: 0;
-}
-
-.cashier-layout .cart-line-info h5 {
-  margin: 0;
-
-  color: #0f172a;
-  font-size: 14px;
-  font-weight: 1000;
-  line-height: 1.18;
-  letter-spacing: -0.035em;
-  text-transform: uppercase;
-
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.cashier-layout .cart-line-info p {
-  margin: 6px 0 0;
-  color: #64748b;
-  font-size: 11.5px;
-  font-weight: 900;
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-.cashier-layout .cart-line-price {
-  justify-self: end;
-  min-width: 88px;
-
-  color: #15803d;
-  font-size: 16px;
-  font-weight: 1000;
-  line-height: 1.1;
-  text-align: right;
-  letter-spacing: -0.045em;
-  white-space: nowrap;
-}
-
-/* Qty di bawah kiri */
-.cashier-layout .cart-line-bottom {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  margin-top: 11px;
-}
-
-/* Qty control */
-.cashier-layout .cart-line .qty-control {
-  margin-top: 0 !important;
-
-  display: inline-grid !important;
-  grid-template-columns: 30px 34px 30px;
-  align-items: center;
-
-  width: auto;
-  padding: 4px;
-
-  border-radius: 999px;
-  background: #e2e8f0;
-  border: 1px solid rgba(148, 163, 184, 0.42);
-}
-
-.cashier-layout .cart-line .qty-control button {
-  width: 30px;
-  height: 30px;
-
-  border: 0;
-  border-radius: 999px;
-
-  background: #ffffff;
-  color: #0f172a;
-
-  font-size: 17px;
-  font-weight: 1000;
-  cursor: pointer;
-
-  box-shadow: 0 5px 11px rgba(15, 23, 42, 0.12);
-}
-
-.cashier-layout .cart-line .qty-control span {
-  min-width: 34px;
-  color: #0f172a;
-  font-size: 14px;
-  font-weight: 1000;
-  text-align: center;
-}
-
-/* Matikan style lama yang bikin bentrok */
-.cashier-layout .cart-items,
-.cashier-layout .cart-list {
-  display: none !important;
-}
-
-/* Desktop */
-@media (min-width: 1100px) {
-  .cashier-layout .cart-panel,
-  .cashier-layout .cart-area {
-    height: calc(100dvh - 84px) !important;
-    max-height: calc(100dvh - 84px) !important;
-  }
-
-  .cashier-layout .cart-scroll-area {
-    padding: 10px !important;
-    gap: 9px !important;
-  }
-
-  .cashier-layout .cart-line {
-    padding: 12px 12px 11px 16px;
-    border-radius: 17px;
-  }
-
-  .cashier-layout .cart-line-info h5 {
-    font-size: 13.5px;
-  }
-
-  .cashier-layout .cart-line-price {
-    font-size: 15px;
-    min-width: 82px;
-  }
-}
-
-/* =========================================================
-   FIX: Naikkan tombol Bayar tanpa mengubah summary
-   Paste PALING BAWAH cashier.css
-========================================================= */
-
-/* Summary tetap seperti sekarang */
-.cashier-layout .cart-summary {
-  padding-bottom: 10px !important;
-}
-
-/* Tombol Bayar dinaikkan sedikit */
-.cashier-layout .pay-button {
-  height: 40px !important;
-  min-height: 40px !important;
-  margin-top: 6px !important;
-  margin-bottom: 0 !important;
-  transform: translateY(-8px) !important;
-}
-
-/* Supaya tombol tidak ketutup container */
-.cashier-layout .cart-panel,
-.cashier-layout .cart-area {
-  padding-bottom: 8px !important;
-}
-
-/* Kalau masih kurang naik, ubah -8px jadi -12px */
-
-/* =========================================================
-   PATCH: Payment Modal Compact Premium
-   Paste PALING BAWAH cashier.css
-========================================================= */
-
-/* Backdrop lebih soft */
-.modal-backdrop {
-  background: rgba(15, 23, 42, 0.48) !important;
-  backdrop-filter: blur(4px);
-}
-
-/* Modal pembayaran lebih compact */
-.payment-modal {
-  width: min(520px, calc(100vw - 32px)) !important;
-  max-height: calc(100vh - 36px) !important;
-  overflow: hidden !important;
-  border-radius: 26px !important;
-  background: #ffffff !important;
-  border: 1px solid rgba(203, 213, 225, 0.95) !important;
-  box-shadow: 0 28px 80px rgba(15, 23, 42, 0.32) !important;
-}
-
-/* Header dibuat lebih premium dan pendek */
-.payment-modal .modal-header {
-  padding: 16px 18px 14px !important;
-  background:
-    radial-gradient(circle at 100% 0%, rgba(34, 197, 94, 0.34), transparent 36%),
-    linear-gradient(135deg, #020617 0%, #0f172a 62%, #14532d 100%) !important;
-  border-bottom: 0 !important;
-  color: #ffffff !important;
-}
-
-.payment-modal .modal-header h3 {
-  margin: 0 !important;
-  color: #ffffff !important;
-  font-size: 24px !important;
-  font-weight: 1000 !important;
-  letter-spacing: -0.06em !important;
-}
-
-.payment-modal .modal-header p {
-  margin: 5px 0 0 !important;
-  color: rgba(255, 255, 255, 0.68) !important;
-  font-size: 12px !important;
-  font-weight: 850 !important;
-}
-
-.payment-modal .modal-header button {
-  width: 36px !important;
-  height: 36px !important;
-  border-radius: 999px !important;
-  background: rgba(255, 255, 255, 0.13) !important;
-  color: #ffffff !important;
-  font-size: 24px !important;
-}
-
-/* Isi modal lebih rapat */
-.payment-modal form,
-.payment-modal .payment-form {
-  padding: 14px 18px 16px !important;
-}
-
-/* Summary subtotal/diskon/total lebih compact */
-.payment-summary {
-  display: grid !important;
-  gap: 8px !important;
-  margin: 0 0 12px !important;
-}
-
-.payment-summary > div {
-  min-height: 38px !important;
-  padding: 9px 12px !important;
-  border-radius: 15px !important;
-  background: #f8fafc !important;
-  border: 1px solid rgba(203, 213, 225, 0.9) !important;
-  color: #475569 !important;
-  font-size: 12.5px !important;
-  font-weight: 950 !important;
-}
-
-.payment-summary > div:last-child {
-  background:
-    radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.32), transparent 36%),
-    linear-gradient(135deg, #22c55e, #16a34a) !important;
-  border-color: rgba(34, 197, 94, 0.35) !important;
-  color: #ffffff !important;
-}
-
-.payment-summary > div:last-child span,
-.payment-summary > div:last-child strong {
-  color: #ffffff !important;
-}
-
-.payment-summary strong {
-  color: #0f172a !important;
-  font-size: 13.5px !important;
-  font-weight: 1000 !important;
-}
-
-/* Tab Cash / Hutang lebih bagus */
-.payment-method-tabs,
-.payment-modal .method-tabs {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: 8px !important;
-  margin: 0 0 12px !important;
-}
-
-.payment-method-tabs button,
-.payment-modal .method-tabs button,
-.payment-modal button.payment-method-button {
-  min-height: 38px !important;
-  border-radius: 15px !important;
-  border: 1px solid rgba(148, 163, 184, 0.38) !important;
-  background: #ffffff !important;
-  color: #334155 !important;
-  font-size: 13px !important;
-  font-weight: 1000 !important;
-}
-
-.payment-method-tabs button.active,
-.payment-modal .method-tabs button.active,
-.payment-modal button.payment-method-button.active {
-  background: #dcfce7 !important;
-  color: #15803d !important;
-  border-color: rgba(34, 197, 94, 0.35) !important;
-}
-
-/* Label input */
-.payment-modal label {
-  display: grid !important;
-  gap: 6px !important;
-  color: #334155 !important;
-  font-size: 12.5px !important;
-  font-weight: 1000 !important;
-  letter-spacing: -0.02em !important;
-}
-
-/* Input uang diterima lebih compact */
-.payment-modal input,
-.payment-modal select,
-.payment-modal textarea {
-  min-height: 42px !important;
-  height: 42px !important;
-  padding: 0 13px !important;
-  border-radius: 15px !important;
-  border: 1px solid rgba(148, 163, 184, 0.48) !important;
-  background: #ffffff !important;
-  color: #0f172a !important;
-  font-size: 15px !important;
-  font-weight: 1000 !important;
-}
-
-.payment-modal input:focus,
-.payment-modal select:focus,
-.payment-modal textarea:focus {
-  border-color: rgba(34, 197, 94, 0.68) !important;
-  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12) !important;
-}
-
-/* Tombol quick cash jadi lebih rapat dan modern */
-.quick-cash-buttons {
-  display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 8px !important;
-  margin: 10px 0 12px !important;
-}
-
-.quick-cash-button {
-  min-height: 38px !important;
-  border-radius: 999px !important;
-  border: 1px solid rgba(34, 197, 94, 0.22) !important;
-  background: #f0fdf4 !important;
-  color: #166534 !important;
-  font-size: 12.5px !important;
-  font-weight: 1000 !important;
-}
-
-.quick-cash-button.active {
-  background: linear-gradient(135deg, #22c55e, #16a34a) !important;
-  color: #ffffff !important;
-  border-color: #16a34a !important;
-  box-shadow: 0 10px 22px rgba(22, 163, 74, 0.2) !important;
-}
-
-/* Kembalian */
-.payment-change-row,
-.payment-modal .change-row {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  min-height: 40px !important;
-  margin-top: 4px !important;
-  padding: 9px 12px !important;
-  border-radius: 15px !important;
-  background: #f8fafc !important;
-  border: 1px solid rgba(203, 213, 225, 0.9) !important;
-  color: #475569 !important;
-  font-size: 13px !important;
-  font-weight: 1000 !important;
-}
 
-.payment-change-row strong,
-.payment-modal .change-row strong {
-  color: #15803d !important;
-  font-size: 16px !important;
-  font-weight: 1000 !important;
+  padding-right: 6px !important;
+  margin-bottom: 10px !important;
 }
-
-/* Action bawah */
-.payment-modal .modal-actions,
-.payment-modal .payment-actions {
-  display: grid !important;
-  grid-template-columns: 0.8fr 1.5fr !important;
-  gap: 10px !important;
-  padding: 0 !important;
-  margin-top: 14px !important;
-}
-
-.payment-modal .modal-actions button,
-.payment-modal .payment-actions button {
-  min-height: 44px !important;
-  border-radius: 16px !important;
-  font-size: 14px !important;
-  font-weight: 1000 !important;
-}
-
-/* Tombol batal */
-.payment-modal .modal-actions button:first-child,
-.payment-modal .payment-actions button:first-child {
-  background: #f1f5f9 !important;
-  color: #334155 !important;
-}
-
-/* Tombol selesaikan transaksi */
-.payment-modal .modal-actions button:last-child,
-.payment-modal .payment-actions button:last-child {
-  background:
-    radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.32), transparent 35%),
-    linear-gradient(135deg, #22c55e, #16a34a) !important;
-  color: #ffffff !important;
-  box-shadow: 0 12px 26px rgba(22, 163, 74, 0.24) !important;
-}
-
-/* Compact untuk laptop kecil */
-@media (min-width: 1100px) {
-  .payment-modal {
-    width: 500px !important;
-  }
-
-  .payment-modal .modal-header {
-    padding: 14px 17px 12px !important;
-  }
-
-  .payment-modal .modal-header h3 {
-    font-size: 22px !important;
-  }
-
-  .payment-modal form,
-  .payment-modal .payment-form {
-    padding: 12px 16px 14px !important;
-  }
 
-  .payment-summary > div {
-    min-height: 34px !important;
-    padding: 8px 11px !important;
-  }
+/* summary selalu di bawah */
+.cart-summary {
+  flex-shrink: 0 !important;
 
-  .payment-modal input,
-  .payment-modal select,
-  .payment-modal textarea {
-    min-height: 38px !important;
-    height: 38px !important;
-  }
+  position: sticky !important;
+  bottom: 0 !important;
 
-  .quick-cash-button {
-    min-height: 34px !important;
-    font-size: 12px !important;
-  }
+  background: #fff !important;
+  border-top: 1px solid #e5e7eb !important;
 
-  .payment-modal .modal-actions button,
-  .payment-modal .payment-actions button {
-    min-height: 40px !important;
-  }
+  padding: 14px !important;
+  z-index: 10 !important;
 }
