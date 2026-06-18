@@ -2273,6 +2273,7 @@ const [customerPhone, setCustomerPhone] = useState("");
 const [debtNote, setDebtNote] = useState("");
 const [dueDate, setDueDate] = useState("");
 const [completedTransaction, setCompletedTransaction] = useState(null);
+const [variantPickerProduct, setVariantPickerProduct] = useState(null);
 
   const activeProducts = useMemo(() => {
   return products
@@ -2438,6 +2439,22 @@ function formatVariantShortLabel(variant) {
     .replace(/(\d+)\s*pcs/gi, "$1 pc")
     .replace(/(\d+)\s*pc/gi, "$1 PCS")
     .toUpperCase();
+}
+
+function handleProductClick(product) {
+  const productVariantsForCashier = activeVariantsByProductId[product.id] || [];
+
+  if (productVariantsForCashier.length > 0) {
+    setVariantPickerProduct(product);
+    return;
+  }
+
+  addToCart(product, null);
+}
+
+function handleVariantClick(product, variant) {
+  addToCart(product, variant);
+  setVariantPickerProduct(null);
 }
 
 function addToCart(product, variant) {
@@ -2754,8 +2771,8 @@ const displayStock = Math.max(0, Number(product.stock || 0) - reservedQty);
       <button
   type="button"
   className="product-main-button"
-  disabled={!cashierSession.isOpen || Number(displayStock || 0) <= 0}
-  onClick={() => addToCart(product, null)}
+  disabled={displayStock <= 0}
+  onClick={() => handleProductClick(product)}
 >
         <h4>{String(product.name || "").toUpperCase()}</h4>
 
@@ -2780,26 +2797,6 @@ const displayStock = Math.max(0, Number(product.stock || 0) - reservedQty);
   </span>
 </div>
 </button>
-
-      {productVariantsForCashier.length > 0 ? (
-        <div className="cashier-variant-list">
-          {productVariantsForCashier.map((variant) => {
-  const variantStockNeeded = Number(variant.qtyMultiplier || 1);
-  const isVariantOutOfStock = Number(displayStock || 0) < variantStockNeeded;
-
-  return (
-    <button
-  className="cashier-variant-button"
-  disabled={isVariantOutOfStock}
-  onClick={() => addToCart(product, variant)}
-  title={String(variant.name || "").toUpperCase()}
->
-  <span>{formatVariantShortLabel(variant)}</span>
-</button>
-  );
-})}
-        </div>
-      ) : null}
     </div>
   );
 })}
@@ -2894,7 +2891,7 @@ const displayStock = Math.max(0, Number(product.stock || 0) - reservedQty);
               <strong>{formatRupiah(safeDiscountAmount)}</strong>
             </div>
 
-            <div>
+            <div className="cart-total-plain">
               <span>Total Belanja</span>
               <strong>{formatRupiah(cartTotal)}</strong>
             </div>
@@ -2916,6 +2913,69 @@ const displayStock = Math.max(0, Number(product.stock || 0) - reservedQty);
           </div>
         </div>
       </div>
+
+      {variantPickerProduct ? (() => {
+  const variantOptions = activeVariantsByProductId[variantPickerProduct.id] || [];
+  const displayStock = getDisplayStock(variantPickerProduct.id);
+
+  return (
+    <div
+      className="variant-picker-backdrop"
+      onClick={() => setVariantPickerProduct(null)}
+    >
+      <div
+        className="variant-picker-modal"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="variant-picker-header">
+          <div>
+            <p>Pilih Varian</p>
+            <h3>{String(variantPickerProduct.name || "").toUpperCase()}</h3>
+            <span>
+              {String(variantPickerProduct.category || "").toUpperCase()} • Stok tersedia {displayStock}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            className="modal-close"
+            onClick={() => setVariantPickerProduct(null)}
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="variant-picker-grid">
+          {variantOptions.map((variant) => {
+            const variantStockNeeded = Number(variant.qtyMultiplier || 1);
+            const isVariantOutOfStock = Number(displayStock || 0) < variantStockNeeded;
+
+            return (
+              <button
+                type="button"
+                key={variant.id}
+                className={
+                  isVariantOutOfStock
+                    ? "variant-picker-option disabled"
+                    : "variant-picker-option"
+                }
+                disabled={isVariantOutOfStock}
+                onClick={() => handleVariantClick(variantPickerProduct, variant)}
+              >
+                <strong>{String(variant.name || "").toUpperCase()}</strong>
+                <span>
+                  Ambil stok {variant.qtyMultiplier}{" "}
+                  {String(variantPickerProduct.unit || "PCS").toUpperCase()}
+                </span>
+                <em>{formatRupiah(variant.price)}</em>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+})() : null}
 
       {isPaymentOpen ? (
         <div className="modal-backdrop">

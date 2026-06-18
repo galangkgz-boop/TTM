@@ -1,0 +1,1851 @@
+/* =========================================================
+   TTM POS — Soft Clean UI Theme Override
+   Import file ini PALING BAWAH setelah semua CSS lama.
+========================================================= */
+
+:root {
+  --ttm-font-main: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --ttm-bg: #f7f9fc;
+  --ttm-bg-soft: #eef3f8;
+
+  --ttm-surface: #ffffff;
+  --ttm-surface-soft: #f8fafc;
+  --ttm-surface-muted: #f1f5f9;
+
+  --ttm-border: #e5eaf0;
+  --ttm-border-strong: #d4dce7;
+
+  --ttm-text: #111827;
+  --ttm-text-soft: #334155;
+  --ttm-muted: #6b7280;
+  --ttm-muted-soft: #9ca3af;
+
+  --ttm-primary: #2f9e73;
+  --ttm-primary-hover: #24815e;
+  --ttm-primary-dark: #166047;
+  --ttm-primary-soft: #e7f7ef;
+  --ttm-primary-tint: rgba(47, 158, 115, 0.1);
+
+  --ttm-info: #3b82f6;
+  --ttm-info-soft: #e8f1ff;
+
+  --ttm-warning: #d98b1f;
+  --ttm-warning-soft: #fff6df;
+
+  --ttm-danger: #dc4545;
+  --ttm-danger-soft: #fff0f0;
+
+  --ttm-radius-md: 14px;
+  --ttm-radius-lg: 18px;
+  --ttm-radius-xl: 24px;
+
+  --ttm-shadow-xs: 0 1px 3px rgba(15, 23, 42, 0.04);
+  --ttm-shadow-sm: 0 6px 18px rgba(15, 23, 42, 0.06);
+  --ttm-shadow-md: 0 14px 38px rgba(15, 23, 42, 0.08);
+}
+
+/* Background global dibuat lebih adem */
+body {
+  background:
+    linear-gradient(180deg, #fbfcfe 0%, var(--ttm-bg) 48%, #eef3f8 100%) !important;
+  color: var(--ttm-text);
+}
+
+/* Sidebar dibuat clean, tidak terlalu gelap */
+.sidebar {
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: var(--ttm-text) !important;
+  border-right: 1px solid var(--ttm-border) !important;
+  box-shadow: 8px 0 28px rgba(15, 23, 42, 0.04);
+  backdrop-filter: blur(18px);
+}
+
+/* Brand lebih soft */
+.brand {
+  background: #ffffff !important;
+  border: 1px solid var(--ttm-border) !important;
+  box-shadow: var(--ttm-shadow-xs) !important;
+}
+
+.brand h1 {
+  color: var(--ttm-text) !important;
+}
+
+.brand p {
+  color: var(--ttm-muted) !important;
+}
+
+.brand-logo {
+  background: var(--ttm-primary-soft) !important;
+  color: var(--ttm-primary-dark) !important;
+  box-shadow: none !important;
+}
+
+/* Menu sidebar */
+.menu-item {
+  color: var(--ttm-text-soft) !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+}
+
+.menu-item:hover {
+  background: var(--ttm-surface-soft) !important;
+  border-color: var(--ttm-border) !important;
+  color: var(--ttm-text) !important;
+  transform: none !important;
+}
+
+.menu-item.active {
+  background: var(--ttm-primary-soft) !important;
+  border-color: rgba(47, 158, 115, 0.24) !important;
+  color: var(--ttm-primary-dark) !important;
+  box-shadow: none !important;
+}
+
+/* Topbar dan page container */
+.topbar,
+.page-card {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border: 1px solid var(--ttm-border) !important;
+  box-shadow: var(--ttm-shadow-sm) !important;
+}
+
+.topbar h2,
+.page-header h3,
+.section-header h3,
+.panel-header h3,
+.card-header h3 {
+  color: var(--ttm-text) !important;
+  letter-spacing: -0.03em;
+}
+
+/* Card universal */
+.dashboard-summary > div,
+.history-summary > div,
+.reports-summary > div,
+.products-summary > div,
+.inventory-summary > div,
+.payment-summary > div,
+.detail-info-grid > div,
+.detail-total-list > div,
+.cashier-session-card,
+.report-card,
+.settings-card,
+.info-card,
+.empty-state {
+  background: #ffffff !important;
+  border: 1px solid var(--ttm-border) !important;
+  box-shadow: var(--ttm-shadow-xs) !important;
+}
+
+/* Tombol utama lebih flat dan adem */
+.primary-action-button,
+.finish-button,
+.pay-button,
+.login-button,
+.open-cashier-button,
+.close-cashier-button,
+.cash-flow-button.primary {
+  background: var(--ttm-primary) !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 18px rgba(47, 158, 115, 0.16) !important;
+}
+
+.primary-action-button:hover,
+.finish-button:hover,
+.pay-button:hover,
+.login-button:hover,
+.open-cashier-button:hover,
+.close-cashier-button:hover,
+.cash-flow-button.primary:hover {
+  background: var(--ttm-primary-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(47, 158, 115, 0.2) !important;
+}
+
+/* Tombol sekunder lebih bersih */
+.secondary-button,
+.cancel-button,
+.export-button,
+.print-button,
+.test-print-button,
+.cash-flow-button,
+.edit-button,
+.detail-button,
+.variant-button,
+.retry-button,
+.pin-role-tab {
+  background: #ffffff !important;
+  color: var(--ttm-text-soft) !important;
+  border: 1px solid var(--ttm-border) !important;
+  box-shadow: none !important;
+}
+
+.secondary-button:hover,
+.cancel-button:hover,
+.export-button:hover,
+.print-button:hover,
+.test-print-button:hover,
+.cash-flow-button:hover,
+.edit-button:hover,
+.detail-button:hover,
+.variant-button:hover,
+.retry-button:hover,
+.pin-role-tab:hover {
+  background: var(--ttm-surface-soft) !important;
+  border-color: var(--ttm-border-strong) !important;
+  color: var(--ttm-text) !important;
+}
+
+/* Input lebih nyaman */
+input,
+select,
+textarea {
+  background: #ffffff !important;
+  border: 1px solid var(--ttm-border) !important;
+  color: var(--ttm-text) !important;
+  box-shadow: none !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: rgba(47, 158, 115, 0.45) !important;
+  box-shadow: 0 0 0 4px rgba(47, 158, 115, 0.1) !important;
+}
+
+/* Table lebih ringan */
+.products-table-wrap,
+.inventory-table-wrap,
+.reports-table-wrap,
+.history-table-wrap,
+.table-wrap {
+  border: 1px solid var(--ttm-border) !important;
+  box-shadow: var(--ttm-shadow-xs) !important;
+}
+
+.products-table th,
+.inventory-table th,
+.reports-table th,
+.history-table th,
+.data-table th {
+  background: #f8fafc !important;
+  color: var(--ttm-muted) !important;
+}
+
+.products-table tbody tr:hover,
+.inventory-table tbody tr:hover,
+.reports-table tbody tr:hover,
+.history-table tbody tr:hover,
+.data-table tbody tr:hover {
+  background: #f9fbfd !important;
+}
+
+/* Badge/status lebih pastel */
+.badge,
+.status-badge,
+.sync-badge,
+.stock-badge,
+.connection-pill,
+.supabase-pill,
+.cashier-status-pill,
+.date-pill {
+  background: #f8fafc !important;
+  border-color: var(--ttm-border) !important;
+  color: var(--ttm-text-soft) !important;
+}
+
+.status-badge.active,
+.sync-badge.success,
+.connection-pill.online,
+.supabase-pill.connected,
+.cashier-status-pill.open {
+  background: var(--ttm-primary-soft) !important;
+  color: var(--ttm-primary-dark) !important;
+  border-color: rgba(47, 158, 115, 0.22) !important;
+}
+
+.status-badge.inactive,
+.sync-badge.failed,
+.connection-pill.offline,
+.supabase-pill.failed,
+.cashier-status-pill.closed {
+  background: var(--ttm-danger-soft) !important;
+  color: #9f2b2b !important;
+  border-color: rgba(220, 69, 69, 0.2) !important;
+}
+
+.sync-badge.pending,
+.stock-badge.low,
+.supabase-pill.checking {
+  background: var(--ttm-warning-soft) !important;
+  color: #9a5c0f !important;
+  border-color: rgba(217, 139, 31, 0.2) !important;
+}
+
+/* Hilangkan efek visual yang terlalu ramai */
+•⁠  ⁠{
+  text-shadow: none !important;
+}
+
+@media (max-width: 1120px) {
+  .sidebar {
+    box-shadow: none;
+  }
+}
+
+/* =========================================================
+   PHASE 2 — Layout Polish
+   Tempel di PALING BAWAH theme-soft-pos.css
+   Fokus: Dashboard + Kasir + table + spacing
+========================================================= */
+
+/* Konten utama lebih lega */
+.main-content,
+.content,
+.page-content,
+.app-content {
+  padding: 24px !important;
+}
+
+/* Header halaman dibuat lebih premium */
+.page-header,
+.topbar {
+  border-radius: 24px !important;
+  padding: 20px 24px !important;
+  margin-bottom: 20px !important;
+}
+
+.page-header h1,
+.page-header h2,
+.topbar h1,
+.topbar h2 {
+  font-size: clamp(22px, 2vw, 30px) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.04em !important;
+}
+
+.page-header p,
+.topbar p {
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+}
+
+/* Dashboard summary dibuat lebih rapi */
+.dashboard-summary,
+.history-summary,
+.reports-summary,
+.products-summary,
+.inventory-summary,
+.payment-summary {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+  gap: 16px !important;
+  margin-bottom: 22px !important;
+}
+
+.dashboard-summary > div,
+.history-summary > div,
+.reports-summary > div,
+.products-summary > div,
+.inventory-summary > div,
+.payment-summary > div {
+  border-radius: 22px !important;
+  padding: 20px !important;
+  transition: 0.2s ease !important;
+}
+
+.dashboard-summary > div:hover,
+.history-summary > div:hover,
+.reports-summary > div:hover,
+.products-summary > div:hover,
+.inventory-summary > div:hover,
+.payment-summary > div:hover {
+  transform: translateY(-2px) !important;
+}
+
+/* Angka summary lebih enak dibaca */
+.summary-value,
+.stat-value,
+.card-value,
+.dashboard-summary strong,
+.history-summary strong,
+.reports-summary strong,
+.products-summary strong,
+.inventory-summary strong {
+  font-size: clamp(24px, 2.4vw, 34px) !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.05em !important;
+  color: var(--ttm-text) !important;
+}
+
+.summary-label,
+.stat-label,
+.card-label {
+  color: var(--ttm-muted) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+/* Panel umum */
+.panel,
+.card,
+.section-card,
+.report-card,
+.settings-card,
+.info-card,
+.cashier-session-card {
+  border-radius: 24px !important;
+  padding: 20px !important;
+}
+
+/* Halaman kasir dibuat lebih nyaman */
+.cashier-page,
+.cashier-layout,
+.cashier-grid {
+  gap: 20px !important;
+}
+
+/* Area produk kasir */
+.cashier-products,
+.products-panel,
+.product-list-panel {
+  border-radius: 24px !important;
+}
+
+/* Search/filter area */
+.search-bar,
+.filter-bar,
+.cashier-toolbar,
+.products-toolbar,
+.inventory-toolbar,
+.history-toolbar,
+.reports-toolbar {
+  background: #ffffff !important;
+  border: 1px solid var(--ttm-border) !important;
+  border-radius: 20px !important;
+  padding: 12px !important;
+  box-shadow: var(--ttm-shadow-xs) !important;
+  gap: 10px !important;
+}
+
+/* Grid produk lebih modern */
+.product-grid,
+.products-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+  gap: 14px !important;
+}
+
+/* Kartu produk */
+.product-card,
+.product-item,
+.menu-card {
+  border-radius: 22px !important;
+  padding: 16px !important;
+  cursor: pointer !important;
+  transition: 0.2s ease !important;
+  overflow: hidden !important;
+}
+
+.product-card:hover,
+.product-item:hover,
+.menu-card:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(47, 158, 115, 0.28) !important;
+}
+
+/* Nama produk */
+.product-card h3,
+.product-card h4,
+.product-item h3,
+.product-item h4,
+.menu-card h3,
+.menu-card h4 {
+  font-size: 15px !important;
+  font-weight: 750 !important;
+  line-height: 1.35 !important;
+  color: var(--ttm-text) !important;
+}
+
+/* Harga produk */
+.product-price,
+.price,
+.menu-price {
+  color: var(--ttm-primary-dark) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* Stok kecil / info kecil */
+.product-stock,
+.stock-text,
+.product-meta,
+.menu-meta {
+  color: var(--ttm-muted) !important;
+  font-size: 12px !important;
+}
+
+/* Cart / keranjang dibuat sticky di desktop */
+.cart-panel,
+.order-panel,
+.checkout-panel {
+  border-radius: 24px !important;
+  padding: 18px !important;
+  background: #ffffff !important;
+  border: 1px solid var(--ttm-border) !important;
+  box-shadow: var(--ttm-shadow-sm) !important;
+}
+
+@media (min-width: 1024px) {
+  .cart-panel,
+  .order-panel,
+  .checkout-panel {
+    position: sticky !important;
+    top: 20px !important;
+    align-self: start !important;
+  }
+}
+
+/* Item keranjang */
+.cart-item,
+.order-item {
+  border-radius: 18px !important;
+  padding: 12px !important;
+  background: var(--ttm-surface-soft) !important;
+  border: 1px solid var(--ttm-border) !important;
+  margin-bottom: 10px !important;
+}
+
+/* Total pembayaran lebih jelas */
+.cart-total,
+.order-total,
+.payment-total,
+.grand-total {
+  background: var(--ttm-primary-soft) !important;
+  color: var(--ttm-primary-dark) !important;
+  border: 1px solid rgba(47, 158, 115, 0.22) !important;
+  border-radius: 20px !important;
+  padding: 16px !important;
+  font-weight: 850 !important;
+}
+
+/* Tombol bayar lebih dominan tapi tetap soft */
+.pay-button,
+.finish-button {
+  width: 100% !important;
+  border-radius: 18px !important;
+  padding: 16px 18px !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+}
+
+/* Table polish */
+.products-table-wrap,
+.inventory-table-wrap,
+.reports-table-wrap,
+.history-table-wrap,
+.table-wrap {
+  border-radius: 24px !important;
+  overflow: hidden !important;
+}
+
+.products-table,
+.inventory-table,
+.reports-table,
+.history-table,
+.data-table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+.products-table th,
+.inventory-table th,
+.reports-table th,
+.history-table th,
+.data-table th {
+  padding: 14px 16px !important;
+  font-size: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  font-weight: 800 !important;
+}
+
+.products-table td,
+.inventory-table td,
+.reports-table td,
+.history-table td,
+.data-table td {
+  padding: 14px 16px !important;
+  border-bottom: 1px solid var(--ttm-border) !important;
+}
+
+/* Modal lebih halus */
+.modal-content,
+.payment-modal,
+.receipt-modal {
+  border-radius: 28px !important;
+  padding: 24px !important;
+}
+
+/* Login page */
+.login-card,
+.auth-card {
+  border-radius: 30px !important;
+  background: #ffffff !important;
+  border: 1px solid var(--ttm-border) !important;
+  box-shadow: var(--ttm-shadow-md) !important;
+}
+
+/* Responsif mobile */
+@media (max-width: 768px) {
+  .main-content,
+  .content,
+  .page-content,
+  .app-content {
+    padding: 14px !important;
+  }
+
+  .page-header,
+  .topbar {
+    padding: 16px !important;
+    border-radius: 20px !important;
+  }
+
+  .dashboard-summary,
+  .history-summary,
+  .reports-summary,
+  .products-summary,
+  .inventory-summary,
+  .payment-summary {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .product-grid,
+  .products-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .product-card,
+  .product-item,
+  .menu-card {
+    padding: 12px !important;
+    border-radius: 18px !important;
+  }
+
+  .cart-panel,
+  .order-panel,
+  .checkout-panel {
+    position: static !important;
+    border-radius: 20px !important;
+  }
+
+  .products-table th,
+  .inventory-table th,
+  .reports-table th,
+  .history-table th,
+  .data-table th,
+  .products-table td,
+  .inventory-table td,
+  .reports-table td,
+  .history-table td,
+  .data-table td {
+    padding: 12px !important;
+  }
+}
+
+/* =========================================================
+   PHASE 3 — Final Visual Polish Based on Screenshot
+   Fokus: dashboard lebih terang, kasir lebih rapi,
+   produk tidak terlalu padat, table lebih clean.
+========================================================= */
+
+/* ---------- Dashboard hero dibuat soft, bukan dark strong ---------- */
+
+.cashier-command-panel {
+  min-height: 168px !important;
+  color: var(--ttm-text) !important;
+  background:
+    radial-gradient(circle at 92% 18%, rgba(47, 158, 115, 0.16), transparent 32%),
+    radial-gradient(circle at 28% 110%, rgba(59, 130, 246, 0.1), transparent 34%),
+    linear-gradient(135deg, #ffffff 0%, #f8fafc 55%, #eef8f2 100%) !important;
+  border: 1px solid var(--ttm-border) !important;
+  box-shadow: var(--ttm-shadow-sm) !important;
+}
+
+.cashier-command-panel::before,
+.cashier-command-panel::after {
+  opacity: 0.4 !important;
+}
+
+.cashier-command-panel h1,
+.cashier-command-panel h2,
+.cashier-command-panel h3,
+.cashier-command-panel h4,
+.cashier-command-panel strong {
+  color: var(--ttm-text) !important;
+}
+
+.cashier-command-panel p,
+.cashier-command-panel small,
+.cashier-command-panel span {
+  color: var(--ttm-muted) !important;
+}
+
+.cashier-command-actions {
+  gap: 10px !important;
+}
+
+.cashier-command-actions button {
+  min-height: 42px !important;
+  padding: 0 16px !important;
+  border-radius: 999px !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+}
+
+.cashier-command-panel .primary-action-button,
+.cashier-command-panel .open-cashier-button {
+  background: var(--ttm-primary) !important;
+  color: #ffffff !important;
+}
+
+.cashier-command-panel .close-cashier-button,
+.cashier-command-panel .danger-button {
+  background: var(--ttm-danger-soft) !important;
+  color: #9f2b2b !important;
+  border: 1px solid rgba(220, 69, 69, 0.18) !important;
+}
+
+/* ---------- Dashboard summary lebih compact dan rapi ---------- */
+
+.dashboard-summary {
+  grid-template-columns: repeat(6, minmax(145px, 1fr)) !important;
+  gap: 12px !important;
+}
+
+.dashboard-summary > div {
+  min-height: 104px !important;
+  padding: 16px !important;
+  border-radius: 20px !important;
+  box-shadow: var(--ttm-shadow-xs) !important;
+}
+
+.dashboard-summary > div::after {
+  width: 86px !important;
+  height: 86px !important;
+  right: -28px !important;
+  bottom: -34px !important;
+  opacity: 0.55 !important;
+}
+
+.dashboard-summary span {
+  font-size: 10.5px !important;
+  letter-spacing: 0.07em !important;
+}
+
+.dashboard-summary strong {
+  margin-top: 9px !important;
+  font-size: clamp(21px, 1.6vw, 28px) !important;
+  letter-spacing: -0.055em !important;
+}
+
+.dashboard-summary small {
+  margin-top: 7px !important;
+  font-size: 11.5px !important;
+}
+
+/* ---------- Kasir layout dibuat lebih nyaman ---------- */
+
+@media (min-width: 1100px) {
+  .cashier-layout {
+    grid-template-columns: minmax(0, 1fr) 360px !important;
+    gap: 16px !important;
+  }
+
+  .main-content:has(.cashier-layout) {
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+  }
+
+  .page-card:has(.cashier-layout) {
+    padding: 14px !important;
+    height: calc(100dvh - 82px) !important;
+  }
+}
+
+/* ---------- Area produk kasir ---------- */
+
+.product-area {
+  background: rgba(255, 255, 255, 0.86) !important;
+  border: 1px solid var(--ttm-border) !important;
+  border-radius: 24px !important;
+  box-shadow: var(--ttm-shadow-xs) !important;
+}
+
+.product-grid {
+  grid-template-columns: repeat(auto-fill, minmax(178px, 1fr)) !important;
+  gap: 11px !important;
+  max-height: calc(100vh - 285px) !important;
+  padding: 4px !important;
+}
+
+/* Product card dibuat clean, tidak terlalu ramai */
+.product-card {
+  min-height: 148px !important;
+  border-radius: 18px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.045) !important;
+}
+
+.product-card:hover {
+  transform: translateY(-1px) !important;
+  border-color: rgba(47, 158, 115, 0.3) !important;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.075) !important;
+}
+
+.product-card.has-variants {
+  min-height: 188px !important;
+}
+
+.product-main-button {
+  min-height: 128px !important;
+  padding: 13px !important;
+  background: #ffffff !important;
+}
+
+.product-card.no-variants .product-main-button {
+  min-height: 148px !important;
+}
+
+.product-main-button h4 {
+  min-height: 34px !important;
+  font-size: 13.5px !important;
+  line-height: 1.25 !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.025em !important;
+}
+
+.product-main-button p {
+  margin-top: 6px !important;
+  font-size: 11.5px !important;
+  font-weight: 750 !important;
+  color: var(--ttm-muted) !important;
+}
+
+.product-card-footer {
+  margin-top: 12px !important;
+  gap: 8px !important;
+}
+
+.product-card-footer strong {
+  font-size: 14px !important;
+  color: var(--ttm-primary-dark) !important;
+}
+
+.product-card-footer span {
+  min-width: 28px !important;
+  height: 28px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 8px !important;
+  background: var(--ttm-primary-soft) !important;
+  color: var(--ttm-primary-dark) !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+}
+
+.product-main-button:disabled .product-card-footer span {
+  background: var(--ttm-danger-soft) !important;
+  color: #b42323 !important;
+}
+
+/* Variant button di card produk */
+.cashier-variant-list {
+  padding: 0 10px 10px !important;
+  gap: 6px !important;
+}
+
+.cashier-variant-button,
+.variant-sale-button {
+  min-height: 36px !important;
+  padding: 7px 10px !important;
+  border-radius: 12px !important;
+  background: #f8fafc !important;
+  border: 1px solid var(--ttm-border) !important;
+  box-shadow: none !important;
+}
+
+.cashier-variant-button:hover,
+.variant-sale-button:hover {
+  background: var(--ttm-primary-soft) !important;
+  border-color: rgba(47, 158, 115, 0.26) !important;
+}
+
+/* ---------- Category / filter kasir ---------- */
+
+.category-tab,
+.category-button,
+.filter-tab {
+  min-height: 34px !important;
+  border-radius: 12px !important;
+  font-size: 11.5px !important;
+  font-weight: 850 !important;
+}
+
+.category-tab.active,
+.category-button.active,
+.filter-tab.active {
+  background: var(--ttm-primary) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+/* ---------- Cart kanan dibuat clean ---------- */
+
+.cart-panel,
+.cart-area {
+  border-radius: 24px !important;
+  background: #ffffff !important;
+  border: 1px solid var(--ttm-border) !important;
+  box-shadow: var(--ttm-shadow-sm) !important;
+}
+
+.cart-header {
+  padding: 15px 16px !important;
+  background:
+    linear-gradient(135deg, #f8fafc 0%, #eef8f2 100%) !important;
+  border-bottom: 1px solid var(--ttm-border) !important;
+}
+
+.cart-header h3,
+.cart-header h4 {
+  font-size: 19px !important;
+  color: var(--ttm-text) !important;
+}
+
+.cart-header p {
+  font-size: 12px !important;
+  color: var(--ttm-muted) !important;
+}
+
+.cart-items,
+.cart-list {
+  padding: 12px !important;
+  gap: 9px !important;
+}
+
+.cart-item {
+  border-radius: 16px !important;
+  background: #f8fafc !important;
+  border: 1px solid var(--ttm-border) !important;
+  box-shadow: none !important;
+}
+
+.cart-summary {
+  padding: 12px 14px 16px !important;
+  background: #ffffff !important;
+  border-top: 1px solid var(--ttm-border) !important;
+}
+
+.cart-total-row,
+.cart-summary > div {
+  font-size: 12px !important;
+}
+
+.cart-grand-total,
+.cart-summary > div:nth-of-type(3) {
+  border-radius: 16px !important;
+  background: var(--ttm-primary-soft) !important;
+  border: 1px solid rgba(47, 158, 115, 0.2) !important;
+}
+
+.cart-grand-total strong,
+.cart-summary > div:nth-of-type(3) strong {
+  color: var(--ttm-primary-dark) !important;
+  font-size: 22px !important;
+}
+
+.pay-button {
+  min-height: 44px !important;
+  border-radius: 14px !important;
+  background: var(--ttm-primary) !important;
+  font-size: 13.5px !important;
+}
+
+/* ---------- Tabel produk dibuat flat dan clean ---------- */
+
+.products-table-wrap {
+  padding: 8px !important;
+  background: #ffffff !important;
+  border-radius: 22px !important;
+}
+
+.products-table {
+  border-spacing: 0 !important;
+}
+
+.products-table thead th {
+  background: #f8fafc !important;
+  color: var(--ttm-muted) !important;
+  border-radius: 0 !important;
+  border-bottom: 1px solid var(--ttm-border) !important;
+}
+
+.products-table thead th:first-child {
+  border-top-left-radius: 14px !important;
+  border-bottom-left-radius: 14px !important;
+}
+
+.products-table thead th:last-child {
+  border-top-right-radius: 14px !important;
+  border-bottom-right-radius: 14px !important;
+}
+
+.products-table tbody tr:hover {
+  transform: none !important;
+}
+
+.products-table tbody td {
+  background: #ffffff !important;
+  box-shadow: none !important;
+  border-top: 0 !important;
+  border-bottom: 1px solid var(--ttm-border) !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  border-radius: 0 !important;
+  font-size: 13px !important;
+}
+
+.products-table tbody td:first-child {
+  box-shadow: none !important;
+  border-left: 0 !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.products-table tbody td:last-child {
+  border-right: 0 !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.products-table td strong {
+  font-size: 13px !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* Tombol aksi di tabel lebih kecil dan bersih */
+.products-table .edit-button,
+.products-table .variant-button,
+.products-table .danger-button,
+.products-table .delete-button {
+  min-height: 30px !important;
+  padding: 0 10px !important;
+  border-radius: 999px !important;
+  font-size: 11px !important;
+}
+
+/* ---------- Topbar status lebih ringan ---------- */
+
+.topbar {
+  min-height: 62px !important;
+  align-items: center !important;
+}
+
+.topbar .status-badge,
+.topbar .sync-badge,
+.topbar .connection-pill,
+.topbar .supabase-pill,
+.topbar .cashier-status-pill,
+.topbar .date-pill {
+  min-height: 28px !important;
+  padding: 0 10px !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+}
+
+/* ---------- Responsive adjustment ---------- */
+
+@media (max-width: 1400px) {
+  .dashboard-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 1180px) {
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)) !important;
+    max-height: none !important;
+  }
+
+  .cart-panel,
+  .cart-area {
+    position: relative !important;
+    top: 0 !important;
+    min-height: auto !important;
+    max-height: none !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .dashboard-summary {
+    grid-template-columns: 1fr !important;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .product-main-button h4 {
+    font-size: 12.5px !important;
+  }
+}
+
+/* =========================================================
+   PHASE 4 — Fix Dashboard 4x2, Variant Product, Cart Summary
+   Tempel PALING BAWAH theme-soft-pos.css
+========================================================= */
+
+/* =========================================================
+   1. DASHBOARD SUMMARY: paksa 8 summary jadi 4 atas 4 bawah
+========================================================= */
+
+.dashboard-summary {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+}
+
+.dashboard-summary > div {
+  min-height: 112px !important;
+  padding: 18px !important;
+  border-radius: 22px !important;
+}
+
+.dashboard-summary strong {
+  font-size: clamp(22px, 1.7vw, 30px) !important;
+}
+
+/* Jangan biarkan rule lama mengubah jadi 6 atau 3 kolom */
+@media (min-width: 1200px) {
+  .dashboard-summary {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 1199px) {
+  .dashboard-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 650px) {
+  .dashboard-summary {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+
+/* =========================================================
+   2. KASIR: PRODUK VARIAN JANGAN SCROLL DI DALAM CARD
+   Varian dibuat compact 2 kolom dan semua terlihat.
+========================================================= */
+
+/* Grid produk boleh menyesuaikan tinggi card */
+.product-grid,
+.products-grid {
+  align-items: start !important;
+  grid-auto-rows: auto !important;
+}
+
+/* Card dengan varian dibuat fleksibel, bukan fixed-height */
+.product-card.has-variants,
+.product-card:has(.cashier-variant-list),
+.product-card:has(.variant-sale-button) {
+  height: auto !important;
+  min-height: 210px !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* Bagian utama produk dibuat lebih pendek agar varian punya ruang */
+.product-card.has-variants .product-main-button,
+.product-card:has(.cashier-variant-list) .product-main-button,
+.product-card:has(.variant-sale-button) .product-main-button {
+  min-height: 112px !important;
+  height: auto !important;
+  padding: 12px 12px 8px !important;
+}
+
+/* Nama produk jangan terlalu besar agar tidak makan tempat */
+.product-card.has-variants .product-main-button h4,
+.product-card:has(.cashier-variant-list) .product-main-button h4,
+.product-card:has(.variant-sale-button) .product-main-button h4 {
+  min-height: auto !important;
+  max-height: 38px !important;
+  overflow: hidden !important;
+  font-size: 12.5px !important;
+  line-height: 1.25 !important;
+}
+
+/* Container varian: tidak scroll, tampil grid */
+.cashier-variant-list,
+.variant-list,
+.product-variant-list {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 7px !important;
+  max-height: none !important;
+  height: auto !important;
+  overflow: visible !important;
+  padding: 8px 10px 12px !important;
+}
+
+/* Tombol varian lebih kecil dan rapi */
+.cashier-variant-button,
+.variant-sale-button,
+.product-variant-button {
+  min-height: 34px !important;
+  height: auto !important;
+  padding: 7px 8px !important;
+  border-radius: 12px !important;
+  font-size: 10.5px !important;
+  line-height: 1.2 !important;
+  font-weight: 800 !important;
+  white-space: normal !important;
+  text-align: center !important;
+}
+
+/* Kalau varian ganjil, tombol terakhir boleh full width agar terlihat rapi */
+.cashier-variant-list .cashier-variant-button:last-child:nth-child(odd),
+.variant-list .variant-sale-button:last-child:nth-child(odd),
+.product-variant-list .product-variant-button:last-child:nth-child(odd) {
+  grid-column: span 2 !important;
+}
+
+/* Supaya kartu produk tidak terlalu lebar dan varian tetap muat */
+@media (min-width: 1200px) {
+  .product-grid,
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)) !important;
+    gap: 12px !important;
+  }
+}
+
+
+/* =========================================================
+   3. KERANJANG: SUMMARY DIBUAT LEBIH CLEAN DAN TIDAK DEMPET
+========================================================= */
+
+.cart-panel,
+.cart-area,
+.order-panel,
+.checkout-panel {
+  border-radius: 26px !important;
+  overflow: hidden !important;
+}
+
+/* Header keranjang lebih breathable */
+.cart-header {
+  padding: 18px 20px !important;
+}
+
+.cart-header h3,
+.cart-header h4 {
+  font-size: 19px !important;
+  line-height: 1.25 !important;
+  margin: 0 0 4px !important;
+}
+
+.cart-header p,
+.cart-header small {
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+}
+
+/* Isi keranjang diberi jarak */
+.cart-items,
+.cart-list,
+.order-items {
+  padding: 16px !important;
+  gap: 12px !important;
+}
+
+/* Bagian summary bawah */
+.cart-summary,
+.order-summary,
+.checkout-summary {
+  padding: 18px !important;
+  background: #ffffff !important;
+  border-top: 1px solid var(--ttm-border) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+/* Semua baris summary dibuat seperti row modern */
+.cart-summary-row,
+.cart-total-row,
+.order-summary-row,
+.checkout-summary-row,
+.cart-summary > div {
+  min-height: 42px !important;
+  padding: 10px 12px !important;
+  border-radius: 14px !important;
+  background: #f8fafc !important;
+  border: 1px solid var(--ttm-border) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  font-size: 12.5px !important;
+  line-height: 1.4 !important;
+}
+
+/* Label summary */
+.cart-summary-row span,
+.cart-total-row span,
+.order-summary-row span,
+.checkout-summary-row span,
+.cart-summary > div span,
+.cart-summary label {
+  color: var(--ttm-muted) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 1.4 !important;
+}
+
+/* Angka summary */
+.cart-summary-row strong,
+.cart-total-row strong,
+.order-summary-row strong,
+.checkout-summary-row strong,
+.cart-summary > div strong {
+  color: var(--ttm-text) !important;
+  font-size: 13.5px !important;
+  font-weight: 850 !important;
+  line-height: 1.4 !important;
+  text-align: right !important;
+}
+
+/* Input diskon jangan mepet */
+.cart-summary input,
+.order-summary input,
+.checkout-summary input,
+.discount-input,
+.discount-field input {
+  min-height: 40px !important;
+  border-radius: 14px !important;
+  padding: 0 12px !important;
+  font-size: 13px !important;
+}
+
+/* Field diskon kalau bentuknya wrapper */
+.discount-field,
+.discount-row,
+.cart-discount {
+  padding: 12px !important;
+  border-radius: 16px !important;
+  background: #f8fafc !important;
+  border: 1px solid var(--ttm-border) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+/* Grand total dibuat paling menonjol tapi tetap soft */
+.cart-grand-total,
+.grand-total,
+.payment-total,
+.order-total,
+.cart-summary > div:last-of-type {
+  min-height: 58px !important;
+  padding: 14px 16px !important;
+  border-radius: 18px !important;
+  background: var(--ttm-primary-soft) !important;
+  border: 1px solid rgba(47, 158, 115, 0.24) !important;
+}
+
+.cart-grand-total span,
+.grand-total span,
+.payment-total span,
+.order-total span,
+.cart-summary > div:last-of-type span {
+  color: var(--ttm-primary-dark) !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+}
+
+.cart-grand-total strong,
+.grand-total strong,
+.payment-total strong,
+.order-total strong,
+.cart-summary > div:last-of-type strong {
+  color: var(--ttm-primary-dark) !important;
+  font-size: 22px !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.04em !important;
+}
+
+/* Tombol bayar beri jarak dari summary */
+.pay-button,
+.finish-button {
+  margin-top: 4px !important;
+  min-height: 50px !important;
+  border-radius: 16px !important;
+  font-size: 14px !important;
+}
+
+/* Kalau tombol bayar disabled, jangan terlalu gelap */
+.pay-button:disabled,
+.finish-button:disabled {
+  background: #cbd5e1 !important;
+  color: #64748b !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+
+/* =========================================================
+   PHASE 5 — Variant Picker Modal
+   Produk varian dipilih lewat modal, bukan inline di card
+========================================================= */
+
+/* Card produk dibuat konsisten */
+.product-card,
+.product-card.has-variants,
+.product-card.no-variants {
+  min-height: 150px !important;
+  height: 150px !important;
+  max-height: 150px !important;
+  overflow: hidden !important;
+}
+
+/* Jika masih ada inline varian lama, sembunyikan */
+.cashier-variant-list,
+.variant-list,
+.product-variant-list {
+  display: none !important;
+}
+
+/* Tombol utama produk memenuhi card */
+.product-main-button {
+  height: 100% !important;
+  min-height: 100% !important;
+  padding: 14px !important;
+}
+
+/* Badge jumlah varian */
+.variant-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--ttm-primary-soft);
+  color: var(--ttm-primary-dark);
+  border: 1px solid rgba(47, 158, 115, 0.22);
+  font-size: 11px;
+  font-weight: 850;
+}
+
+/* Modal backdrop */
+.variant-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: rgba(15, 23, 42, 0.36);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* Modal box */
+.variant-picker-modal {
+  width: min(560px, 100%);
+  max-height: min(720px, 90vh);
+  overflow: auto;
+  background: #ffffff;
+  border: 1px solid var(--ttm-border);
+  border-radius: 28px;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.18);
+  padding: 22px;
+}
+
+/* Header modal */
+.variant-picker-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--ttm-border);
+}
+
+.variant-picker-header h3 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 850;
+  letter-spacing: -0.04em;
+  color: var(--ttm-text);
+}
+
+.variant-picker-header p {
+  margin: 5px 0 0;
+  color: var(--ttm-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Grid varian */
+.variant-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+/* Option varian */
+.variant-picker-option {
+  min-height: 82px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid var(--ttm-border);
+  background: #f8fafc;
+  color: var(--ttm-text);
+  cursor: pointer;
+  text-align: left;
+  transition: 0.18s ease;
+}
+
+.variant-picker-option:hover {
+  background: var(--ttm-primary-soft);
+  border-color: rgba(47, 158, 115, 0.3);
+  transform: translateY(-1px);
+}
+
+.variant-picker-option strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1.3;
+  color: var(--ttm-text);
+}
+
+.variant-picker-option span {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 750;
+  color: var(--ttm-muted);
+}
+
+.variant-picker-option em {
+  display: block;
+  margin-top: 8px;
+  font-style: normal;
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--ttm-primary-dark);
+}
+
+.variant-picker-option:disabled,
+.variant-picker-option.disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  background: #f1f5f9;
+  color: var(--ttm-muted);
+  transform: none;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .variant-picker-backdrop {
+    align-items: flex-end;
+    padding: 12px;
+  }
+
+  .variant-picker-modal {
+    border-radius: 24px 24px 18px 18px;
+    padding: 18px;
+  }
+
+  .variant-picker-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================================
+   PHASE 6 — Kasir Final Clean Fix
+   Fix:
+   1. Header Kasir terpotong
+   2. Product card lebih clean
+   3. Total Belanja tanpa kotak dan lebih besar
+========================================================= */
+
+
+/* =========================================================
+   1. HEADER "KASIR" JANGAN TERPOTONG
+========================================================= */
+
+.topbar,
+.page-header {
+  overflow: visible !important;
+  min-height: 72px !important;
+  padding-top: 18px !important;
+  padding-bottom: 18px !important;
+}
+
+.topbar h1,
+.topbar h2,
+.page-header h1,
+.page-header h2 {
+  line-height: 1.2 !important;
+  padding-bottom: 2px !important;
+  overflow: visible !important;
+}
+
+.main-content,
+.page-content,
+.app-content {
+  overflow: visible !important;
+}
+
+
+/* =========================================================
+   2. PRODUCT CARD KASIR LEBIH CLEAN
+========================================================= */
+
+/* Tinggi kartu dibuat konsisten dan tidak terlalu besar */
+.product-card,
+.product-card.has-variants,
+.product-card.no-variants {
+  height: 138px !important;
+  min-height: 138px !important;
+  max-height: 138px !important;
+  border-radius: 18px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Isi card ditata ulang */
+.product-main-button {
+  height: 100% !important;
+  min-height: 100% !important;
+  padding: 16px 16px 14px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: space-between !important;
+  text-align: left !important;
+}
+
+/* Nama produk */
+.product-main-button h4 {
+  min-height: auto !important;
+  max-height: 44px !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  color: var(--ttm-text) !important;
+  font-size: 13.5px !important;
+  line-height: 1.25 !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* Hilangkan tulisan kategori di bawah nama produk */
+.product-main-button p,
+.product-category,
+.product-meta,
+.menu-meta {
+  display: none !important;
+}
+
+/* Footer card: harga kiri bawah, stok kanan bawah */
+.product-card-footer {
+  margin-top: auto !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+
+/* Harga jangan terlalu mepet bawah */
+.product-card-footer strong,
+.product-price,
+.menu-price {
+  margin-bottom: 4px !important;
+  color: var(--ttm-primary-dark) !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.03em !important;
+}
+
+/* Hilangkan tulisan "5 VARIAN" pada produk yang punya varian */
+.product-card.has-variants .product-card-footer strong,
+.product-card:has(.variant-count-badge) .product-card-footer strong,
+.variant-count-badge {
+  display: none !important;
+}
+
+/* Stok kanan bawah diperbesar */
+.product-card-footer span,
+.stock-badge,
+.product-stock-badge {
+  min-width: 34px !important;
+  height: 30px !important;
+  padding: 0 10px !important;
+  border-radius: 999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: var(--ttm-primary-soft) !important;
+  color: var(--ttm-primary-dark) !important;
+  border: 1px solid rgba(47, 158, 115, 0.22) !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+}
+
+/* Stok 0 tetap merah */
+.product-main-button:disabled .product-card-footer span,
+.product-card.out-of-stock .product-card-footer span {
+  background: var(--ttm-danger-soft) !important;
+  color: #b42323 !important;
+  border-color: rgba(220, 69, 69, 0.2) !important;
+}
+
+/* Untuk produk varian, karena tulisan 5 varian dihilangkan,
+   stok tetap paksa ke kanan bawah */
+.product-card.has-variants .product-card-footer,
+.product-card:has(.variant-count-badge) .product-card-footer {
+  justify-content: flex-end !important;
+}
+
+
+/* =========================================================
+   3. SUMMARY TOTAL BELANJA: HILANGKAN KOTAK, PERBESAR
+========================================================= */
+
+/* Summary keranjang dibuat lebih lega */
+.cart-summary,
+.order-summary,
+.checkout-summary {
+  padding: 18px 18px 20px !important;
+  gap: 14px !important;
+}
+
+/* Baris subtotal dan diskon tetap clean */
+.cart-summary-row,
+.cart-total-row,
+.order-summary-row,
+.checkout-summary-row,
+.cart-summary > div {
+  min-height: 42px !important;
+  padding: 10px 4px !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Hilangkan kotak total belanja */
+.cart-grand-total,
+.grand-total,
+.payment-total,
+.order-total,
+.cart-summary > div:last-of-type {
+  min-height: auto !important;
+  padding: 14px 0 8px !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-top: 1px solid var(--ttm-border) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Label TOTAL BELANJA */
+.cart-grand-total span,
+.grand-total span,
+.payment-total span,
+.order-total span,
+.cart-summary > div:last-of-type span {
+  color: var(--ttm-muted) !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+/* Nominal TOTAL BELANJA diperbesar */
+.cart-grand-total strong,
+.grand-total strong,
+.payment-total strong,
+.order-total strong,
+.cart-summary > div:last-of-type strong {
+  color: var(--ttm-primary-dark) !important;
+  font-size: 28px !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.06em !important;
+  line-height: 1.1 !important;
+  text-align: right !important;
+}
+
+/* Input diskon lebih lega */
+.cart-summary input,
+.order-summary input,
+.checkout-summary input,
+.discount-input {
+  min-height: 42px !important;
+  padding: 0 14px !important;
+  border-radius: 14px !important;
+}
+
+/* Tombol bayar turun sedikit dan lebih clean */
+.pay-button,
+.finish-button {
+  margin-top: 8px !important;
+  min-height: 48px !important;
+  border-radius: 15px !important;
+}
+
+/* Keranjang - Total Belanja tanpa background */
+.cart-total-plain {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0 6px;
+  margin-top: 8px;
+  border-top: 1px solid var(--ttm-border);
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.cart-total-plain span {
+  color: var(--ttm-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cart-total-plain strong {
+  color: var(--ttm-text);
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
