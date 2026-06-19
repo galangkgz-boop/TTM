@@ -269,7 +269,7 @@
   }
 
   .topbar-actions {
-    max-width: 64%;
+    max-width: 62%;
   }
 }
 
@@ -297,56 +297,6 @@
     overflow-x: hidden;
     overflow-y: visible;
   }
-}
-
-@media (max-width: 900px) {
-  .app-shell {
-    grid-template-columns: 1fr;
-    height: auto;
-    min-height: 100dvh;
-    overflow: visible;
-  }
-
-  .sidebar {
-    position: relative;
-    height: auto;
-    border-radius: 0 0 24px 24px;
-  }
-
-  .main-content {
-    height: auto;
-    min-height: 100dvh;
-    overflow: visible;
-  }
-
-  .page-card {
-    overflow: visible;
-  }
-}
-
-@media (max-width: 1120px) {
-  .app-shell {
-    grid-template-columns: 1fr;
-  }
-
-  .sidebar {
-    position: relative;
-    height: auto;
-    min-height: auto;
-    border-radius: 0 0 28px 28px;
-  }
-
-  .menu-list {
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  }
-
-  .menu-item:hover {
-    transform: translateY(-1px);
-  }
-
-  .main-content {
-    padding: 14px;
-  }
 
   .topbar {
     align-items: flex-start;
@@ -354,34 +304,8 @@
   }
 
   .topbar-actions {
+    max-width: 100%;
     justify-content: flex-start;
-  }
-
-  .page-card {
-    min-height: auto;
-    padding: 16px;
-    border-radius: 24px;
-  }
-}
-
-@media (max-width: 700px) {
-  .sidebar {
-    padding: 14px;
-  }
-
-  .brand {
-    border-radius: 18px;
-  }
-
-  .menu-list {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .topbar h2 {
-    font-size: 23px;
-  }
-
-  .page-card {
-    padding: 14px;
+    flex-wrap: wrap;
   }
 }
