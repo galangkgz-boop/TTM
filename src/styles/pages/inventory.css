@@ -1,146 +1,127 @@
 /* =========================================================
-   TTM Inventory / Stok FIFO Premium
-   File: src/styles/pages/inventory.css
-   Theme: Match Kasir + Produk UI
+   TTM POS — Inventory / Stok FIFO
+   Clean soft modern, fluid, tidak melebar ke kanan.
 ========================================================= */
 
+.page-card:has(.inventory-table-wrap) {
+  overflow: hidden;
+}
 
-/* =========================================================
-   HEADER
-========================================================= */
+.page-card:has(.inventory-table-wrap) > div {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 1vw, 14px);
+  overflow: hidden;
+}
+
+/* =========================
+   Header
+========================= */
 
 .inventory-header {
+  flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
   display: grid;
-  grid-template-columns: minmax(280px, 1fr) auto;
-  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
   align-items: center;
-  margin-bottom: 16px;
 }
 
 .inventory-header h3 {
   margin: 0;
-  color: #0f172a;
-  font-size: clamp(28px, 2vw, 36px);
+  color: var(--ttm-text);
+  font-size: clamp(24px, 2vw, 34px);
   line-height: 1;
-  font-weight: 1000;
-  letter-spacing: -0.075em;
+  font-weight: 950;
+  letter-spacing: -0.06em;
 }
 
 .inventory-header .muted {
+  max-width: 760px;
   margin: 7px 0 0;
-  max-width: 680px;
-  color: #64748b;
-  font-size: 14px;
-  font-weight: 750;
+  color: var(--ttm-muted);
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .inventory-header-actions {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
-  gap: 10px;
-  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .inventory-header-actions button {
-  min-height: 44px;
-  padding: 0 18px;
+  min-height: 40px;
+  padding-inline: 14px;
   border-radius: 999px;
-  font-size: 13px;
-  font-weight: 1000;
+  font-size: 12px;
+  font-weight: 950;
+  white-space: nowrap;
 }
 
-.inventory-header-actions .primary-action-button {
-  background:
-    radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.35), transparent 36%),
-    linear-gradient(135deg, #22c55e, #16a34a);
-  color: #ffffff;
-  box-shadow: 0 13px 28px rgba(22, 163, 74, 0.24);
-}
-
-.inventory-header-actions .secondary-button {
-  background: #ffffff;
-  color: #334155;
-  border: 1px solid rgba(148, 163, 184, 0.38);
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
-}
-
-
-/* =========================================================
-   SUMMARY CARDS
-========================================================= */
+/* =========================
+   Summary
+========================= */
 
 .inventory-summary {
+  flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-  margin-bottom: 16px;
+  gap: clamp(9px, 1vw, 13px);
 }
 
 .inventory-summary > div {
   position: relative;
-  min-height: 118px;
+  min-width: 0;
+  min-height: clamp(86px, 11vh, 112px);
   overflow: hidden;
-  padding: 20px;
-  border-radius: 28px;
+  padding: clamp(14px, 1.2vw, 18px);
+  border-radius: clamp(18px, 1.8vw, 26px);
   background:
-    radial-gradient(circle at 100% 0%, rgba(34, 197, 94, 0.12), transparent 34%),
-    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-  border: 1px solid rgba(203, 213, 225, 0.92);
-  box-shadow:
-    0 16px 38px rgba(15, 23, 42, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-.inventory-summary > div::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 6px;
-  background: linear-gradient(180deg, #22c55e, #16a34a);
+    radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.09), transparent 38%),
+    linear-gradient(180deg, #ffffff, #f8fafc);
+  border: 1px solid var(--ttm-border-soft);
+  box-shadow: var(--ttm-shadow-xs);
 }
 
 .inventory-summary > div::after {
   content: "";
   position: absolute;
-  right: -42px;
+  right: -44px;
   bottom: -54px;
-  width: 128px;
-  height: 128px;
+  width: 126px;
+  height: 126px;
   border-radius: 999px;
-  background: rgba(34, 197, 94, 0.09);
-}
-
-.inventory-summary > div:nth-child(2)::before {
-  background: linear-gradient(180deg, #2563eb, #1d4ed8);
+  background: rgba(37, 99, 235, 0.07);
 }
 
 .inventory-summary > div:nth-child(2)::after {
-  background: rgba(37, 99, 235, 0.1);
-}
-
-.inventory-summary > div:nth-child(3)::before {
-  background: linear-gradient(180deg, #f97316, #ea580c);
+  background: rgba(22, 163, 74, 0.08);
 }
 
 .inventory-summary > div:nth-child(3)::after {
-  background: rgba(249, 115, 22, 0.11);
-}
-
-.inventory-summary > div:nth-child(4)::before {
-  background: linear-gradient(180deg, #7c3aed, #6d28d9);
+  background: rgba(245, 158, 11, 0.1);
 }
 
 .inventory-summary > div:nth-child(4)::after {
-  background: rgba(124, 58, 237, 0.1);
+  background: rgba(124, 58, 237, 0.08);
 }
 
 .inventory-summary span {
   position: relative;
   z-index: 1;
   display: block;
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 1000;
+  color: var(--ttm-muted);
+  font-size: 11px;
+  font-weight: 950;
   letter-spacing: 0.07em;
   text-transform: uppercase;
 }
@@ -149,387 +130,331 @@
   position: relative;
   z-index: 1;
   display: block;
-  margin-top: 12px;
-  color: #0f172a;
-  font-size: clamp(28px, 2.1vw, 38px);
-  line-height: 0.98;
-  font-weight: 1000;
-  letter-spacing: -0.08em;
+  margin-top: 10px;
+  color: var(--ttm-text);
+  font-size: clamp(22px, 2vw, 34px);
+  line-height: 1;
+  font-weight: 950;
+  letter-spacing: -0.065em;
 }
 
-
-/* =========================================================
-   SECTION
-========================================================= */
+/* =========================
+   Sections
+========================= */
 
 .inventory-section {
-  margin-top: 16px;
-  padding: 16px;
-  border-radius: 30px;
-  background:
-    radial-gradient(circle at 100% 0%, rgba(34, 197, 94, 0.08), transparent 30%),
-    linear-gradient(180deg, #eef2f7 0%, #f8fafc 100%);
-  border: 1px solid rgba(203, 213, 225, 0.95);
-  box-shadow:
-    0 18px 45px rgba(15, 23, 42, 0.09),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-.inventory-section .section-title {
+  min-width: 0;
+  min-height: 0;
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 14px;
-  margin-bottom: 14px;
+  flex-direction: column;
+  gap: 12px;
+  padding: clamp(12px, 1vw, 16px);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--ttm-border-soft);
+  box-shadow: var(--ttm-shadow-xs);
 }
 
-.inventory-section .section-title h4 {
+.inventory-section:first-of-type {
+  flex: 0 0 auto;
+  max-height: 34%;
+}
+
+.inventory-section:last-of-type {
+  flex: 1 1 auto;
+}
+
+.section-title {
+  flex: 0 0 auto;
   margin: 0;
-  color: #0f172a;
-  font-size: 20px;
+}
+
+.section-title h4 {
+  margin: 0;
+  color: var(--ttm-text);
+  font-size: 18px;
   line-height: 1.1;
-  font-weight: 1000;
-  letter-spacing: -0.055em;
+  font-weight: 950;
+  letter-spacing: -0.045em;
 }
 
-.inventory-section .section-title p {
+.section-title p {
   margin: 5px 0 0;
-  color: #64748b;
+  color: var(--ttm-muted);
   font-size: 13px;
-  font-weight: 750;
+  font-weight: 700;
 }
 
-
-/* =========================================================
-   TABLE WRAPPER
-========================================================= */
+/* =========================
+   Tables
+========================= */
 
 .inventory-table-wrap {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
   overflow: auto;
   padding: 10px;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(203, 213, 225, 0.9);
+  border-radius: 22px;
+  background: #f8fafc;
+  border: 1px solid var(--ttm-border-soft);
+  box-shadow: var(--ttm-shadow-xs);
 }
 
 .inventory-table {
   width: 100%;
-  min-width: 920px;
+  min-width: 760px;
   border-collapse: separate;
-  border-spacing: 0 10px;
+  border-spacing: 0 8px;
 }
 
-.inventory-table th {
+.inventory-table thead th {
   position: sticky;
   top: 0;
-  z-index: 5;
-  padding: 12px 15px;
-  background: #0f172a;
+  z-index: 4;
+  padding: 11px 13px;
   color: rgba(255, 255, 255, 0.78);
-  font-size: 11px;
-  font-weight: 1000;
+  background: #0f172a;
+  font-size: 10.5px;
+  font-weight: 950;
   letter-spacing: 0.08em;
   text-align: left;
   text-transform: uppercase;
 }
 
-.inventory-table th:first-child {
-  border-top-left-radius: 18px;
-  border-bottom-left-radius: 18px;
+.inventory-table thead th:first-child {
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
 }
 
-.inventory-table th:last-child {
-  border-top-right-radius: 18px;
-  border-bottom-right-radius: 18px;
+.inventory-table thead th:last-child {
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
 }
 
 .inventory-table tbody tr {
   transition:
-    transform 150ms ease,
-    opacity 150ms ease;
+    transform var(--ttm-transition),
+    opacity var(--ttm-transition);
 }
 
 .inventory-table tbody tr:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
-.inventory-table td {
-  padding: 15px 15px;
+.inventory-table tbody td {
+  padding: 13px;
+  color: var(--ttm-text-soft);
   background: #ffffff;
-  border-top: 1px solid rgba(203, 213, 225, 0.88);
-  border-bottom: 1px solid rgba(203, 213, 225, 0.88);
-  color: #334155;
-  font-size: 13px;
-  font-weight: 850;
+  border-top: 1px solid rgba(226, 232, 240, 0.9);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+  font-size: 12.5px;
+  font-weight: 800;
   vertical-align: middle;
-  box-shadow: 0 9px 22px rgba(15, 23, 42, 0.055);
 }
 
-.inventory-table td:first-child {
-  border-left: 1px solid rgba(203, 213, 225, 0.88);
-  border-top-left-radius: 20px;
-  border-bottom-left-radius: 20px;
-  box-shadow:
-    inset 5px 0 0 #22c55e,
-    0 9px 22px rgba(15, 23, 42, 0.055);
+.inventory-table tbody td:first-child {
+  border-left: 1px solid rgba(226, 232, 240, 0.9);
+  border-top-left-radius: 17px;
+  border-bottom-left-radius: 17px;
 }
 
-.inventory-table td:last-child {
-  border-right: 1px solid rgba(203, 213, 225, 0.88);
-  border-top-right-radius: 20px;
-  border-bottom-right-radius: 20px;
+.inventory-table tbody td:last-child {
+  border-right: 1px solid rgba(226, 232, 240, 0.9);
+  border-top-right-radius: 17px;
+  border-bottom-right-radius: 17px;
 }
 
 .inventory-table td strong {
   display: block;
-  color: #0f172a;
-  font-size: 14px;
-  font-weight: 1000;
-  line-height: 1.18;
-  letter-spacing: -0.035em;
+  color: var(--ttm-text);
+  font-size: 13.5px;
+  font-weight: 950;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
   text-transform: uppercase;
 }
 
-.inventory-table td span {
+.inventory-table td span:not(.batch-status) {
   display: block;
-  margin-top: 5px;
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 850;
-  text-transform: uppercase;
+  margin-top: 4px;
+  color: var(--ttm-muted);
+  font-size: 11px;
+  font-weight: 750;
 }
 
-/* Kolom angka dibuat tegas */
-.inventory-table td:nth-child(3),
 .inventory-table td:nth-child(4),
 .inventory-table td:nth-child(5),
-.inventory-table td:nth-child(6),
-.inventory-table td:nth-child(7) {
-  font-weight: 1000;
-}
-
-/* Harga / nilai stok hijau */
-.inventory-table td:nth-child(5),
-.inventory-table td:nth-child(8) {
-  color: #15803d;
+.inventory-table td:nth-child(6) {
   white-space: nowrap;
 }
 
-
-/* =========================================================
-   BATCH STATUS
-========================================================= */
-
 .empty-batch-row {
-  opacity: 0.72;
+  opacity: 0.58;
 }
 
-.empty-batch-row td:first-child {
-  box-shadow:
-    inset 5px 0 0 #ef4444,
-    0 9px 22px rgba(15, 23, 42, 0.055);
-}
-
-.empty-batch-row td {
-  background:
-    repeating-linear-gradient(
-      -45deg,
-      rgba(239, 68, 68, 0.035),
-      rgba(239, 68, 68, 0.035) 8px,
-      rgba(255, 255, 255, 0.86) 8px,
-      rgba(255, 255, 255, 0.86) 16px
-    );
-}
+/* =========================
+   Batch Status
+========================= */
 
 .batch-status {
-  display: inline-flex !important;
+  min-height: 28px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 30px;
-  width: fit-content;
-  margin: 0 !important;
+  padding: 5px 10px;
   border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 11.5px !important;
-  font-weight: 1000 !important;
-  letter-spacing: 0.02em;
+  font-size: 11px;
+  font-weight: 950;
   text-transform: uppercase;
   white-space: nowrap;
 }
 
 .batch-status.active {
-  background: #dcfce7;
-  color: #15803d !important;
-  border: 1px solid rgba(34, 197, 94, 0.24);
+  color: var(--ttm-success-dark);
+  background: var(--ttm-success-soft);
+  border: 1px solid rgba(22, 163, 74, 0.2);
 }
 
 .batch-status.empty {
-  background: #fee2e2;
-  color: #b91c1c !important;
-  border: 1px solid rgba(239, 68, 68, 0.26);
+  color: var(--ttm-danger-dark);
+  background: var(--ttm-danger-soft);
+  border: 1px solid rgba(220, 38, 38, 0.18);
 }
 
-
-/* =========================================================
-   EMPTY STATE
-========================================================= */
+/* =========================
+   Empty
+========================= */
 
 .empty-state {
+  flex: 0 0 auto;
+  min-height: 120px;
   display: grid;
   place-items: center;
-  min-height: 130px;
   padding: 22px;
-  border-radius: 24px;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.12), transparent 36%),
-    linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
-  border: 1px dashed rgba(34, 197, 94, 0.38);
-  color: #166534;
-  font-size: 15px;
-  font-weight: 1000;
+  border-radius: 22px;
+  color: var(--ttm-success-dark);
+  background: var(--ttm-success-soft);
+  border: 1px dashed rgba(22, 163, 74, 0.32);
+  font-size: 14px;
+  font-weight: 950;
   text-align: center;
 }
 
-
-/* =========================================================
-   STOCK BATCH MODAL
-========================================================= */
+/* =========================
+   Stock Batch Modal
+========================= */
 
 .stock-batch-modal {
-  width: min(720px, calc(100vw - 28px));
-  max-height: calc(100vh - 32px);
+  width: min(560px, calc(100vw - 28px));
+  max-height: calc(100dvh - 32px);
   overflow-y: auto;
-  border-radius: 32px;
+  border-radius: 28px;
   background: #ffffff;
-  border: 1px solid rgba(203, 213, 225, 0.95);
-  box-shadow: 0 30px 90px rgba(15, 23, 42, 0.3);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  box-shadow: var(--ttm-shadow-lg);
 }
 
 .stock-batch-modal .modal-header {
-  padding: 21px 24px;
+  padding: 20px 22px;
   color: #ffffff;
   background:
-    radial-gradient(circle at 100% 0%, rgba(34, 197, 94, 0.44), transparent 35%),
-    linear-gradient(135deg, #020617 0%, #0f172a 60%, #14532d 100%);
+    radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.28), transparent 36%),
+    linear-gradient(135deg, #0f172a, #1e293b);
   border-bottom: 0;
 }
 
 .stock-batch-modal .modal-header h3 {
   margin: 0;
   color: #ffffff;
-  font-size: 25px;
-  font-weight: 1000;
-  letter-spacing: -0.06em;
+  font-size: 24px;
+  font-weight: 950;
+  letter-spacing: -0.055em;
 }
 
 .stock-batch-modal .modal-header p {
   margin: 6px 0 0;
   color: rgba(255, 255, 255, 0.68);
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 750;
 }
 
 .stock-batch-modal .modal-header button {
   color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
-
-/* =========================================================
-   BATCH FORM
-========================================================= */
+/* Form */
 
 .batch-form {
   display: grid;
-  gap: 14px;
-  padding: 22px 24px 24px;
+  gap: 13px;
+  padding: 20px 22px 22px;
 }
 
 .batch-form label {
   display: grid;
-  gap: 8px;
-  color: #475569;
+  gap: 7px;
+  color: var(--ttm-text-soft);
   font-size: 12px;
-  font-weight: 1000;
-  letter-spacing: 0.055em;
+  font-weight: 950;
+  letter-spacing: 0.045em;
   text-transform: uppercase;
 }
 
 .batch-form input,
 .batch-form select {
-  min-height: 48px;
-  padding: 0 15px;
-  border-radius: 17px;
-  border: 1px solid rgba(148, 163, 184, 0.48);
+  min-height: 45px;
+  padding: 0 13px;
+  border-radius: 15px;
+  border: 1px solid var(--ttm-border);
   background: #ffffff;
-  color: #0f172a;
-  font-size: 15px;
-  font-weight: 900;
-  outline: none;
-  transition:
-    border-color 150ms ease,
-    box-shadow 150ms ease;
+  color: var(--ttm-text);
+  font-size: 14px;
+  font-weight: 850;
 }
 
-.batch-form select {
-  cursor: pointer;
-}
-
-.batch-form input:focus,
-.batch-form select:focus {
-  border-color: rgba(34, 197, 94, 0.65);
-  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.13);
-}
-
-.batch-form-actions {
+.stock-batch-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  margin-top: 8px;
+  gap: 9px;
+  margin-top: 5px;
 }
 
-.batch-form-actions button {
-  min-height: 43px;
-  border-radius: 16px;
-  font-weight: 1000;
+.stock-batch-actions button {
+  min-height: 42px;
+  border-radius: 15px;
+  font-weight: 950;
 }
 
-
-/* =========================================================
-   DESKTOP SCROLL BEHAVIOR
-========================================================= */
-
-@media (min-width: 1100px) {
-  .page-card:has(.inventory-table-wrap) {
-    height: calc(100dvh - 92px) !important;
-    min-height: 0 !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-  }
-
-  .page-card:has(.inventory-table-wrap) > div {
-    min-height: 0 !important;
-  }
-
-  .inventory-table-wrap {
-    max-height: 390px;
-    overflow: auto !important;
-  }
-
-  .inventory-table thead th {
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 6 !important;
-  }
-}
-
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
+/* =========================
+   Responsive
+========================= */
 
 @media (max-width: 1180px) {
   .inventory-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .inventory-section:first-of-type {
+    max-height: 38%;
+  }
+
+  .inventory-table {
+    min-width: 720px;
+  }
+}
+
+@media (max-width: 920px) {
+  .page-card:has(.inventory-table-wrap) {
+    overflow-y: auto;
+  }
+
+  .page-card:has(.inventory-table-wrap) > div {
+    height: auto;
+    overflow: visible;
   }
 
   .inventory-header {
@@ -538,43 +463,43 @@
 
   .inventory-header-actions {
     justify-content: flex-start;
+    flex-wrap: wrap;
   }
-}
 
-@media (max-width: 720px) {
   .inventory-summary {
     grid-template-columns: 1fr;
   }
 
-  .inventory-section {
-    padding: 12px;
-    border-radius: 22px;
-  }
-
-  .inventory-header-actions {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-
-  .inventory-header-actions button {
-    width: 100%;
+  .inventory-section:first-of-type,
+  .inventory-section:last-of-type {
+    max-height: none;
+    flex: 0 0 auto;
   }
 
   .inventory-table-wrap {
-    border-radius: 20px;
-    padding: 8px;
+    max-height: 420px;
+  }
+}
+
+@media (max-width: 620px) {
+  .inventory-table {
+    min-width: 680px;
   }
 
-  .inventory-table {
-    min-width: 860px;
+  .inventory-table-wrap {
+    padding: 8px;
+    border-radius: 20px;
+  }
+
+  .stock-batch-modal {
+    border-radius: 24px;
   }
 
   .batch-form {
     padding: 18px;
   }
 
-  .batch-form-actions {
-    display: grid;
-    grid-template-columns: 1fr;
+  .stock-batch-actions {
+    flex-direction: column-reverse;
   }
 }
