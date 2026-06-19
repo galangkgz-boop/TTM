@@ -1,53 +1,60 @@
 /* =========================================================
-   TTM Clean POS UI — Phase 1
-   Scope: global tokens, reset, cards, forms, tables, helpers
-   ========================================================= */
+   TTM POS — Base
+   Token warna, reset global, form, table, card dasar.
+========================================================= */
 
 :root {
-  --ttm-font-main: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --ttm-font-main: Inter, ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
 
   --ttm-bg: #f6f8fb;
-  --ttm-bg-soft: #eef4f8;
+  --ttm-bg-soft: #eef4ff;
   --ttm-surface: #ffffff;
   --ttm-surface-soft: #f8fafc;
   --ttm-surface-muted: #f1f5f9;
-  --ttm-border: #e2e8f0;
-  --ttm-border-strong: #cbd5e1;
 
   --ttm-text: #0f172a;
   --ttm-text-soft: #334155;
   --ttm-muted: #64748b;
   --ttm-muted-soft: #94a3b8;
 
-  --ttm-primary: #16a34a;
-  --ttm-primary-hover: #15803d;
-  --ttm-primary-dark: #14532d;
-  --ttm-primary-soft: #dcfce7;
-  --ttm-primary-tint: rgba(22, 163, 74, 0.12);
+  --ttm-border: #e2e8f0;
+  --ttm-border-soft: rgba(148, 163, 184, 0.24);
+  --ttm-border-strong: #cbd5e1;
 
-  --ttm-info: #2563eb;
-  --ttm-info-soft: #dbeafe;
+  --ttm-primary: #2563eb;
+  --ttm-primary-hover: #1d4ed8;
+  --ttm-primary-dark: #1e3a8a;
+  --ttm-primary-soft: #dbeafe;
+
+  --ttm-success: #16a34a;
+  --ttm-success-dark: #14532d;
+  --ttm-success-soft: #dcfce7;
+
   --ttm-warning: #d97706;
+  --ttm-warning-dark: #92400e;
   --ttm-warning-soft: #fef3c7;
+
   --ttm-danger: #dc2626;
+  --ttm-danger-dark: #991b1b;
   --ttm-danger-soft: #fee2e2;
 
   --ttm-radius-xs: 8px;
-  --ttm-radius-sm: 10px;
-  --ttm-radius-md: 14px;
-  --ttm-radius-lg: 20px;
-  --ttm-radius-xl: 28px;
+  --ttm-radius-sm: 12px;
+  --ttm-radius-md: 16px;
+  --ttm-radius-lg: 22px;
+  --ttm-radius-xl: 30px;
   --ttm-radius-pill: 999px;
 
-  --ttm-shadow-xs: 0 2px 8px rgba(15, 23, 42, 0.04);
-  --ttm-shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.06);
-  --ttm-shadow-md: 0 18px 46px rgba(15, 23, 42, 0.10);
-  --ttm-shadow-lg: 0 28px 80px rgba(15, 23, 42, 0.18);
+  --ttm-shadow-xs: 0 4px 14px rgba(15, 23, 42, 0.04);
+  --ttm-shadow-sm: 0 12px 32px rgba(15, 23, 42, 0.07);
+  --ttm-shadow-md: 0 22px 56px rgba(15, 23, 42, 0.11);
+  --ttm-shadow-lg: 0 34px 90px rgba(15, 23, 42, 0.18);
 
   --ttm-transition-fast: 120ms ease;
   --ttm-transition: 160ms ease;
 
-  /* Compatibility with existing CSS names */
+  /* Compatibility untuk class CSS lama */
   --bg: var(--ttm-bg);
   --surface: var(--ttm-surface);
   --surface-soft: var(--ttm-surface-soft);
@@ -61,41 +68,111 @@
   --danger-soft: var(--ttm-danger-soft);
   --warning: var(--ttm-warning);
   --warning-soft: var(--ttm-warning-soft);
-  --info: var(--ttm-info);
-  --info-soft: var(--ttm-info-soft);
   --shadow-sm: var(--ttm-shadow-sm);
   --shadow-md: var(--ttm-shadow-md);
   --radius: var(--ttm-radius-md);
   --radius-lg: var(--ttm-radius-lg);
 }
 
-* {
+•⁠  ⁠{
   box-sizing: border-box;
 }
 
-html {
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
   min-height: 100%;
-  scroll-behavior: smooth;
+  max-width: 100%;
+  overflow: hidden;
 }
 
-html,
 body {
   margin: 0;
   min-width: 320px;
-  min-height: 100%;
-}
-
-body {
-  background:
-    radial-gradient(circle at top left, rgba(22, 163, 74, 0.10), transparent 30rem),
-    radial-gradient(circle at top right, rgba(37, 99, 235, 0.08), transparent 28rem),
-    linear-gradient(180deg, #fbfdff 0%, var(--ttm-bg) 42%, var(--ttm-bg-soft) 100%);
+  width: 100%;
+  max-width: 100%;
   color: var(--ttm-text);
   font-family: var(--ttm-font-main);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 34rem),
+    radial-gradient(circle at top right, rgba(22, 163, 74, 0.1), transparent 30rem),
+    linear-gradient(135deg, #fbfdff 0%, var(--ttm-bg) 54%, var(--ttm-bg-soft) 100%);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+  overflow: hidden;
+}
+
+/* =========================================================
+   Global Anti Overflow
+   Supaya semua halaman tidak melebar ke kanan.
+========================================================= */
+
+.app-shell,
+.sidebar,
+.main-content,
+.topbar,
+.topbar-actions,
+.page-card,
+.dashboard-page,
+.cashier-page,
+.products-page,
+.inventory-page,
+.history-page,
+.reports-page,
+.settings-page,
+.dashboard-grid,
+.dashboard-hero-grid,
+.dashboard-summary,
+.products-summary,
+.inventory-summary,
+.history-summary,
+.reports-summary,
+.cashier-layout,
+.cashier-main,
+.cashier-grid,
+.cashier-content-grid,
+.cashier-workspace,
+.products-section,
+.inventory-section,
+.history-section,
+.reports-section,
+.settings-section,
+.product-panel,
+.products-panel,
+.cashier-products,
+.cashier-products-panel,
+.cashier-cart,
+.cart-panel,
+.cart-section,
+.cashier-cart-panel {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.page-card > *,
+.dashboard-page > *,
+.cashier-page > *,
+.products-page > *,
+.inventory-page > *,
+.history-page > *,
+.reports-page > *,
+.settings-page > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.products-table-wrap,
+.inventory-table-wrap,
+.reports-table-wrap,
+.history-table-wrap,
+.table-wrap,
+.dashboard-table-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 button,
@@ -112,14 +189,16 @@ button {
 
 button:disabled,
 input:disabled,
-select:disabled,
-textarea:disabled {
+textarea:disabled,
+select:disabled {
   cursor: not-allowed;
-  opacity: 0.68;
+  opacity: 0.65;
 }
 
-a {
-  color: inherit;
+img,
+svg {
+  display: block;
+  max-width: 100%;
 }
 
 h1,
@@ -131,18 +210,16 @@ p {
   margin-top: 0;
 }
 
-img,
-svg {
-  display: block;
-  max-width: 100%;
+a {
+  color: inherit;
 }
 
 ::selection {
-  background: rgba(22, 163, 74, 0.18);
+  background: rgba(37, 99, 235, 0.16);
 }
 
 /* Scrollbar */
-* {
+•⁠  ⁠{
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
 }
@@ -170,15 +247,27 @@ input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
 [role="button"]:focus-visible {
-  outline: 3px solid rgba(22, 163, 74, 0.20);
+  outline: 3px solid rgba(37, 99, 235, 0.18);
   outline-offset: 2px;
 }
 
-/* Shared page sections */
+/* Shared text */
+.muted {
+  margin: 0;
+  color: var(--ttm-muted);
+}
+
+.danger-text {
+  color: var(--ttm-danger);
+  font-weight: 850;
+}
+
+/* Shared headings */
 .page-header,
 .section-header,
 .panel-header,
-.card-header {
+.card-header,
+.section-title {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -188,30 +277,24 @@ textarea:focus-visible,
 .page-header h3,
 .section-header h3,
 .panel-header h3,
-.card-header h3 {
+.card-header h3,
+.section-title h3,
+.section-title h4 {
   margin: 0;
   color: var(--ttm-text);
-  letter-spacing: -0.035em;
+  letter-spacing: -0.04em;
 }
 
 .page-header p,
 .section-header p,
 .panel-header p,
 .card-header p,
-.muted {
+.section-title p {
+  margin: 5px 0 0;
   color: var(--ttm-muted);
 }
 
-.muted {
-  margin: 0;
-}
-
-.danger-text {
-  color: var(--ttm-danger);
-  font-weight: 800;
-}
-
-/* Universal card treatment */
+/* Shared cards */
 .dashboard-summary > div,
 .history-summary > div,
 .reports-summary > div,
@@ -223,12 +306,15 @@ textarea:focus-visible,
 .cashier-session-card,
 .report-card,
 .settings-card,
+.settings-section,
 .info-card,
-.empty-state {
-  border: 1px solid var(--ttm-border);
+.empty-state,
+.empty-cart {
+  border: 1px solid var(--ttm-border-soft);
   border-radius: var(--ttm-radius-lg);
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: var(--ttm-shadow-sm);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.94));
+  box-shadow: var(--ttm-shadow-xs);
 }
 
 .dashboard-summary strong,
@@ -238,7 +324,7 @@ textarea:focus-visible,
 .inventory-summary strong,
 .payment-summary strong {
   color: var(--ttm-text);
-  letter-spacing: -0.045em;
+  letter-spacing: -0.05em;
 }
 
 .dashboard-summary span,
@@ -250,21 +336,33 @@ textarea:focus-visible,
   color: var(--ttm-muted);
 }
 
-/* Shared forms */
+/* Forms */
+label {
+  display: grid;
+  gap: 7px;
+  color: var(--ttm-text-soft);
+  font-size: 13px;
+  font-weight: 850;
+}
+
 input,
 select,
 textarea {
   width: 100%;
+  min-height: 43px;
+  padding: 10px 12px;
   border: 1px solid var(--ttm-border);
   border-radius: var(--ttm-radius-md);
-  background: #ffffff;
   color: var(--ttm-text);
-  min-height: 42px;
-  padding: 10px 12px;
+  background: #ffffff;
   transition:
     border-color var(--ttm-transition),
     box-shadow var(--ttm-transition),
     background var(--ttm-transition);
+}
+
+textarea {
+  resize: vertical;
 }
 
 input:hover,
@@ -276,15 +374,9 @@ textarea:hover {
 input:focus,
 select:focus,
 textarea:focus {
-  border-color: rgba(22, 163, 74, 0.60);
-  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.10);
   outline: none;
-}
-
-label {
-  color: var(--ttm-text-soft);
-  font-size: 13px;
-  font-weight: 850;
+  border-color: rgba(37, 99, 235, 0.58);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 }
 
 .form-grid {
@@ -294,24 +386,26 @@ label {
 }
 
 .form-actions,
-.modal-actions {
+.modal-actions,
+.settings-actions {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
   margin-top: 18px;
 }
 
-/* Shared table treatment */
+/* Tables */
 .products-table-wrap,
 .inventory-table-wrap,
 .reports-table-wrap,
 .history-table-wrap,
 .table-wrap {
+  width: 100%;
   overflow: hidden;
-  border: 1px solid var(--ttm-border);
+  border: 1px solid var(--ttm-border-soft);
   border-radius: var(--ttm-radius-lg);
   background: #ffffff;
-  box-shadow: var(--ttm-shadow-sm);
+  box-shadow: var(--ttm-shadow-xs);
 }
 
 .products-table,
@@ -328,8 +422,10 @@ label {
 .reports-table th,
 .history-table th,
 .data-table th {
-  background: #f8fafc;
+  padding: 13px 14px;
   color: var(--ttm-muted);
+  background: #f8fafc;
+  border-bottom: 1px solid var(--ttm-border);
   font-size: 11px;
   font-weight: 950;
   letter-spacing: 0.07em;
@@ -337,18 +433,14 @@ label {
   text-transform: uppercase;
 }
 
-.products-table th,
 .products-table td,
-.inventory-table th,
 .inventory-table td,
-.reports-table th,
 .reports-table td,
-.history-table th,
 .history-table td,
-.data-table th,
 .data-table td {
   padding: 13px 14px;
-  border-bottom: 1px solid var(--ttm-border);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.82);
+  color: var(--ttm-text-soft);
   vertical-align: middle;
 }
 
@@ -376,73 +468,32 @@ label {
   border-bottom: 0;
 }
 
-/* Badges / pills */
-.badge,
-.status-badge,
-.sync-badge,
-.stock-badge,
-.connection-pill,
-.supabase-pill,
-.cashier-status-pill,
-.date-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 28px;
-  border-radius: var(--ttm-radius-pill);
-  padding: 6px 10px;
-  border: 1px solid var(--ttm-border);
-  background: var(--ttm-surface-soft);
-  color: var(--ttm-text-soft);
-  font-size: 12px;
-  font-weight: 850;
-  white-space: nowrap;
-}
-
-.status-badge.active,
-.sync-badge.success,
-.connection-pill.online,
-.supabase-pill.connected,
-.cashier-status-pill.open {
-  border-color: rgba(22, 163, 74, 0.22);
-  background: var(--ttm-primary-soft);
-  color: var(--ttm-primary-dark);
-}
-
-.status-badge.inactive,
-.sync-badge.failed,
-.connection-pill.offline,
-.supabase-pill.failed,
-.cashier-status-pill.closed {
-  border-color: rgba(220, 38, 38, 0.18);
-  background: var(--ttm-danger-soft);
-  color: #991b1b;
-}
-
-.sync-badge.pending,
-.stock-badge.low,
-.supabase-pill.checking {
-  border-color: rgba(217, 119, 6, 0.20);
-  background: var(--ttm-warning-soft);
-  color: #92400e;
-}
-
+/* Empty */
 .empty-state,
 .empty-cart {
-  padding: 22px;
+  padding: 24px;
   color: var(--ttm-muted);
   text-align: center;
 }
 
+/* Responsive base */
 @media (max-width: 760px) {
   .form-grid {
     grid-template-columns: 1fr;
   }
 
   .form-actions,
-  .modal-actions {
+  .modal-actions,
+  .settings-actions {
     flex-direction: column-reverse;
+  }
+
+  .products-table-wrap,
+  .inventory-table-wrap,
+  .reports-table-wrap,
+  .history-table-wrap,
+  .table-wrap {
+    overflow-x: auto;
   }
 }
 
@@ -454,9 +505,8 @@ label {
   *,
   *::before,
   *::after {
+    transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
   }
 }

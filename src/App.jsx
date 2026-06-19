@@ -2356,6 +2356,23 @@ const [variantPickerProduct, setVariantPickerProduct] = useState(null);
   const safeDiscountAmount = isDiscountTooLarge ? 0 : numericDiscountAmount;
   const cartTotal = Math.max(cartSubtotal - safeDiscountAmount, 0);
 
+  const isCashierOpen = cashierSession?.isOpen === true;
+
+useEffect(() => {
+  if (isCashierOpen === false) {
+    setCart([]);
+    setDiscountAmount("");
+    setPaymentMethod("Cash");
+    setCashReceived("");
+    setCustomerName("");
+    setCustomerPhone("");
+    setDebtNote("");
+    setDueDate("");
+    setVariantPickerProduct(null);
+    setIsPaymentOpen(false);
+  }
+}, [isCashierOpen]);
+
   const numericCashReceived = Number(cashReceived || 0);
 const isDebtPayment = paymentMethod === "Hutang";
 const debtAmount = isDebtPayment
@@ -2446,6 +2463,11 @@ function formatVariantShortLabel(variant) {
 }
 
 function handleProductClick(product) {
+  if (isCashierOpen === false) {
+    alert("Kasir belum dibuka. Buka kasir dari Dashboard terlebih dahulu.");
+    return;
+  }
+
   const productVariantsForCashier = activeVariantsByProductId[product.id] || [];
 
   if (productVariantsForCashier.length > 0) {
@@ -2457,11 +2479,21 @@ function handleProductClick(product) {
 }
 
 function handleVariantClick(product, variant) {
+  if (isCashierOpen === false) {
+    alert("Kasir belum dibuka. Buka kasir dari Dashboard terlebih dahulu.");
+    return;
+  }
+
   addToCart(product, variant);
   setVariantPickerProduct(null);
 }
 
 function addToCart(product, variant) {
+  if (isCashierOpen === false) {
+    alert("Kasir belum dibuka. Buka kasir dari Dashboard terlebih dahulu.");
+    return;
+  }
+
   const selectedVariant = variant || null;
   const qtyMultiplier = selectedVariant ? Number(selectedVariant.qtyMultiplier || 1) : 1;
 
@@ -2531,6 +2563,10 @@ if (existingItem) {
 }
 
 function increaseQty(cartItemId) {
+  if (isCashierOpen === false) {
+    return;
+  }
+
   setCart((currentCart) => {
     const selectedItem = currentCart.find(
       (item) => item.cartItemId === cartItemId
@@ -2718,190 +2754,297 @@ setIsPaymentOpen(false);
 }
 
   return (
-    <div>
-      {!cashierSession.isOpen ? (
-  <div className="cashier-closed-warning">
-    <strong>Kasir belum dibuka</strong>
-    <p>Buka kasir dari Dashboard sebelum melakukan transaksi.</p>
-  </div>
-) : null}
-      <div className="cashier-header">
+  <div className="cashier-page">
+    {!cashierSession.isOpen ? (
+      <div className="cashier-closed-alert">
         <div>
-          <h3>Kasir</h3>
-          <p className="muted">
-            Pilih produk, masukkan ke keranjang, lalu cek total belanja.
-          </p>
-        </div>
-
-        <div className="cashier-total-box">
-          <span>Total Setelah Diskon</span>
-          <strong>{formatRupiah(cartTotal)}</strong>
+          <strong>Kasir belum dibuka</strong>
+          <p>Buka kasir dari Dashboard sebelum melakukan transaksi.</p>
         </div>
       </div>
+    ) : null}
 
-      <div className="cashier-layout">
-        <div className="product-area">
-          <div className="product-toolbar">
-            <input
-              type="search"
-              placeholder="Cari produk..."
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-            />
-          </div>
+    <div className="cashier-header-card">
+      <div>
+        <p className="cashier-eyebrow">POS TOKO</p>
+        <h3>Kasir</h3>
+        <p>Pilih produk, masukkan ke keranjang, lalu cek total belanja.</p>
+      </div>
 
-          <div className="category-tabs">
-            {categories.map((category) => (
+      <div className="cashier-total-card">
+        <span>Total Setelah Diskon</span>
+        <strong>{formatRupiah(cartTotal)}</strong>
+      </div>
+    </div>
+
+    <div className="cashier-workspace">
+      <section className="cashier-products-panel">
+        <div className="cashier-search-row">
+          <input
+            type="text"
+            value={search}
+            placeholder="Cari produk..."
+            onChange={(event) => setSearch(event.target.value)}
+          />
+        </div>
+
+        <div className="cashier-category-tabs">
+          {categories.map((category) => (
+            <button
+              key={category}
+              type="button"
+              className={selectedCategory === category ? "active" : ""}
+              onClick={() => setSelectedCategory(category)}
+            >
+              {String(category || "").toUpperCase()}
+            </button>
+          ))}
+        </div>
+
+        <div className="cashier-product-grid">
+          {filteredProducts.map((product) => {
+            const productVariantsForCashier =
+              activeVariantsByProductId[product.id] || [];
+
+            const reservedQty = cart
+              .filter((item) => item.productId === product.id)
+              .reduce(
+                (total, item) =>
+                  total +
+                  Number(item.qty || 0) * Number(item.qtyMultiplier || 1),
+                0
+              );
+
+            const displayStock = Math.max(
+              0,
+              Number(product.stock || 0) - reservedQty
+            );
+
+            return (
               <button
-                key={category}
-                type="button"
-                className={
-                  selectedCategory === category
-                    ? "category-tab active"
-                    : "category-tab"
-                }
-                onClick={() => setSelectedCategory(category)}
-              >
-                {String(category || "").toUpperCase()}
-              </button>
-            ))}
-          </div>
-
-          <div className="product-grid">
-            {filteredProducts.map((product) => {
-  const productVariantsForCashier = activeVariantsByProductId[product.id] || [];
-  const reservedQty = cart
-  .filter((item) => item.productId === product.id)
-  .reduce(
-    (total, item) =>
-      total + Number(item.qty || 0) * Number(item.qtyMultiplier || 1),
-    0
-  );
-
-const displayStock = Math.max(0, Number(product.stock || 0) - reservedQty);
-
-  return (
-    <div
   key={product.id}
-  className={
-    productVariantsForCashier.length > 0
-      ? "product-card has-variants"
-      : "product-card no-variants"
-  }
->
-      <button
   type="button"
-  className="product-main-button"
-  disabled={displayStock <= 0}
+  className={[
+    "product-card",
+    productVariantsForCashier.length > 0 ? "has-variants" : "no-variants",
+    isCashierOpen === false ? "is-cashier-closed" : "",
+    displayStock <= 0 ? "is-out-of-stock" : "",
+  ]
+    .filter(Boolean)
+    .join(" ")}
+  disabled={isCashierOpen === false || displayStock <= 0}
   onClick={() => handleProductClick(product)}
 >
-        <h4>{String(product.name || "").toUpperCase()}</h4>
+                <div className="product-card-content">
+                  <strong>{String(product.name || "").toUpperCase()}</strong>
+                </div>
 
-<p>{String(product.category || "").toUpperCase()}</p>
+                <div className="product-card-footer">
+                  <span>
+                    {productVariantsForCashier.length > 0
+                      ? productVariantsForCashier.length + " VARIAN"
+                      : formatRupiah(product.price)}
+                  </span>
 
-<div className="product-card-footer">
-  <strong>
-    {productVariantsForCashier.length > 0
-      ? productVariantsForCashier.length + " VARIAN"
-      : formatRupiah(product.price)}
-  </strong>
+                  <small>{formatProductStockLabel(displayStock)}</small>
+                </div>
+              </button>
+            );
+          })}
 
-  <span
-    className={
-      Number(displayStock || 0) <= 0
-        ? "product-stock-badge stock-empty"
-        : "product-stock-badge"
-    }
-    title={"Stok tersedia: " + displayStock}
-  >
-    {formatProductStockLabel(displayStock)}
-  </span>
-</div>
-</button>
-    </div>
-  );
-})}
+          {filteredProducts.length === 0 ? (
+            <div className="product-empty">Produk tidak ditemukan.</div>
+          ) : null}
+        </div>
+      </section>
 
-            {filteredProducts.length === 0 ? (
-              <div className="empty-state">
-                Produk tidak ditemukan.
+      <aside className="cashier-cart-panel">
+        <div className="cart-header">
+          <div>
+            <h3>Keranjang</h3>
+            <p>{cart.length} jenis produk</p>
+          </div>
+
+          {cart.length > 0 ? (
+            <button
+              type="button"
+              className="cart-clear-button"
+              onClick={clearCart}
+            >
+              Kosongkan
+            </button>
+          ) : null}
+        </div>
+
+        <div className="cart-items-scroll">
+          {cart.length === 0 ? (
+            <div className="empty-cart">Keranjang masih kosong</div>
+          ) : (
+            cart.map((item) => (
+              <div key={item.cartItemId} className="cart-item">
+                <div className="cart-item-main">
+                  <div>
+                    <h4>{String(item.name || "").toUpperCase()}</h4>
+                    <p>
+                      {formatRupiah(item.price)} /{" "}
+                      {String(item.unit || "PCS").toUpperCase()}
+                      {Number(item.qtyMultiplier || 1) > 1
+                        ? " • FIFO " +
+                          item.qtyMultiplier +
+                          " " +
+                          String(item.unit || "PCS").toUpperCase()
+                        : ""}
+                    </p>
+                  </div>
+
+                  <strong>{formatRupiah(item.price * item.qty)}</strong>
+                </div>
+
+                <div className="cart-qty-row">
+                  <button
+                    type="button"
+                    onClick={() => decreaseQty(item.cartItemId)}
+                  >
+                    -
+                  </button>
+
+                  <span>{item.qty}</span>
+
+                  <button
+                    type="button"
+                    onClick={() => increaseQty(item.cartItemId)}
+                  >
+                    +
+                  </button>
+                </div>
               </div>
-            ) : null}
-          </div>
+            ))
+          )}
         </div>
 
-<div className="cart-panel">
-  <div className="cart-header">
-    <div>
-      <h3>Keranjang</h3>
-      <p>{cart.length} jenis produk</p>
+        <div className="cart-summary-sticky">
+          <label>
+            Diskon Rupiah
+            <input
+              type="number"
+              min="0"
+              value={discountAmount}
+              onChange={(event) => setDiscountAmount(event.target.value)}
+              placeholder="0"
+              disabled={isCashierOpen === false || cart.length === 0}
+            />
+          </label>
+
+          <div className="cart-summary-line">
+            <span>Subtotal</span>
+            <strong>{formatRupiah(cartSubtotal)}</strong>
+          </div>
+
+          <div className="cart-summary-line">
+            <span>Diskon</span>
+            <strong>{formatRupiah(safeDiscountAmount)}</strong>
+          </div>
+
+          {isDiscountTooLarge ? (
+            <div className="discount-error">
+              Diskon tidak boleh lebih besar dari subtotal. Silakan periksa
+              kembali.
+            </div>
+          ) : null}
+
+          <button
+            type="button"
+            className="finish-button cart-pay-button"
+            onClick={openPaymentModal}
+            disabled={isCashierOpen === false || cart.length === 0 || isDiscountTooLarge}
+          >
+            Bayar
+          </button>
+        </div>
+      </aside>
     </div>
 
-    {cart.length > 0 && (
-      <button className="secondary-button" onClick={clearCart}>
-        Kosongkan
-      </button>
-    )}
-  </div>
+    {variantPickerProduct ? (() => {
+      const variantOptions =
+        activeVariantsByProductId[variantPickerProduct.id] || [];
+      const displayStock = getDisplayStock(variantPickerProduct.id);
 
-  <div className="cart-scroll-area">
-    {cart.length === 0 ? (
-      <div className="empty-state">Keranjang masih kosong</div>
-    ) : (
-      cart.map((item) => (
-        <div className="cart-line" key={item.cartItemId}>
-          <div className="cart-line-top">
-            <div className="cart-line-info">
-              <h5>{String(item.name || "").toUpperCase()}</h5>
-              <p>
-                {formatRupiah(item.price)} /{" "}
-                {String(item.unit || "PCS").toUpperCase()}
-                {Number(item.qtyMultiplier || 1) > 1
-                  ? " • FIFO " +
-                    item.qtyMultiplier +
-                    " " +
-                    String(item.unit || "PCS").toUpperCase()
-                  : ""}
-              </p>
+      return (
+        <div
+          className="modal-backdrop"
+          onClick={() => setVariantPickerProduct(null)}
+        >
+          <div
+            className="variant-picker-modal"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="variant-picker-header">
+              <div>
+                <span>Pilih Varian</span>
+                <h3>{String(variantPickerProduct.name || "").toUpperCase()}</h3>
+                <p>Stok tersedia {displayStock}</p>
+              </div>
+
+              <button
+                type="button"
+                className="modal-close"
+                onClick={() => setVariantPickerProduct(null)}
+              >
+                ×
+              </button>
             </div>
 
-            <div className="cart-line-price">
-              {formatRupiah(item.price * item.qty)}
-            </div>
-          </div>
+            <div className="variant-picker-list">
+              {variantOptions.map((variant) => {
+                const variantStockNeeded = Number(variant.qtyMultiplier || 1);
+                const isVariantOutOfStock =
+                  Number(displayStock || 0) < variantStockNeeded;
 
-          <div className="cart-line-bottom">
-            <div className="qty-control">
-              <button type="button" onClick={() => decreaseQty(item.cartItemId)}>
-                -
-              </button>
+                return (
+                  <button
+                    key={variant.id}
+                    type="button"
+                    className="variant-picker-item"
+                    disabled={isCashierOpen === false || isVariantOutOfStock}
+                    onClick={() => handleVariantClick(variantPickerProduct, variant)}
+                  >
+                    <div>
+                      <strong>{String(variant.name || "").toUpperCase()}</strong>
+                      <span>
+                        Ambil stok {variant.qtyMultiplier}{" "}
+                        {String(variantPickerProduct.unit || "PCS").toUpperCase()}
+                      </span>
+                    </div>
 
-              <span>{item.qty}</span>
-
-              <button type="button" onClick={() => increaseQty(item.cartItemId)}>
-                +
-              </button>
+                    <strong>{formatRupiah(variant.price)}</strong>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
-      ))
-    )}
-  </div>
+      );
+    })() : null}
 
+    {isPaymentOpen ? (
+      <div className="modal-backdrop">
+        <div className="payment-modal">
+          <div className="modal-header">
+            <div>
+              <h3>Pembayaran</h3>
+              <p>Masukkan uang yang diterima dari pembeli.</p>
+            </div>
 
-          <div className="cart-summary">
-            <label className="discount-field">
-              Diskon Rupiah
-              <input
-                type="number"
-                min="0"
-                value={discountAmount}
-                onChange={(event) => setDiscountAmount(event.target.value)}
-                placeholder="0"
-                disabled={cart.length === 0}
-              />
-            </label>
+            <button
+              type="button"
+              className="modal-close"
+              onClick={closePaymentModal}
+            >
+              ×
+            </button>
+          </div>
 
+          <div className="payment-total-box">
             <div>
               <span>Subtotal</span>
               <strong>{formatRupiah(cartSubtotal)}</strong>
@@ -2912,278 +3055,159 @@ const displayStock = Math.max(0, Number(product.stock || 0) - reservedQty);
               <strong>{formatRupiah(safeDiscountAmount)}</strong>
             </div>
 
-            <div>
+            <div className="payment-grand-total">
               <span>Total Belanja</span>
               <strong>{formatRupiah(cartTotal)}</strong>
             </div>
+          </div>
 
-            {isDiscountTooLarge ? (
-              <p className="discount-warning">
-                Diskon tidak boleh lebih besar dari subtotal. Silakan periksa kembali.
-              </p>
-            ) : null}
+          <div className="payment-method-tabs">
+            <button
+              type="button"
+              className={paymentMethod === "Cash" ? "active" : ""}
+              onClick={() => {
+                setPaymentMethod("Cash");
+                setCashReceived(String(cartTotal));
+                setCustomerName("");
+                setCustomerPhone("");
+                setDebtNote("");
+                setDueDate("");
+              }}
+            >
+              Cash
+            </button>
 
             <button
               type="button"
-              className="pay-button"
-              disabled={!cashierSession.isOpen || cart.length === 0 || isDiscountTooLarge}
-              onClick={openPaymentModal}
+              className={paymentMethod === "Hutang" ? "active" : ""}
+              onClick={() => {
+                setPaymentMethod("Hutang");
+                setCashReceived("0");
+              }}
             >
-              Bayar
+              Hutang
+            </button>
+          </div>
+
+          <label>
+            {paymentMethod === "Hutang" ? "Dibayar Sekarang" : "Uang Diterima"}
+            <input
+              type="number"
+              min="0"
+              value={cashReceived}
+              onChange={(event) => setCashReceived(event.target.value)}
+              autoFocus
+            />
+          </label>
+
+          {paymentMethod === "Hutang" ? (
+            <div className="payment-form-grid">
+              <label>
+                Nama Pelanggan
+                <input
+                  type="text"
+                  value={customerName}
+                  onChange={(event) => setCustomerName(event.target.value)}
+                  placeholder="Contoh: Bu Siti"
+                />
+              </label>
+
+              <label>
+                No WA Pelanggan
+                <input
+                  type="text"
+                  value={customerPhone}
+                  onChange={(event) => setCustomerPhone(event.target.value)}
+                  placeholder="Opsional"
+                />
+              </label>
+
+              <label>
+                Jatuh Tempo
+                <input
+                  type="date"
+                  value={dueDate}
+                  onChange={(event) => setDueDate(event.target.value)}
+                />
+              </label>
+
+              <div>
+                <span>Sisa Hutang</span>
+                <strong className={debtAmount > 0 ? "danger-text" : ""}>
+                  {formatRupiah(debtAmount)}
+                </strong>
+              </div>
+
+              <label className="payment-note-field">
+                Catatan
+                <textarea
+                  value={debtNote}
+                  onChange={(event) => setDebtNote(event.target.value)}
+                  placeholder="Opsional"
+                  rows="3"
+                />
+              </label>
+            </div>
+          ) : null}
+
+          {paymentMethod === "Cash" ? (
+            <div className="quick-amounts">
+              {paymentQuickAmounts.map((amount) => (
+                <button
+                  key={amount}
+                  type="button"
+                  onClick={() => setCashReceived(String(amount))}
+                >
+                  {formatRupiah(amount)}
+                </button>
+              ))}
+            </div>
+          ) : null}
+
+          {paymentMethod === "Cash" ? (
+            <div className="change-box">
+              <span>Kembalian</span>
+              <strong>{formatRupiah(changeAmount)}</strong>
+            </div>
+          ) : null}
+
+          {paymentMethod === "Cash" && changeAmount < 0 ? (
+            <div className="payment-error">
+              Uang diterima masih kurang {formatRupiah(Math.abs(changeAmount))}.
+            </div>
+          ) : null}
+
+          <div className="modal-actions">
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={closePaymentModal}
+            >
+              Batal
+            </button>
+
+            <button
+              type="button"
+              className="finish-button"
+              onClick={finishTransaction}
+              disabled={!isPaymentValid}
+            >
+              Selesaikan Transaksi
             </button>
           </div>
         </div>
       </div>
+    ) : null}
 
-      {variantPickerProduct ? (() => {
-  const variantOptions = activeVariantsByProductId[variantPickerProduct.id] || [];
-  const displayStock = getDisplayStock(variantPickerProduct.id);
-
-  return (
-    <div
-      className="variant-picker-backdrop"
-      onClick={() => setVariantPickerProduct(null)}
-    >
-      <div
-        className="variant-picker-modal"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <div className="variant-picker-header">
-          <div>
-            <p>Pilih Varian</p>
-            <h3>{String(variantPickerProduct.name || "").toUpperCase()}</h3>
-            <span>
-              {String(variantPickerProduct.category || "").toUpperCase()} • Stok tersedia {displayStock}
-            </span>
-          </div>
-
-          <button
-            type="button"
-            className="modal-close"
-            onClick={() => setVariantPickerProduct(null)}
-          >
-            ×
-          </button>
-        </div>
-
-        <div className="variant-picker-grid">
-          {variantOptions.map((variant) => {
-            const variantStockNeeded = Number(variant.qtyMultiplier || 1);
-            const isVariantOutOfStock = Number(displayStock || 0) < variantStockNeeded;
-
-            return (
-              <button
-                type="button"
-                key={variant.id}
-                className={
-                  isVariantOutOfStock
-                    ? "variant-picker-option disabled"
-                    : "variant-picker-option"
-                }
-                disabled={isVariantOutOfStock}
-                onClick={() => handleVariantClick(variantPickerProduct, variant)}
-              >
-                <strong>{String(variant.name || "").toUpperCase()}</strong>
-                <span>
-                  Ambil stok {variant.qtyMultiplier}{" "}
-                  {String(variantPickerProduct.unit || "PCS").toUpperCase()}
-                </span>
-                <em>{formatRupiah(variant.price)}</em>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-})() : null}
-
-      {isPaymentOpen ? (
-        <div className="modal-backdrop">
-          <div className="payment-modal">
-            <div className="modal-header">
-              <div>
-                <h3>Pembayaran</h3>
-                <p>Masukkan uang yang diterima dari pembeli.</p>
-              </div>
-
-              <button type="button" className="modal-close" onClick={closePaymentModal}>
-                ×
-              </button>
-            </div>
-
-            <div className="payment-summary">
-  <div>
-    <span>Subtotal</span>
-    <strong>{formatRupiah(cartSubtotal)}</strong>
+    {completedTransaction ? (
+      <ReceiptModal
+        transaction={completedTransaction}
+        settings={settings}
+        onClose={() => setCompletedTransaction(null)}
+      />
+    ) : null}
   </div>
-
-  <div>
-    <span>Diskon</span>
-    <strong>{formatRupiah(safeDiscountAmount)}</strong>
-  </div>
-
-  <div className="cart-total-plain">
-    <span>Total Belanja</span>
-    <strong>{formatRupiah(cartTotal)}</strong>
-  </div>
-
-  <div className="payment-method-tabs">
-  <button
-    type="button"
-    className={paymentMethod === "Cash" ? "payment-method-tab active" : "payment-method-tab"}
-    onClick={() => {
-      setPaymentMethod("Cash");
-      setCashReceived(String(cartTotal));
-      setCustomerName("");
-      setCustomerPhone("");
-      setDebtNote("");
-      setDueDate("");
-    }}
-  >
-    Cash
-  </button>
-
-  <button
-    type="button"
-    className={paymentMethod === "Hutang" ? "payment-method-tab active" : "payment-method-tab"}
-    onClick={() => {
-      setPaymentMethod("Hutang");
-      setCashReceived("0");
-    }}
-  >
-    Hutang
-  </button>
-</div>
-
-  <label>
-  {paymentMethod === "Hutang" ? "Dibayar Sekarang" : "Uang Diterima"}
-    <input
-      type="number"
-      min="0"
-      value={cashReceived}
-      onChange={(event) => setCashReceived(event.target.value)}
-      autoFocus
-    />
-  </label>
-
-  {paymentMethod === "Hutang" ? (
-  <div className="debt-fields">
-  
-  <div className="debt-row">
-  <label>
-    Nama Pelanggan
-    <input
-      type="text"
-      value={customerName}
-      onChange={(event) => setCustomerName(event.target.value)}
-      placeholder="Contoh: Bu Siti"
-    />
-  </label>
-
-  <label>
-    No WA Pelanggan
-    <input
-      type="text"
-      value={customerPhone}
-      onChange={(event) => setCustomerPhone(event.target.value)}
-      placeholder="Opsional"
-    />
-  </label>
-  </div>
-
-<div className="debt-row">
-  <label>
-    Jatuh Tempo
-    <input
-      type="date"
-      value={dueDate}
-      onChange={(event) => setDueDate(event.target.value)}
-    />
-  </label>
-
-  <div className="debt-summary">
-    <span>Sisa Hutang</span>
-    <strong className={debtAmount > 0 ? "danger-text" : ""}>
-      {formatRupiah(debtAmount)}
-    </strong>
-  </div>
-  </div>
-
-  <label className="full-width">
-    Catatan
-    <input
-      type="text"
-      value={debtNote}
-      onChange={(event) => setDebtNote(event.target.value)}
-      placeholder="Opsional"
-    />
-  </label>
-</div>
-  ) : null}
-
-  {paymentMethod === "Cash" ? (
-  <div className="quick-cash-buttons">
-    {paymentQuickAmounts.map((amount) => (
-      <button
-        key={amount}
-        type="button"
-        className={
-          Number(cashReceived || 0) === amount
-            ? "quick-cash-button active"
-            : "quick-cash-button"
-        }
-        onClick={() => setCashReceived(String(amount))}
-      >
-        {formatRupiah(amount)}
-      </button>
-    ))}
-  </div>
-) : null}
-
-  {paymentMethod === "Cash" ? (
-  <div>
-    <span>Kembalian</span>
-    <strong className={changeAmount < 0 ? "danger-text" : ""}>
-      {formatRupiah(changeAmount)}
-    </strong>
-  </div>
-) : null}
-
-  {paymentMethod === "Cash" && changeAmount < 0 ? (
-    <p className="payment-warning">
-      Uang diterima masih kurang {formatRupiah(Math.abs(changeAmount))}.
-    </p>
-  ) : null}
-</div>
-
-            <div className="payment-actions">
-              <button type="button" className="secondary-button" onClick={closePaymentModal}>
-                Batal
-              </button>
-
-              <button
-                type="button"
-                className="finish-button"
-                disabled={!isPaymentValid}
-                onClick={finishTransaction}
-              >
-                Selesaikan Transaksi
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      {completedTransaction ? (
-  <ReceiptModal
-    transaction={completedTransaction}
-    settings={settings}
-    onClose={() => setCompletedTransaction(null)}
-  />
-) : null}
-    </div>
-  );
+);
 }
 
 function DashboardPage({

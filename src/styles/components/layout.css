@@ -1,25 +1,34 @@
 /* =========================================================
-   Layout — shell, sidebar, topbar, page container
-   ========================================================= */
+   TTM POS — Layout
+   App shell, sidebar, topbar, page container.
+========================================================= */
 
 .app-shell {
-  min-height: 100vh;
+  width: 100%;
+  height: 100dvh;
   display: grid;
-  grid-template-columns: 264px minmax(0, 1fr);
+  grid-template-columns: clamp(180px, 14vw, 250px) minmax(0, 1fr);
   background: transparent;
+  overflow: hidden;
 }
 
 .sidebar {
   position: sticky;
   top: 0;
-  height: 100vh;
-  padding: 18px;
+  width: 100%;
+  min-width: 0;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(12px, 1.1vw, 20px);
+  color: #ffffff;
   background:
-    radial-gradient(circle at top left, rgba(34, 197, 94, 0.20), transparent 22rem),
+    radial-gradient(circle at top left, rgba(96, 165, 250, 0.2), transparent 24rem),
     linear-gradient(180deg, #0f172a 0%, #111827 100%);
   border-right: 1px solid rgba(255, 255, 255, 0.08);
-  color: #ffffff;
+  box-shadow: 18px 0 60px rgba(15, 23, 42, 0.16);
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .brand {
@@ -27,30 +36,30 @@
   align-items: center;
   gap: 12px;
   padding: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: var(--ttm-radius-lg);
-  background: rgba(255, 255, 255, 0.07);
-  box-shadow: none;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .brand-logo {
+  width: 46px;
+  height: 46px;
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
   flex: 0 0 auto;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #bbf7d0, #22c55e);
-  color: #052e16;
+  border-radius: 18px;
+  color: #ffffff;
   font-weight: 950;
-  box-shadow: 0 12px 26px rgba(34, 197, 94, 0.22);
+  letter-spacing: -0.05em;
+  background: linear-gradient(135deg, #60a5fa, #22c55e);
+  box-shadow: 0 14px 34px rgba(37, 99, 235, 0.24);
 }
 
 .brand h1 {
   margin: 0;
   color: #ffffff;
   font-size: 18px;
-  line-height: 1.05;
+  line-height: 1.1;
   letter-spacing: -0.045em;
 }
 
@@ -64,42 +73,43 @@
 .menu-list {
   display: grid;
   gap: 8px;
-  margin-top: 18px;
+  margin-top: 20px;
 }
 
 .menu-item {
   width: 100%;
+  min-height: 46px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  min-height: 44px;
+  gap: 8px;
   padding: 10px 12px;
   border: 1px solid transparent;
-  border-radius: var(--ttm-radius-md);
-  background: transparent;
+  border-radius: 16px;
   color: rgba(255, 255, 255, 0.72);
+  background: transparent;
   font-weight: 850;
   text-align: left;
   transition:
     transform var(--ttm-transition),
     background var(--ttm-transition),
+    color var(--ttm-transition),
     border-color var(--ttm-transition),
-    color var(--ttm-transition);
+    box-shadow var(--ttm-transition);
 }
 
 .menu-item:hover {
   transform: translateX(3px);
-  border-color: rgba(255, 255, 255, 0.09);
-  background: rgba(255, 255, 255, 0.08);
   color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .menu-item.active {
-  border-color: rgba(187, 247, 208, 0.55);
-  background: linear-gradient(135deg, #dcfce7, #86efac);
-  color: #052e16;
-  box-shadow: 0 12px 26px rgba(34, 197, 94, 0.20);
+  color: #0f172a;
+  background: linear-gradient(135deg, #ffffff, #dbeafe);
+  border-color: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 16px 34px rgba(37, 99, 235, 0.22);
 }
 
 .menu-badge,
@@ -108,8 +118,8 @@
   min-height: 24px;
   padding: 4px 7px;
   border: 0;
-  background: rgba(239, 68, 68, 0.92);
   color: #ffffff;
+  background: var(--ttm-danger);
   font-size: 11px;
 }
 
@@ -121,27 +131,45 @@
 .main-content {
   min-width: 0;
   width: 100%;
-  padding: 20px;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(10px, 1.2vw, 22px);
+  overflow: hidden;
 }
 
 .topbar {
-  min-height: 74px;
+  flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: clamp(58px, 6.8vh, 76px);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 16px 18px;
-  border: 1px solid var(--ttm-border);
-  border-radius: var(--ttm-radius-xl);
-  background: rgba(255, 255, 255, 0.88);
+  gap: 10px;
+  padding: clamp(10px, 1vw, 16px);
+  border-radius: clamp(18px, 2vw, 30px);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--ttm-border-soft);
   box-shadow: var(--ttm-shadow-sm);
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(18px);
+  overflow: hidden;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: var(--ttm-primary);
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
 }
 
 .topbar h2 {
   margin: 0;
   color: var(--ttm-text);
-  font-size: clamp(22px, 2.2vw, 30px);
+  font-size: clamp(23px, 2.2vw, 31px);
   line-height: 1.05;
   letter-spacing: -0.06em;
 }
@@ -151,51 +179,148 @@
   color: var(--ttm-muted);
 }
 
-.eyebrow {
-  margin: 0 0 6px;
-  color: var(--ttm-primary-hover);
-  font-size: 12px;
-  font-weight: 950;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 .topbar-actions {
+  min-width: 0;
+  max-width: 68%;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  flex-wrap: wrap;
-  gap: 10px;
+  flex-wrap: nowrap;
+  gap: 6px;
+  overflow: hidden;
 }
 
-.date-pill {
-  background: rgba(15, 23, 42, 0.06);
-  border-color: rgba(148, 163, 184, 0.22);
+.topbar-actions > * {
+  flex: 0 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.topbar-actions .date-pill,
+.topbar-actions .user-pill,
+.topbar-actions .connection-pill,
+.topbar-actions .supabase-pill,
+.topbar-actions .auto-sync-pill,
+.topbar-actions .cashier-status-pill {
+  max-width: clamp(84px, 11vw, 150px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.date-pill,
+.user-pill {
+  min-height: 36px;
+  padding: 8px 14px;
+  border-radius: var(--ttm-radius-pill);
   color: #334155;
-  box-shadow: none;
+  background: #ffffff;
+  border: 1px solid var(--ttm-border-soft);
+  box-shadow: var(--ttm-shadow-xs);
+  font-size: 13px;
+  font-weight: 850;
 }
 
 .page-card {
-  min-height: calc(100vh - 130px);
-  margin-top: 16px;
-  padding: 20px;
-  border: 1px solid var(--ttm-border);
-  border-radius: var(--ttm-radius-xl);
-  background: rgba(255, 255, 255, 0.84);
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  max-width: 100%;
+  margin-top: clamp(8px, 1vw, 16px);
+  padding: clamp(10px, 1.2vw, 22px);
+  border-radius: clamp(20px, 2vw, 30px);
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid var(--ttm-border-soft);
   box-shadow: var(--ttm-shadow-sm);
+  backdrop-filter: blur(18px);
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
-@media (min-width: 1500px) {
+@media (max-width: 1180px) {
   .app-shell {
-    grid-template-columns: 280px minmax(0, 1fr);
+    grid-template-columns: clamp(165px, 16vw, 200px) minmax(0, 1fr);
+  }
+
+  .brand {
+    gap: 9px;
+    padding: 11px;
+  }
+
+  .brand-logo {
+    width: 38px;
+    height: 38px;
+    border-radius: 14px;
+  }
+
+  .brand h1 {
+    font-size: 14px;
+  }
+
+  .brand p {
+    font-size: 10px;
+  }
+
+  .menu-item {
+    min-height: 40px;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .topbar-actions {
+    max-width: 64%;
+  }
+}
+
+@media (max-width: 900px) {
+  .app-shell {
+    height: auto;
+    min-height: 100dvh;
+    grid-template-columns: 1fr;
+    overflow: visible;
+  }
+
+  .sidebar {
+    position: relative;
+    height: auto;
+    border-radius: 0 0 24px 24px;
   }
 
   .main-content {
-    padding: 24px 28px;
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
   }
 
   .page-card {
-    padding: 24px;
+    overflow-x: hidden;
+    overflow-y: visible;
+  }
+}
+
+@media (max-width: 900px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .sidebar {
+    position: relative;
+    height: auto;
+    border-radius: 0 0 24px 24px;
+  }
+
+  .main-content {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .page-card {
+    overflow: visible;
   }
 }
 
@@ -208,6 +333,7 @@
     position: relative;
     height: auto;
     min-height: auto;
+    border-radius: 0 0 28px 28px;
   }
 
   .menu-list {
@@ -222,10 +348,19 @@
     padding: 14px;
   }
 
+  .topbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .topbar-actions {
+    justify-content: flex-start;
+  }
+
   .page-card {
     min-height: auto;
     padding: 16px;
-    border-radius: var(--ttm-radius-lg);
+    border-radius: 24px;
   }
 }
 
@@ -235,21 +370,15 @@
   }
 
   .brand {
-    border-radius: var(--ttm-radius-md);
+    border-radius: 18px;
   }
 
   .menu-list {
     grid-template-columns: 1fr 1fr;
   }
 
-  .topbar {
-    align-items: flex-start;
-    flex-direction: column;
-    border-radius: var(--ttm-radius-lg);
-  }
-
-  .topbar-actions {
-    justify-content: flex-start;
+  .topbar h2 {
+    font-size: 23px;
   }
 
   .page-card {
