@@ -156,8 +156,6 @@ export async function updateStoreSettingsInSupabase(settings) {
     updated_at: new Date().toISOString(),
   };
 
-  console.log("UPSERT STORE SETTINGS ROW:", row);
-
   const { data, error } = await supabase
     .from("store_settings")
     .upsert(row, { onConflict: "id" })

@@ -5980,11 +5980,7 @@ function SettingsPage({
   };
 
   try {
-    console.log("SETTINGS BEFORE SAVE:", nextSettings);
-
     const savedRow = await updateStoreSettingsInSupabase(nextSettings);
-
-    console.log("SETTINGS SAVED ROW:", savedRow);
 
     await onUpdateSettings(nextSettings);
 
