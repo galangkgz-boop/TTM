@@ -1,165 +1,310 @@
-/* =========================
-   Payment Modal & Debt Fields
-   payment-modal, payment-summary, payment-actions, payment-method-tabs
-   discount-field, fifo-batch-list, debt-fields
-========================= */
+/* =========================================================
+   TTM POS — Payment Modal
+   Clean soft modern payment flow.
+========================================================= */
 
-.payment-warning {
+.payment-modal {
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100dvh - 36px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  padding: 22px;
+  border-radius: 28px;
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  box-shadow: var(--ttm-shadow-lg);
+}
+
+.payment-modal .modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 2px;
+}
+
+.payment-modal .modal-header h3 {
   margin: 0;
-  border-radius: 14px;
-  padding: 12px;
-  background: #fee2e2;
-  color: #991b1b;
-  font-weight: 700;
+  color: var(--ttm-text);
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: -0.055em;
 }
 
-.payment-actions {
+.payment-modal .modal-header p {
+  margin: 7px 0 0;
+  color: var(--ttm-muted);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.payment-modal .modal-close,
+.payment-modal .modal-close-button {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
   display: grid;
-  grid-template-columns: 1fr 1.5fr;
-  gap: 12px;
-  margin-top: 24px;
+  place-items: center;
+  border-radius: 14px;
+  color: var(--ttm-text-soft);
+  background: #ffffff;
+  border: 1px solid var(--ttm-border);
+  box-shadow: var(--ttm-shadow-xs);
+  font-size: 22px;
+  line-height: 1;
 }
 
-/* --- Payment Method Tabs --- */
+/* Total Box */
+
+.payment-total-box {
+  display: grid;
+  gap: 9px;
+}
+
+.payment-total-box > div,
+.change-box {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: #f8fafc;
+  border: 1px solid var(--ttm-border);
+}
+
+.payment-total-box span,
+.change-box span {
+  color: var(--ttm-muted);
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.payment-total-box strong,
+.change-box strong {
+  color: var(--ttm-text);
+  font-size: 17px;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+}
+
+.payment-grand-total {
+  min-height: 68px;
+  background:
+    radial-gradient(circle at top right, rgba(37, 99, 235, 0.14), transparent 42%),
+    linear-gradient(135deg, #ffffff, var(--ttm-primary-soft)) !important;
+  border-color: rgba(37, 99, 235, 0.2) !important;
+}
+
+.payment-grand-total strong {
+  color: var(--ttm-primary-dark);
+  font-size: 26px;
+  letter-spacing: -0.06em;
+}
+
+/* Method Tabs */
+
 .payment-method-tabs {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
+  padding: 6px;
+  border-radius: 20px;
+  background: var(--ttm-surface-muted);
 }
 
-.payment-method-tab {
-  border: 1px solid #cbd5e1;
+.payment-method-tabs button {
+  min-height: 44px;
+  border: 0;
+  border-radius: 15px;
+  color: var(--ttm-text-soft);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 950;
+  transition:
+    background var(--ttm-transition),
+    color var(--ttm-transition),
+    box-shadow var(--ttm-transition),
+    transform var(--ttm-transition);
+}
+
+.payment-method-tabs button:hover {
+  color: var(--ttm-primary-dark);
   background: #ffffff;
-  color: #334155;
-  border-radius: 12px;
-  padding: 10px 12px;
-  font-weight: 900;
-  cursor: pointer;
 }
 
-.payment-method-tab.active {
-  border-color: #22c55e;
-  background: #dcfce7;
-  color: #166534;
+.payment-method-tabs button.active {
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--ttm-primary), var(--ttm-primary-hover));
+  box-shadow: 0 12px 26px rgba(37, 99, 235, 0.24);
 }
 
-.discount-warning {
-  margin: 0 0 14px;
-  border-radius: 14px;
-  padding: 12px;
-  background: #fef3c7;
-  color: #92400e;
-  font-weight: 700;
-  font-size: 13px;
-}
+/* Form */
 
-/* --- FIFO Batch List (in cart) --- */
-.fifo-batch-list {
-  margin-top: 10px;
-  border-radius: 14px;
-  background: #f9fafb;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.fifo-batch-list span {
-  color: #374151;
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.fifo-batch-list small {
-  color: #6b7280;
-  font-size: 12px;
-}
-
-/* --- Debt Fields (piutang/utang pelanggan) --- */
-.debt-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid #e2e8f0;
-}
-
-.debt-row {
+.payment-modal label {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 7px;
+  color: var(--ttm-text-soft);
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-.debt-fields label {
-  display: flex;
-  flex-direction: column;
+.payment-modal input,
+.payment-modal textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 11px 13px;
+  border-radius: 16px;
+  border: 1px solid var(--ttm-border);
+  color: var(--ttm-text);
+  background: #ffffff;
+  font-size: 15px;
+  font-weight: 850;
+}
+
+.payment-modal textarea {
+  resize: vertical;
+  min-height: 86px;
+}
+
+.payment-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.payment-form-grid > div {
+  display: grid;
+  align-content: center;
   gap: 6px;
-  color: #0f172a;
-  font-size: 13px;
-  font-weight: 800;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: #f8fafc;
+  border: 1px solid var(--ttm-border);
 }
 
-.debt-fields label.full-width {
+.payment-form-grid > div span {
+  color: var(--ttm-muted);
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.payment-form-grid > div strong {
+  color: var(--ttm-text);
+  font-size: 18px;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+}
+
+.payment-note-field {
   grid-column: 1 / -1;
 }
 
-.debt-fields input {
-  width: 100%;
-  border: 1px solid #cbd5e1;
-  border-radius: 14px;
-  padding: 12px 14px;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 700;
-  outline: none;
+/* Quick Amounts */
+
+.quick-amounts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.quick-amounts button {
+  min-height: 42px;
+  border-radius: 15px;
+  color: var(--ttm-text);
   background: #ffffff;
-  color: #0f172a;
+  border: 1px solid var(--ttm-border);
+  box-shadow: var(--ttm-shadow-xs);
+  font-size: 13px;
+  font-weight: 950;
+  transition:
+    transform var(--ttm-transition),
+    border-color var(--ttm-transition),
+    background var(--ttm-transition);
 }
 
-.debt-fields input:focus {
-  border-color: #22c55e;
-  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.13);
+.quick-amounts button:hover {
+  transform: translateY(-1px);
+  color: var(--ttm-primary-dark);
+  background: var(--ttm-primary-soft);
+  border-color: rgba(37, 99, 235, 0.22);
 }
 
-.debt-fields input::placeholder {
-  color: #94a3b8;
-  font-weight: 600;
+/* Change & Error */
+
+.change-box {
+  background:
+    radial-gradient(circle at top right, rgba(22, 163, 74, 0.12), transparent 40%),
+    linear-gradient(135deg, #ffffff, var(--ttm-success-soft));
+  border-color: rgba(22, 163, 74, 0.2);
 }
 
-.debt-summary {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 4px;
-  padding: 10px 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  background: #f8fafc;
+.change-box strong {
+  color: var(--ttm-success-dark);
+  font-size: 24px;
+  letter-spacing: -0.055em;
 }
 
-.debt-summary span {
-  color: #64748b;
-  font-size: 11px;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.payment-error {
+  padding: 11px 13px;
+  border-radius: 16px;
+  color: var(--ttm-danger-dark);
+  background: var(--ttm-danger-soft);
+  border: 1px solid rgba(220, 38, 38, 0.18);
+  font-size: 13px;
+  font-weight: 850;
 }
 
-.debt-summary strong {
-  font-size: 18px;
-  color: #0f172a;
-  letter-spacing: -0.02em;
+/* Actions */
+
+.payment-modal .modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 10px;
+  margin-top: 2px;
 }
 
-@media (max-width: 600px) {
-  .payment-actions {
+.payment-modal .modal-actions button {
+  min-height: 48px;
+  border-radius: 17px;
+}
+
+.payment-modal .finish-button {
+  font-size: 14px;
+  font-weight: 950;
+}
+
+/* Responsive */
+
+@media (max-width: 620px) {
+  .payment-modal {
+    width: calc(100vw - 24px);
+    padding: 18px;
+    border-radius: 24px;
+  }
+
+  .payment-form-grid,
+  .quick-amounts,
+  .payment-modal .modal-actions {
     grid-template-columns: 1fr;
   }
-}
 
-@media (max-width: 520px) {
-  .debt-row {
-    grid-template-columns: 1fr;
+  .payment-modal .modal-actions {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+
+  .payment-grand-total strong,
+  .change-box strong {
+    font-size: 22px;
   }
 }
