@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 .env
 .env.local
+# QZ Tray private key - jangan pernah commit
+private-key.pem
+**/private-key.pem
+public/qz/private-key.pem
