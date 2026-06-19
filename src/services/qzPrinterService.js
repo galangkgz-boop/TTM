@@ -128,7 +128,7 @@ export function buildThermalReceipt(transaction, settings) {
   const storeName = safeSettings.storeName || "Toko Telon Mindi";
   const address = safeSettings.address || "";
   const phone = safeSettings.phone || "";
-  const receiptNote = safeSettings.receiptNote || "Terima kasih sudah belanja.";
+  const receiptNote = safeSettings.receiptNote || "";
 
   const receiptLines = [];
 
