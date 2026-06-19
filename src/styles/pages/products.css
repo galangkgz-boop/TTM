@@ -143,21 +143,25 @@
   min-width: 0;
   min-height: 44px;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 9px;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 12px;
   align-items: center;
-  padding: 0 13px;
+  padding: 0 15px;
   border-radius: 16px;
   background: #ffffff;
   border: 1px solid var(--ttm-border);
 }
 
 .products-search-box span {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--ttm-primary);
-  box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.1);
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  color: var(--ttm-primary);
+  font-size: 16px;
+  line-height: 1;
+  background: transparent;
+  box-shadow: none;
 }
 
 .products-search-box input {
