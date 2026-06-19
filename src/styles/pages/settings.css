@@ -1,220 +1,172 @@
 /* =========================================================
-   TTM Settings / Pengaturan Premium Control Center
-   File: src/styles/pages/settings.css
-   Theme: Match Kasir + Produk + Stok + Riwayat + Laporan
+   TTM POS — Settings Page
+   Clean soft modern, fluid, tidak melebar ke kanan.
 ========================================================= */
 
+.page-card:has(.settings-form) {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
 
-/* =========================================================
-   HEADER
-========================================================= */
+.page-card:has(.settings-form) > div {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  gap: 14px;
+}
+
+/* =========================
+   Header
+========================= */
 
 .settings-header {
-  display: grid;
-  grid-template-columns: minmax(280px, 1fr) auto;
-  gap: 18px;
-  align-items: center;
-  margin-bottom: 18px;
-}
-
-.settings-header h3 {
-  margin: 0;
-  color: #0f172a;
-  font-size: clamp(28px, 2vw, 36px);
-  line-height: 1;
-  font-weight: 1000;
-  letter-spacing: -0.075em;
-}
-
-.settings-header .muted {
-  margin: 7px 0 0;
-  max-width: 720px;
-  color: #64748b;
-  font-size: 14px;
-  font-weight: 750;
-}
-
-
-/* =========================================================
-   FORM LAYOUT
-========================================================= */
-
-.settings-form {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  align-items: start;
-}
-
-/* Save button full width */
-.settings-form > .settings-actions {
-  grid-column: 1 / -1;
-}
-
-
-/* =========================================================
-   SECTION CARD
-========================================================= */
-
-.settings-section {
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  min-height: 100%;
-  padding: 20px;
-  border-radius: 30px;
-  background:
-    radial-gradient(circle at 100% 0%, rgba(34, 197, 94, 0.1), transparent 34%),
-    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-  border: 1px solid rgba(203, 213, 225, 0.92);
-  box-shadow:
-    0 16px 38px rgba(15, 23, 42, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-.settings-section::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 6px;
-  background: linear-gradient(180deg, #22c55e, #16a34a);
-}
-
-.settings-section::after {
-  content: "";
-  position: absolute;
-  right: -46px;
-  bottom: -58px;
-  width: 138px;
-  height: 138px;
-  border-radius: 999px;
-  background: rgba(34, 197, 94, 0.075);
-}
-
-.settings-section:nth-of-type(2)::before {
-  background: linear-gradient(180deg, #2563eb, #1d4ed8);
-}
-
-.settings-section:nth-of-type(2)::after {
-  background: rgba(37, 99, 235, 0.08);
-}
-
-.settings-section:nth-of-type(3)::before {
-  background: linear-gradient(180deg, #7c3aed, #6d28d9);
-}
-
-.settings-section:nth-of-type(3)::after {
-  background: rgba(124, 58, 237, 0.08);
-}
-
-.settings-section:nth-of-type(4)::before {
-  background: linear-gradient(180deg, #f97316, #ea580c);
-}
-
-.settings-section:nth-of-type(4)::after {
-  background: rgba(249, 115, 22, 0.09);
-}
-
-
-/* =========================================================
-   SECTION TITLE
-========================================================= */
-
-.settings-section .section-title {
-  position: relative;
-  z-index: 1;
+  width: 100%;
+  min-width: 0;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
-  margin-bottom: 2px;
+}
+
+.settings-header h3 {
+  margin: 0;
+  color: var(--ttm-text);
+  font-size: clamp(24px, 2vw, 34px);
+  line-height: 1;
+  font-weight: 950;
+  letter-spacing: -0.06em;
+}
+
+.settings-header .muted {
+  max-width: 760px;
+  margin: 7px 0 0;
+  color: var(--ttm-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* =========================
+   Form Layout
+========================= */
+
+.settings-form {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.settings-section {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  padding: clamp(16px, 1.4vw, 22px);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.08), transparent 38%),
+    linear-gradient(180deg, #ffffff, #f8fafc);
+  border: 1px solid var(--ttm-border-soft);
+  box-shadow: var(--ttm-shadow-xs);
+}
+
+.settings-section:nth-child(3) {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(22, 163, 74, 0.09), transparent 38%),
+    linear-gradient(180deg, #ffffff, #f8fafc);
+}
+
+.settings-section:nth-child(4) {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(245, 158, 11, 0.1), transparent 38%),
+    linear-gradient(180deg, #ffffff, #f8fafc);
+}
+
+/* Section Title */
+
+.settings-section .section-title {
+  display: grid;
+  gap: 5px;
+  margin: 0 0 2px;
 }
 
 .settings-section .section-title h4 {
   margin: 0;
-  color: #0f172a;
-  font-size: 20px;
+  color: var(--ttm-text);
+  font-size: 18px;
   line-height: 1.1;
-  font-weight: 1000;
-  letter-spacing: -0.055em;
+  font-weight: 950;
+  letter-spacing: -0.045em;
 }
 
 .settings-section .section-title p {
-  margin: 5px 0 0;
-  color: #64748b;
+  margin: 0;
+  color: var(--ttm-muted);
   font-size: 13px;
-  font-weight: 750;
+  font-weight: 700;
 }
 
+/* =========================
+   Inputs
+========================= */
 
-/* =========================================================
-   INPUTS
-========================================================= */
-
-.settings-section label {
-  position: relative;
-  z-index: 1;
+.settings-form label {
   display: grid;
-  gap: 8px;
-  color: #475569;
+  gap: 7px;
+  color: var(--ttm-text-soft);
   font-size: 12px;
-  font-weight: 1000;
-  letter-spacing: 0.055em;
+  font-weight: 950;
+  letter-spacing: 0.045em;
   text-transform: uppercase;
 }
 
-.settings-section input,
-.settings-section textarea {
+.settings-form input,
+.settings-form textarea,
+.settings-form select {
   width: 100%;
-  min-height: 48px;
-  padding: 0 15px;
-  border-radius: 17px;
-  border: 1px solid rgba(148, 163, 184, 0.48);
-  background: #ffffff;
-  color: #0f172a;
-  font: inherit;
-  font-size: 15px;
-  font-weight: 900;
-  outline: none;
-  resize: vertical;
-  box-shadow:
-    inset 0 1px 2px rgba(15, 23, 42, 0.04);
+  min-width: 0;
+  min-height: 45px;
+  padding: 11px 13px;
+  border-radius: 16px;
+  border: 1px solid var(--ttm-border);
+  color: var(--ttm-text);
+  background: rgba(255, 255, 255, 0.92);
+  font-size: 14px;
+  font-weight: 850;
   transition:
-    border-color 150ms ease,
-    box-shadow 150ms ease,
-    transform 150ms ease;
+    border-color var(--ttm-transition),
+    box-shadow var(--ttm-transition),
+    background var(--ttm-transition);
 }
 
-.settings-section textarea {
+.settings-form textarea {
   min-height: 92px;
-  padding-top: 13px;
-  line-height: 1.45;
+  resize: vertical;
 }
 
-.settings-section input:focus,
-.settings-section textarea:focus {
-  border-color: rgba(34, 197, 94, 0.65);
-  box-shadow:
-    0 0 0 4px rgba(34, 197, 94, 0.13),
-    inset 0 1px 2px rgba(15, 23, 42, 0.04);
+.settings-form input:hover,
+.settings-form textarea:hover,
+.settings-form select:hover {
+  border-color: var(--ttm-border-strong);
 }
 
-.settings-section input::placeholder,
-.settings-section textarea::placeholder {
-  color: #94a3b8;
-  font-weight: 750;
+.settings-form input:focus,
+.settings-form textarea:focus,
+.settings-form select:focus {
+  outline: none;
+  border-color: rgba(37, 99, 235, 0.58);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 }
 
-
-/* =========================================================
-   BUTTON GRID
-========================================================= */
+/* =========================
+   Button Grid
+========================= */
 
 .settings-button-grid {
-  position: relative;
-  z-index: 1;
+  width: 100%;
+  min-width: 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
@@ -223,303 +175,108 @@
 .settings-button-grid button,
 .settings-section > .secondary-button,
 .import-backup-button {
-  position: relative;
-  overflow: hidden;
-  min-height: 46px;
-  padding: 0 15px;
-  border-radius: 17px;
-  border: 1px solid rgba(148, 163, 184, 0.38);
-  background:
-    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-  color: #334155;
-  font-size: 12.5px;
-  font-weight: 1000;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 13px;
+  border-radius: 16px;
+  color: var(--ttm-text);
+  background: #ffffff;
+  border: 1px solid var(--ttm-border);
+  box-shadow: var(--ttm-shadow-xs);
+  font-size: 13px;
+  font-weight: 950;
   text-align: center;
+  white-space: normal;
   cursor: pointer;
-  box-shadow:
-    0 8px 18px rgba(15, 23, 42, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
   transition:
-    transform 140ms ease,
-    border-color 140ms ease,
-    background 140ms ease,
-    color 140ms ease,
-    box-shadow 140ms ease;
+    transform var(--ttm-transition),
+    border-color var(--ttm-transition),
+    box-shadow var(--ttm-transition),
+    background var(--ttm-transition),
+    color var(--ttm-transition);
 }
 
 .settings-button-grid button:hover,
 .settings-section > .secondary-button:hover,
 .import-backup-button:hover {
   transform: translateY(-1px);
-  border-color: rgba(34, 197, 94, 0.42);
-  background: #f0fdf4;
-  color: #166534;
-  box-shadow:
-    0 12px 24px rgba(15, 23, 42, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-/* Supabase buttons */
-.settings-section:nth-of-type(3) .settings-button-grid button:nth-child(1) {
-  background: #dcfce7;
-  color: #15803d;
-  border-color: rgba(34, 197, 94, 0.24);
-}
-
-.settings-section:nth-of-type(3) .settings-button-grid button:nth-child(2) {
-  background: #dbeafe;
-  color: #1d4ed8;
-  border-color: rgba(37, 99, 235, 0.24);
-}
-
-.settings-section:nth-of-type(3) .settings-button-grid button:nth-child(3) {
-  background: #fef3c7;
-  color: #92400e;
-  border-color: rgba(245, 158, 11, 0.28);
-}
-
-.settings-section:nth-of-type(3) .settings-button-grid button:nth-child(4) {
-  background: #ede9fe;
-  color: #6d28d9;
-  border-color: rgba(124, 58, 237, 0.24);
-}
-
-
-/* =========================================================
-   IMPORT BACKUP BUTTON
-========================================================= */
-
-.import-backup-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 46px;
-  background: #e0f2fe;
-  color: #075985;
-  border-color: rgba(14, 165, 233, 0.26);
+  color: var(--ttm-primary-dark);
+  background: var(--ttm-primary-soft);
+  border-color: rgba(37, 99, 235, 0.22);
+  box-shadow: var(--ttm-shadow-sm);
 }
 
 .import-backup-button input {
   display: none;
 }
 
-
-/* =========================================================
-   DANGER / RESET SECTION
-========================================================= */
-
-.danger-settings-section {
-  border-color: rgba(239, 68, 68, 0.28);
-  background:
-    radial-gradient(circle at 100% 0%, rgba(239, 68, 68, 0.1), transparent 34%),
-    linear-gradient(180deg, #ffffff 0%, #fff7f7 100%);
+/* Test Print QZ button */
+.settings-section > .secondary-button {
+  justify-self: start;
+  width: fit-content;
+  min-width: 180px;
 }
 
-.danger-settings-section::before {
-  background: linear-gradient(180deg, #ef4444, #dc2626);
-}
-
-.danger-settings-section::after {
-  background: rgba(239, 68, 68, 0.09);
-}
-
-.reset-actions {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1.2fr;
-  gap: 10px;
-}
-
-.reset-actions button {
-  min-height: 44px;
-  border-radius: 16px;
-  font-size: 12px;
-  font-weight: 1000;
-}
-
-
-/* =========================================================
-   CHECKBOX / TOGGLE
-========================================================= */
-
-.checkbox-field {
-  position: relative;
-  z-index: 1;
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center;
-  gap: 10px !important;
-  cursor: pointer;
-  padding: 12px 14px;
-  border-radius: 17px;
-  background: #f8fafc;
-  border: 1px solid rgba(203, 213, 225, 0.9);
-}
-
-.checkbox-field input {
-  width: 18px;
-  height: 18px;
-  min-height: 18px;
-  padding: 0;
-  accent-color: #16a34a;
-}
-
-.toggle-setting-button {
-  position: relative;
-  z-index: 1;
-  min-height: 46px;
-  border: 1px solid rgba(148, 163, 184, 0.38);
-  border-radius: 17px;
-  padding: 0 15px;
-  background: #f8fafc;
-  color: #334155;
-  font-size: 12.5px;
-  font-weight: 1000;
-  cursor: pointer;
-  text-align: left;
-  transition:
-    transform 140ms ease,
-    background 140ms ease,
-    border-color 140ms ease,
-    color 140ms ease;
-}
-
-.toggle-setting-button:hover {
-  transform: translateY(-1px);
-  background: #f0fdf4;
-  color: #166534;
-  border-color: rgba(34, 197, 94, 0.42);
-}
-
-.toggle-setting-button.active {
-  border-color: rgba(34, 197, 94, 0.35);
-  background: #dcfce7;
-  color: #166534;
-}
-
-
-/* =========================================================
-   SAVE ACTION
-========================================================= */
+/* =========================
+   Save Actions
+========================= */
 
 .settings-actions {
+  grid-column: 1 / -1;
+  min-width: 0;
   display: flex;
   justify-content: flex-end;
-  padding: 4px 0 0;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--ttm-border-soft);
+  box-shadow: var(--ttm-shadow-xs);
 }
 
 .settings-actions .finish-button {
-  min-width: 240px;
-  min-height: 50px;
-  border-radius: 999px;
-  background:
-    radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.35), transparent 36%),
-    linear-gradient(135deg, #22c55e, #16a34a);
-  color: #ffffff;
+  min-width: 220px;
+  min-height: 48px;
+  border-radius: 17px;
   font-size: 14px;
-  font-weight: 1000;
-  border: 1px solid rgba(34, 197, 94, 0.42);
-  box-shadow:
-    0 14px 30px rgba(22, 163, 74, 0.24),
-    inset 0 1px 0 rgba(255, 255, 255, 0.24);
-  transition:
-    transform 150ms ease,
-    box-shadow 150ms ease;
+  font-weight: 950;
 }
 
-.settings-actions .finish-button:hover {
-  transform: translateY(-1px);
-  box-shadow:
-    0 18px 36px rgba(22, 163, 74, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.24);
-}
+/* =========================
+   Responsive
+========================= */
 
-
-/* =========================================================
-   OPTIONAL CONTROL CENTER STAT CARDS
-   Aman kalau class belum ada.
-========================================================= */
-
-.settings-control-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.settings-control-card {
-  position: relative;
-  overflow: hidden;
-  min-height: 96px;
-  padding: 17px;
-  border-radius: 24px;
-  background:
-    radial-gradient(circle at 100% 0%, rgba(34, 197, 94, 0.1), transparent 34%),
-    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-  border: 1px solid rgba(203, 213, 225, 0.92);
-  box-shadow:
-    0 12px 28px rgba(15, 23, 42, 0.07),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-.settings-control-card span {
-  display: block;
-  color: #64748b;
-  font-size: 11px;
-  font-weight: 1000;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-}
-
-.settings-control-card strong {
-  display: block;
-  margin-top: 9px;
-  color: #0f172a;
-  font-size: 24px;
-  font-weight: 1000;
-  line-height: 1;
-  letter-spacing: -0.06em;
-}
-
-
-/* =========================================================
-   DESKTOP SCROLL
-========================================================= */
-
-@media (min-width: 1100px) {
-  .page-card:has(.settings-form) {
-    height: calc(100dvh - 92px) !important;
-    min-height: 0 !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-  }
-}
-
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
-@media (max-width: 1100px) {
-  .settings-header,
+@media (max-width: 1180px) {
   .settings-form {
     grid-template-columns: 1fr;
   }
 
-  .settings-control-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .settings-actions {
+    grid-column: auto;
   }
 }
 
-@media (max-width: 700px) {
-  .settings-section {
-    border-radius: 22px;
-    padding: 18px;
+@media (max-width: 720px) {
+  .settings-header {
+    display: grid;
   }
 
   .settings-button-grid {
     grid-template-columns: 1fr;
+  }
+
+  .settings-section {
+    border-radius: 22px;
+  }
+
+  .settings-section > .secondary-button {
+    width: 100%;
+    min-width: 0;
   }
 
   .settings-actions {
@@ -529,13 +286,5 @@
   .settings-actions .finish-button {
     width: 100%;
     min-width: 0;
-  }
-
-  .reset-actions {
-    grid-template-columns: 1fr;
-  }
-
-  .settings-control-grid {
-    grid-template-columns: 1fr;
   }
 }

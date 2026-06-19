@@ -6,8 +6,8 @@ import {
   fetchProductsFromSupabase,
   fetchProductVariantsFromSupabase,
   fetchStockBatchesFromSupabase,
-  fetchStoreSettingsFromSupabase,
   updateStoreSettingsInSupabase,
+  fetchStoreSettingsFromSupabase,
   createTransactionInSupabase,
   cancelTransactionInSupabase,
   updateStockBatchesInSupabase,
@@ -283,6 +283,45 @@ function mapSupabaseProductVariant(variant) {
   };
 }
 
+function mapSupabaseSettings(row) {
+  if (!row) {
+    return defaultSettings;
+  }
+
+  return {
+    ...defaultSettings,
+
+    storeName:
+      row.store_name ||
+      row.storeName ||
+      defaultSettings.storeName,
+
+    address:
+      row.address ||
+      "",
+
+    phone:
+      row.phone ||
+      "",
+
+    receiptNote:
+      row.receipt_note ||
+      row.receiptNote ||
+      defaultSettings.receiptNote,
+
+    lowStockThreshold: Number(
+      row.low_stock_threshold ||
+        row.lowStockThreshold ||
+        defaultSettings.lowStockThreshold
+    ),
+
+    autoLoadSupabase:
+      row.auto_load_supabase ??
+      row.autoLoadSupabase ??
+      true,
+  };
+}
+
 function mapSupabaseStockBatch(batch) {
   return {
     id: batch.id,
@@ -292,19 +331,6 @@ function mapSupabaseStockBatch(batch) {
     qtyInitial: Number(batch.qty_initial || 0),
     qtyRemaining: Number(batch.qty_remaining || 0),
     cost: Number(batch.cost || 0),
-  };
-}
-
-function mapSupabaseSettings(settings) {
-  return {
-    storeName: settings.store_name || defaultSettings.storeName,
-    address: settings.address || "",
-    phone: settings.phone || "",
-    receiptNote: settings.receipt_note || defaultSettings.receiptNote,
-    lowStockThreshold: Number(
-      settings.low_stock_threshold || defaultSettings.lowStockThreshold
-    ),
-    autoLoadSupabase: true,
   };
 }
 
@@ -1859,6 +1885,25 @@ async function lockPos() {
   setSelectedLoginRole("cashier");
 }
 
+async function handleUpdateSettings(nextSettings) {
+  const cleanedSettings = {
+    ...defaultSettings,
+    ...settings,
+    ...nextSettings,
+    storeName: String(nextSettings.storeName || "").trim(),
+    address: String(nextSettings.address || "").trim(),
+    phone: String(nextSettings.phone || "").trim(),
+    receiptNote: String(nextSettings.receiptNote || "").trim(),
+    lowStockThreshold: Number(nextSettings.lowStockThreshold || 10),
+    autoLoadSupabase: true,
+  };
+
+  setSettings(cleanedSettings);
+  localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(cleanedSettings));
+
+  await updateStoreSettingsInSupabase(cleanedSettings);
+}
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -2003,7 +2048,7 @@ async function lockPos() {
   productVariants={productVariants}
   stockBatches={stockBatches}
   transactions={transactions}
-  onUpdateSettings={setSettings}
+  onUpdateSettings={handleUpdateSettings}
   onRestoreProducts={setProducts}
   onRestoreProductVariants={setProductVariants}
   onRestoreStockBatches={setStockBatches}
@@ -5900,32 +5945,58 @@ function SettingsPage({
   const [receiptNote, setReceiptNote] = useState(settings.receiptNote);
   const [lowStockThreshold, setLowStockThreshold] = useState(String(settings.lowStockThreshold));
 
-  function submitSettings(event) {
-    event.preventDefault();
+  useEffect(() => {
+  setStoreName(settings.storeName || "");
+  setAddress(settings.address || "");
+  setPhone(settings.phone || "");
+  setReceiptNote(settings.receiptNote || "");
+  setLowStockThreshold(String(settings.lowStockThreshold || 10));
+}, [settings]);
 
-    const threshold = Number(lowStockThreshold || 0);
+  async function submitSettings(event) {
+  event.preventDefault();
 
-    if (!storeName.trim()) {
-      alert("Nama toko wajib diisi.");
-      return;
-    }
+  const threshold = Number(lowStockThreshold || 0);
 
-    if (threshold < 0) {
-      alert("Batas stok rendah tidak boleh minus.");
-      return;
-    }
-
-    onUpdateSettings({
-      storeName: storeName.trim(),
-      address: address.trim(),
-      phone: phone.trim(),
-      receiptNote: receiptNote.trim(),
-      lowStockThreshold: Number(lowStockThreshold || 10),
-      autoLoadSupabase: true,
-    });
-
-    alert("Pengaturan berhasil disimpan.");
+  if (!storeName.trim()) {
+    alert("Nama toko wajib diisi.");
+    return;
   }
+
+  if (threshold < 0) {
+    alert("Batas stok rendah tidak boleh minus.");
+    return;
+  }
+
+  const nextSettings = {
+    ...defaultSettings,
+    ...settings,
+    storeName: storeName.trim(),
+    address: address.trim(),
+    phone: phone.trim(),
+    receiptNote: receiptNote.trim(),
+    lowStockThreshold: Number(lowStockThreshold || 10),
+    autoLoadSupabase: true,
+  };
+
+  try {
+    console.log("SETTINGS BEFORE SAVE:", nextSettings);
+
+    const savedRow = await updateStoreSettingsInSupabase(nextSettings);
+
+    console.log("SETTINGS SAVED ROW:", savedRow);
+
+    await onUpdateSettings(nextSettings);
+
+    alert("Pengaturan berhasil disimpan ke Supabase.");
+  } catch (error) {
+    console.error("SAVE SETTINGS ERROR:", error);
+    alert(
+      "Pengaturan gagal disimpan ke Supabase: " +
+        (error?.message || "Error tidak diketahui")
+    );
+  }
+}
 
   function exportLocalBackupJson() {
   const backupData = {

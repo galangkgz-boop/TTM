@@ -124,7 +124,7 @@ export async function fetchStoreSettingsFromSupabase() {
     throw error;
   }
 
-  return data || null;
+  return data;
 }
 
 export async function createStockBatchInSupabase(batch) {
@@ -148,19 +148,28 @@ export async function createStockBatchInSupabase(batch) {
 export async function updateStoreSettingsInSupabase(settings) {
   const row = {
     id: 1,
-    store_name: settings.storeName,
-    address: settings.address,
-    phone: settings.phone,
-    receipt_note: settings.receiptNote,
-    low_stock_threshold: settings.lowStockThreshold,
+    store_name: settings.storeName || "",
+    address: settings.address || "",
+    phone: settings.phone || "",
+    receipt_note: settings.receiptNote || "",
+    low_stock_threshold: Number(settings.lowStockThreshold || 10),
     updated_at: new Date().toISOString(),
   };
 
-  const { error } = await supabase.from("store_settings").upsert(row);
+  console.log("UPSERT STORE SETTINGS ROW:", row);
+
+  const { data, error } = await supabase
+    .from("store_settings")
+    .upsert(row, { onConflict: "id" })
+    .select()
+    .single();
 
   if (error) {
+    console.error("UPSERT STORE SETTINGS ERROR:", error);
     throw error;
   }
+
+  return data;
 }
 
 export async function createTransactionInSupabase(transaction) {
