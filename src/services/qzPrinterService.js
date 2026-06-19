@@ -1,5 +1,61 @@
 import * as qz from "qz-tray";
 
+let qzSecurityConfigured = false;
+
+function configureQzSecurity() {
+  if (qzSecurityConfigured) {
+    return;
+  }
+
+  qz.security.setCertificatePromise(function (resolve, reject) {
+    fetch("/qz/digital-certificate.txt", {
+      cache: "no-store",
+      headers: {
+        "Content-Type": "text/plain",
+      },
+    })
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error("Gagal load QZ certificate");
+        }
+
+        return response.text();
+      })
+      .then(resolve)
+      .catch(reject);
+  });
+
+  qz.security.setSignatureAlgorithm("SHA512");
+
+  qz.security.setSignaturePromise(function (toSign) {
+    return function (resolve, reject) {
+      fetch("/api/qz-sign", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        cache: "no-store",
+        body: JSON.stringify({
+          request: toSign,
+        }),
+      })
+        .then(async function (response) {
+          const text = await response.text();
+
+          if (!response.ok) {
+            throw new Error(text || "Gagal sign QZ request");
+          }
+
+          return text;
+        })
+        .then(resolve)
+        .catch(reject);
+    };
+  });
+
+  qzSecurityConfigured = true;
+}
+
 const DEFAULT_PRINTER_NAME = "EPPOS";
 const RECEIPT_WIDTH = 32;
 
@@ -169,6 +225,8 @@ return [
 }
 
 export async function connectQzTray() {
+  configureQzSecurity();
+
   if (!qz.websocket.isActive()) {
     await qz.websocket.connect();
   }
