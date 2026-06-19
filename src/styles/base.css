@@ -513,7 +513,7 @@ textarea:focus {
 
 /* =========================================================
    App Scale Density
-   Mac/laptop viewport dibuat seperti browser zoom 90%.
+   Laptop/Mac dibuat lebih compact.
    Windows 1920px ke atas tetap normal.
 ========================================================= */
 
@@ -521,9 +521,9 @@ textarea:focus {
   --ttm-app-scale: 1;
 }
 
-@media (min-width: 901px) and (max-width: 1512px) {
+@media (min-width: 901px) and (max-width: 1799px) {
   :root {
-    --ttm-app-scale: 0.9;
+    --ttm-app-scale: 0.81;
   }
 
   #root {
@@ -533,19 +533,7 @@ textarea:focus {
   }
 }
 
-@media (min-width: 901px) and (max-height: 850px) {
-  :root {
-    --ttm-app-scale: 0.9;
-  }
-
-  #root {
-    width: calc(100% / var(--ttm-app-scale));
-    height: calc(100% / var(--ttm-app-scale));
-    zoom: var(--ttm-app-scale);
-  }
-}
-
-@media (min-width: 1700px) and (min-height: 900px) {
+@media (min-width: 1800px) {
   :root {
     --ttm-app-scale: 1;
   }
