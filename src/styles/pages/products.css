@@ -726,3 +726,147 @@
     width: fit-content;
   }
 }
+
+/* =========================================================
+   FINAL FIX - Compact Product Page Modals
+   Target: Tambah Produk, Edit Produk, Varian Produk
+========================================================= */
+
+.product-modal,
+.variant-modal {
+  width: min(560px, calc(100vw - 56px)) !important;
+  height: auto !important;
+  max-height: min(76dvh, 640px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  border-radius: 24px !important;
+}
+
+.variant-modal {
+  width: min(620px, calc(100vw - 56px)) !important;
+}
+
+.product-modal .modal-header,
+.variant-modal .modal-header {
+  flex: 0 0 auto !important;
+  padding: 15px 18px 13px !important;
+}
+
+.product-modal .modal-header h3,
+.variant-modal .modal-header h3 {
+  font-size: 20px !important;
+  line-height: 1.05 !important;
+  margin: 0 !important;
+}
+
+.product-modal .modal-header p,
+.variant-modal .modal-header p {
+  margin-top: 4px !important;
+  font-size: 11.5px !important;
+  line-height: 1.25 !important;
+}
+
+.product-modal .modal-header button,
+.variant-modal .modal-header button,
+.product-modal .modal-close,
+.variant-modal .modal-close {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 12px !important;
+  font-size: 20px !important;
+}
+
+.product-form,
+.variant-form {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  gap: 10px !important;
+  padding: 15px 18px 17px !important;
+}
+
+.product-form label,
+.variant-form label {
+  gap: 5px !important;
+  font-size: 10.5px !important;
+  letter-spacing: 0.045em !important;
+}
+
+.product-form input,
+.variant-form input {
+  min-height: 39px !important;
+  padding: 0 12px !important;
+  border-radius: 13px !important;
+  font-size: 13px !important;
+}
+
+.product-form-actions,
+.variant-form-actions {
+  flex: 0 0 auto !important;
+  gap: 8px !important;
+  margin-top: 4px !important;
+}
+
+.product-form-actions button,
+.variant-form-actions button {
+  min-height: 38px !important;
+  padding: 0 15px !important;
+  border-radius: 13px !important;
+  font-size: 12px !important;
+}
+
+/* Varian list dibuat scroll internal */
+.variant-list {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  max-height: min(32dvh, 260px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  display: grid !important;
+  gap: 8px !important;
+  margin: 12px 18px 4px !important;
+  padding-right: 4px !important;
+}
+
+.variant-item {
+  padding: 10px 11px 10px 14px !important;
+  border-radius: 15px !important;
+  gap: 10px !important;
+}
+
+.variant-item strong {
+  font-size: 12.5px !important;
+}
+
+.variant-item p {
+  margin-top: 3px !important;
+  font-size: 11px !important;
+  line-height: 1.2 !important;
+}
+
+.variant-actions {
+  gap: 6px !important;
+}
+
+.variant-actions button,
+.variant-item button {
+  min-height: 32px !important;
+  padding: 0 10px !important;
+  border-radius: 999px !important;
+  font-size: 10.5px !important;
+}
+
+/* Windows 1920 tetap compact */
+@media (min-width: 1800px) {
+  .product-modal {
+    width: min(540px, calc(100vw - 64px)) !important;
+    max-height: min(74dvh, 610px) !important;
+  }
+
+  .variant-modal {
+    width: min(600px, calc(100vw - 64px)) !important;
+    max-height: min(74dvh, 620px) !important;
+  }
+}
