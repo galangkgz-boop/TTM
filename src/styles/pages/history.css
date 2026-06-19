@@ -399,12 +399,12 @@
 ========================= */
 
 .transaction-detail-modal {
-  width: min(820px, calc(100vw - 28px));
-  max-height: calc(100dvh - 32px);
+  width: min(720px, calc(100vw - 32px));
+  max-height: calc(100dvh - 36px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-radius: 28px;
+  border-radius: 26px;
   background: #ffffff;
   border: 1px solid rgba(226, 232, 240, 0.95);
   box-shadow: var(--ttm-shadow-lg);
@@ -412,7 +412,7 @@
 
 .transaction-detail-modal .modal-header {
   flex: 0 0 auto;
-  padding: 20px 22px;
+  padding: 16px 18px;
   color: #ffffff;
   background:
     radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.28), transparent 36%),
@@ -446,8 +446,8 @@
   flex: 0 0 auto;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  padding: 16px 22px 0;
+  gap: 8px;
+  padding: 12px 18px 0;
 }
 
 .detail-info-grid > div,
@@ -490,9 +490,9 @@
   min-height: 0;
   display: grid;
   align-content: start;
-  gap: 10px;
+  gap: 8px;
   overflow-y: auto;
-  margin: 16px 22px 0;
+  margin: 12px 18px 0;
   padding-right: 4px;
 }
 
@@ -591,12 +591,12 @@
   display: grid;
   grid-template-columns: 1fr 1.2fr;
   gap: 10px;
-  padding: 16px 22px 22px;
+  padding: 12px 18px 18px;
 }
 
 .detail-actions button {
-  min-height: 46px;
-  border-radius: 16px;
+  min-height: 42px;
+  border-radius: 15px;
 }
 
 /* =========================
@@ -821,5 +821,22 @@
   .detail-actions,
   .cancel-modal .modal-actions {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1280px) {
+  .transaction-detail-modal {
+    width: min(660px, calc(100vw - 32px));
+  }
+
+  .transaction-detail-modal .modal-header h3 {
+    font-size: 21px;
+  }
+
+  .detail-info-grid > div,
+  .detail-total-list > div,
+  .detail-item {
+    padding: 11px;
+    border-radius: 16px;
   }
 }
