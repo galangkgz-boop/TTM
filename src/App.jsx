@@ -403,6 +403,7 @@ try {
   return [];
 }
   });
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   const [productVariants, setProductVariants] = useState(() => {
   const savedVariants = localStorage.getItem(PRODUCT_VARIANTS_STORAGE_KEY);
@@ -553,6 +554,27 @@ const [cashierClosings, setCashierClosings] = useState(() => {
   }
 });
 
+useEffect(() => {
+  if (!isMobileSidebarOpen) return;
+
+  const handleEscape = (event) => {
+    if (event.key === "Escape") {
+      setIsMobileSidebarOpen(false);
+    }
+  };
+
+  document.body.classList.add("mobile-sidebar-open");
+  window.addEventListener("keydown", handleEscape);
+
+  return () => {
+    document.body.classList.remove("mobile-sidebar-open");
+    window.removeEventListener("keydown", handleEscape);
+  };
+}, [isMobileSidebarOpen]);
+
+useEffect(() => {
+  setIsMobileSidebarOpen(false);
+}, [activePage]);
 
   useEffect(() => {
     localStorage.setItem(
@@ -1905,7 +1927,14 @@ async function handleUpdateSettings(nextSettings) {
 }
 
   return (
-    <div className="app-shell">
+    <div className={"app-shell " + (isMobileSidebarOpen ? "is-mobile-sidebar-open" : "")}>
+      <button
+  type="button"
+  className="mobile-sidebar-backdrop"
+  aria-label="Tutup menu"
+  onClick={() => setIsMobileSidebarOpen(false)}
+/>
+
       <aside className="sidebar">
         <div className="brand">
           <div className="brand-logo">TTM</div>
@@ -1921,7 +1950,10 @@ async function handleUpdateSettings(nextSettings) {
   key={menu.id}
   type="button"
   className={activePage === menu.id ? "menu-item active" : "menu-item"}
-  onClick={() => setActivePage(menu.id)}
+  onClick={() => {
+  setActivePage(menu.id);
+  setIsMobileSidebarOpen(false);
+}}
 >
   <span>{menu.label}</span>
 
@@ -1935,6 +1967,18 @@ async function handleUpdateSettings(nextSettings) {
 
       <main className="main-content">
         <header className="topbar">
+          <button
+  type="button"
+  className="mobile-menu-button"
+  aria-label="Buka menu"
+  aria-expanded={isMobileSidebarOpen}
+  onClick={() => setIsMobileSidebarOpen(true)}
+>
+  <span />
+  <span />
+  <span />
+</button>
+
           <div>
             <p className="eyebrow">POS Toko</p>
             <h2>{pageTitle}</h2>

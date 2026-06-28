@@ -1,0 +1,33 @@
+@media (min-width: 901px) {
+  .mobile-menu-button,
+  .mobile-sidebar-backdrop {
+    display: none !important;
+  }
+
+  .app-shell {
+    display: grid !important;
+    grid-template-columns: clamp(190px, 16vw, 260px) minmax(0, 1fr) !important;
+    height: 100dvh !important;
+    overflow: hidden !important;
+  }
+
+  .sidebar {
+    position: sticky !important;
+    top: 0 !important;
+    height: 100dvh !important;
+    transform: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  .main-content {
+    height: 100dvh !important;
+    overflow: hidden !important;
+  }
+
+  .page-card {
+    height: calc(100dvh - 96px);
+    overflow-y: auto;
+  }
+}
